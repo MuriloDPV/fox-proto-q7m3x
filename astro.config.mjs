@@ -2,9 +2,9 @@
 import { defineConfig } from 'astro/config';
 
 export default defineConfig({
-  // Endereço publicado (Cloudflare Pages, protegido pelo Access). Sem isso, a imagem do
+  // Endereço publicado (GitHub Pages + public/CNAME). Sem isso, a imagem do
   // Open Graph sai com caminho relativo e o WhatsApp não mostra a prévia.
-  site: 'https://fox-proto-q7m3x.pages.dev',
+  site: 'https://ludwig.athomon.com',
 
   image: {
     service: {
