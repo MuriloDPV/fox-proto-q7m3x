@@ -1,0 +1,186 @@
+---
+// Aba 2 — Hospedagem. Ritmo:
+//   1. abertura em tela cheia (o quarto visto por dentro, com o janelão) + título gigante
+//   2. rótulo + parágrafo grande
+//   3. par de fotos assimétrico (fachadas)
+//   4. filtros + as 22 acomodações (cartões com carrossel de fotos)
+//   5. destaques: o que está incluso e os horários
+//   6. chamada: como reservar (busca + WhatsApp + política de cancelamento)
+// Fotos: src/dados/fotos-secoes.js (SECOES.hospedagem). As fotos de cada
+// acomodação vêm das pastas do motor (src/dados/fotos-quartos.js).
+import HeroAba from '../HeroAba.astro';
+import Intro from '../Intro.astro';
+import ParFotos from '../ParFotos.astro';
+import Destaques from '../Destaques.astro';
+import Linhas from '../Linhas.astro';
+import Chamada from '../Chamada.astro';
+import Icone from '../Icone.astro';
+import AcomodacaoCartao from '../AcomodacaoCartao.astro';
+import { SECOES } from '../../dados/fotos-secoes.js';
+import { ACOMODACOES, FILTROS } from '../../dados/acomodacoes.js';
+import { linkWhatsApp, MENSAGEM_RESERVA, MOTOR_RESERVAS_URL, WHATSAPP_EXIBICAO } from '../../config.js';
+
+const fotos = SECOES.hospedagem;
+---
+
+<section class="painel" id="hospedagem" role="tabpanel" aria-labelledby="aba-hospedagem" tabindex="0">
+  <!-- 1. Abertura -->
+  <HeroAba {...fotos.abertura} rotulo="Hospedagem" linhas={['22 acomodações', 'temáticas']}>
+    <p>17 suítes e 5 casas, cada uma com decoração própria. Café da manhã incluso.</p>
+    <a class="botao" href="#acomodacoes">
+      <span class="botao__texto">Ver as acomodações</span>
+      <span class="botao__seta"><Icone nome="seta" /></span>
+    </a>
+  </HeroAba>
+
+  <!-- 2. Texto -->
+  <Intro rotulo="Cada quarto, um país">
+    Cada acomodação leva o nome de um país ou de um estado brasileiro e tem decoração própria. Algumas têm lareira,
+    hidromassagem ou cozinha; as casas recebem famílias de até 6 pessoas.
+  </Intro>
+
+  <!-- 3. Fachadas -->
+  <ParFotos fotos={fotos.par} legendas={['Casinhas de passarinho', 'Casa de tijolos com varanda']} galeria="hospedagem" invertido colada />
+
+  <!-- 4. Filtros + acomodações -->
+  <div class="secao secao--colada margem hosp__lista" id="acomodacoes">
+    <div class="hosp__topo">
+      <p class="rotulo" data-surgir>As acomodações</p>
+      <Linhas tag="h2" class="titulo" linhas={['Escolha', '<em>a sua</em>']} />
+    </div>
+
+    <!-- Botões de filtro: aria-pressed diz qual está ativo.
+         A lógica (com a animação FLIP) está em src/scripts/filtros.js -->
+    <div class="filtros" role="group" aria-label="Filtrar acomodações" data-filtros="grade-acomodacoes">
+      {
+        FILTROS.map((f, i) => (
+          <button class="filtro" type="button" data-filtro={f.id} aria-pressed={i === 0 ? 'true' : 'false'}>
+            {f.rotulo}
+          </button>
+        ))
+      }
+    </div>
+    <p class="filtros__contador" data-contador="grade-acomodacoes" aria-live="polite">
+      Mostrando as {ACOMODACOES.length} acomodações
+    </p>
+
+    <div class="grade-acomodacoes" id="grade-acomodacoes">
+      {ACOMODACOES.map((a, i) => <AcomodacaoCartao acomodacao={a} atraso={(i % 3) * 120} />)}
+    </div>
+  </div>
+
+  <!-- 5. Incluso e horários -->
+  <Destaques
+    rotulo="Em todas as acomodações"
+    fundo2
+    itens={[
+      { rotulo: 'Check-in a partir das', valor: '14:00' },
+      { rotulo: 'Check-out até as', valor: '10:30' },
+      { rotulo: 'Café da manhã', valor: 'Incluso', nota: 'Na diária de todas as acomodações.' },
+      { rotulo: 'Em todas', valor: 'Wi-Fi', nota: 'Ar-condicionado e TV também.' },
+    ]}
+  />
+
+  <!-- 6. Como reservar -->
+  <Chamada
+    rotulo="Como reservar"
+    titulo={['Pelo site', '<em>ou pelo WhatsApp</em>']}
+    texto="Escolha as datas: a busca abre o motor de reservas com as acomodações livres e os valores."
+    busca="busca-hospedagem"
+  >
+    <a class="botao" href={linkWhatsApp(MENSAGEM_RESERVA)} target="_blank" rel="noopener">
+      <span class="botao__texto"><Icone nome="whatsapp" /> WhatsApp {WHATSAPP_EXIBICAO}</span>
+    </a>
+    <p class="acoes__nota">
+      Política de cancelamento: as regras aparecem no
+      <a class="link" href={MOTOR_RESERVAS_URL} target="_blank" rel="noopener">motor de reservas</a>, antes de confirmar.
+    </p>
+  </Chamada>
+</section>
+
+<style>
+  .hosp__topo {
+    display: grid;
+    gap: 1.2rem;
+    margin-bottom: 2.4rem;
+  }
+
+  /* ---------- Filtros ----------
+     Texto em caixa alta com filete; o ativo ganha o filete dourado.
+     celular: deslizam para o lado; computador: quebram linha */
+  .filtros {
+    display: flex;
+    gap: 1.6rem;
+    margin: 0 calc(-1 * var(--margem));
+    padding: 0.2rem var(--margem) 0.4rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    border-bottom: 1px solid var(--linha);
+  }
+
+  .filtros::-webkit-scrollbar {
+    display: none;
+  }
+
+  .filtro {
+    flex: none;
+    padding: 0.9rem 0;
+    border: 0;
+    background: transparent;
+    color: var(--texto-suave);
+    font: 500 var(--t-rotulo) / 1 var(--sans);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    box-shadow: inset 0 -1px 0 transparent;
+    transition:
+      color 0.3s,
+      box-shadow 0.3s;
+  }
+
+  .filtro[aria-pressed='true'] {
+    color: var(--texto);
+    box-shadow: inset 0 -2px 0 var(--ouro);
+  }
+
+  @media (hover: hover) {
+    .filtro:hover {
+      color: var(--texto);
+    }
+  }
+
+  .filtros__contador {
+    margin: 1rem 0 3rem;
+    font-size: 0.85rem;
+    color: var(--texto-suave);
+  }
+
+  .grade-acomodacoes {
+    display: grid;
+    gap: 3.6rem;
+  }
+
+  @media (min-width: 640px) {
+    .grade-acomodacoes {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 4.4rem var(--vao);
+    }
+  }
+
+  @media (min-width: 900px) {
+    .filtros {
+      flex-wrap: wrap;
+      gap: 0.4rem 2.2rem;
+      margin-inline: 0;
+      padding-inline: 0;
+      overflow: visible;
+    }
+  }
+
+  @media (min-width: 1100px) {
+    .grade-acomodacoes {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 5rem var(--vao);
+    }
+  }
+</style>

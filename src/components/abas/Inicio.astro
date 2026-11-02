@@ -1,0 +1,163 @@
+---
+// Aba 1 — Início. Ritmo (cada bloco diferente do anterior):
+//   1. abertura "três pilares" (texto separado das fotos e busca de datas
+//      na primeira tela; AberturaInicio.astro)
+//   2. rótulo + parágrafo grande: nossa história
+//   3. par de fotos assimétrico
+//   4. números
+//   5. as quatro portas de entrada (cada uma leva a uma aba)
+//   6. carrossel de acomodações (arraste)
+//   7. depoimentos
+//   8. chamada para reservar
+// Fotos: src/dados/fotos-secoes.js (SECOES.inicio).
+import AberturaInicio from '../AberturaInicio.astro';
+import Intro from '../Intro.astro';
+import ParFotos from '../ParFotos.astro';
+import Destaques from '../Destaques.astro';
+import Foto from '../Foto.astro';
+import Linhas from '../Linhas.astro';
+import Arrastar from '../Arrastar.astro';
+import Depoimentos from '../Depoimentos.astro';
+import Chamada from '../Chamada.astro';
+import Icone from '../Icone.astro';
+import { SECOES } from '../../dados/fotos-secoes.js';
+import { ACOMODACOES } from '../../dados/acomodacoes.js';
+import { fotosDoQuarto } from '../../dados/fotos-quartos.js';
+import { linkWhatsApp, MENSAGEM_RESERVA, WHATSAPP_EXIBICAO } from '../../config.js';
+
+const fotos = SECOES.inicio;
+
+const portas = [
+  { href: '#hospedagem', foto: fotos.experiencias.hospedar, nome: 'Hospedar', texto: '22 suítes e casas temáticas' },
+  { href: '#eventos', foto: fotos.experiencias.celebrar, nome: 'Celebrar', texto: 'Casamentos, 15 anos, formaturas' },
+  { href: '#jardim-de-esculturas', foto: fotos.experiencias.passear, nome: 'Passear', texto: 'Mais de 100 esculturas e réplicas' },
+  { href: '#gastronomia', foto: fotos.experiencias.comer, nome: 'Comer', texto: 'Comida caseira e chope artesanal' },
+];
+
+// Carrossel: a primeira foto de cada acomodação escolhida em fotos-secoes.js.
+// As fotos de quarto são HD (o dobro do original): real = metade da largura.
+const acomodacoes = fotos.acomodacoes.map((slug) => {
+  const a = ACOMODACOES.find((x) => x.slug === slug);
+  const src = fotosDoQuarto(slug)[0];
+  return {
+    src,
+    alt: `${a.nome}: foto da acomodação`,
+    real: src.width / 2,
+    legenda: a.nome,
+    detalhe: a.hospedes ? `Até ${a.hospedes} hóspedes` : undefined,
+    href: '#hospedagem',
+  };
+});
+---
+
+<section class="painel" id="inicio" role="tabpanel" aria-labelledby="aba-inicio" tabindex="0">
+  <!-- 1. Abertura -->
+  <!-- v4.2: a abertura em tela cheia (título gigante sobre a foto do pátio)
+       saiu; no lugar, os "três pilares" (escolhidos pelo cliente; v4.3). -->
+  <AberturaInicio />
+
+  <!-- 2. Nossa história -->
+  <Intro rotulo="Nossa história">
+    A Chácara Ludwig nasceu como salão de festas, em 2020. Na pandemia, se reinventou: virou refúgio para eventos e
+    hospedagem, entre jardins cultivados e mais de cem esculturas e réplicas.
+    <Fragment slot="extra">
+      <p class="texto">
+        A proposta é o turismo rural e cultural, em ambiente familiar, com a sensação de estar na casa dos avós.
+      </p>
+    </Fragment>
+  </Intro>
+
+  <!-- 3. Par de fotos -->
+  <ParFotos
+    fotos={fotos.par}
+    legendas={['Espelhos dourados no tijolo à vista', 'O pátio no fim da tarde']}
+    galeria="inicio"
+    colada
+  />
+
+  <!-- 4. Números -->
+  <Destaques
+    rotulo="Em números"
+    itens={[
+      { rotulo: 'Hectares de natureza', valor: 13, prefixo: '+', contar: true },
+      { rotulo: 'Esculturas e réplicas', valor: 100, prefixo: '+', contar: true },
+      { rotulo: 'Suítes e casas temáticas', valor: 22, contar: true },
+      { rotulo: 'Em atividade desde', valor: 2020, contar: true, de: 2000 },
+    ]}
+  />
+
+  <!-- 5. As quatro portas de entrada -->
+  <div class="portas secao secao--colada margem">
+    <div class="portas__topo">
+      <p class="rotulo" data-surgir>O que fazer aqui</p>
+      <Linhas tag="h2" class="titulo" linhas={['Hospedar, celebrar,', '<em>passear e comer</em>']} />
+    </div>
+    <ul class="portas__lista">
+      {
+        portas.map((p, i) => (
+          <li>
+            <Foto {...p.foto} href={p.href} formato="retrato" legenda={p.nome} detalhe={p.texto} atraso={i * 120} sizes="(min-width: 900px) 23vw, 45vw" />
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+
+  <!-- 6. Acomodações (arraste) -->
+  <Arrastar rotulo="Hospedagem" titulo={['Cada quarto,', '<em>um país</em>']} fotos={acomodacoes} formatos={['paisagem', 'retrato']} colada>
+    <a class="botao" href="#hospedagem">
+      <span class="botao__texto">Ver as 22 acomodações</span>
+      <span class="botao__seta"><Icone nome="seta" /></span>
+    </a>
+  </Arrastar>
+
+  <!-- 7. Depoimentos -->
+  <Depoimentos />
+
+  <!-- 8. Chamada -->
+  <Chamada
+    rotulo="Reserve"
+    titulo={['Escolha as datas', '<em>e venha</em>']}
+    texto="Check-in às 14:00, check-out às 10:30. Café da manhã incluso."
+    busca="busca-inicio"
+  >
+    <a class="botao" href={linkWhatsApp(MENSAGEM_RESERVA)} target="_blank" rel="noopener">
+      <span class="botao__texto"><Icone nome="whatsapp" /> Reservar pelo WhatsApp</span>
+    </a>
+    <p class="acoes__nota">{WHATSAPP_EXIBICAO}</p>
+  </Chamada>
+</section>
+
+<style>
+  /* ---------- Portas de entrada ---------- */
+  .portas__topo {
+    display: grid;
+    gap: 1.2rem;
+    margin-bottom: clamp(2.4rem, 5vw, 4rem);
+  }
+
+  /* celular: duas por linha, a segunda coluna um pouco mais baixa */
+  .portas__lista {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2.4rem var(--vao);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .portas__lista li:nth-child(even) {
+    margin-top: 3rem;
+  }
+
+  /* computador: quatro colunas em escada leve */
+  @media (min-width: 900px) {
+    .portas__lista {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .portas__lista li:nth-child(even) {
+      margin-top: 5rem;
+    }
+  }
+</style>

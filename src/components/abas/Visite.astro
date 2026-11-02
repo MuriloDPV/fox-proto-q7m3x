@@ -1,0 +1,349 @@
+---
+// Aba 7 — Visite. Ritmo:
+//   1. abertura dividida (título + a chácara vista de cima; o tipo fica em
+//      src/dados/fotos-secoes.js)
+//   2. endereço em parágrafo grande + mapa do Google (iframe, sem chave de API)
+//   3. contatos: telefones, redes sociais e horários (lista com filetes)
+//   4. perguntas frequentes (acordeão animado: src/scripts/faq.js)
+//   5. chamada para reservar
+// O nome da cidade aparece no site só aqui, no endereço.
+// Fotos: src/dados/fotos-secoes.js (SECOES.visite).
+import HeroAba from '../HeroAba.astro';
+import Linhas from '../Linhas.astro';
+import Chamada from '../Chamada.astro';
+import Icone from '../Icone.astro';
+import { SECOES } from '../../dados/fotos-secoes.js';
+import {
+  ENDERECO,
+  MAPA_EMBED,
+  MAPA_ROTA,
+  MAPA_AVALIACOES,
+  WHATSAPP_EXIBICAO,
+  TELEFONE_2_EXIBICAO,
+  TELEFONE_2_NUMERO,
+  INSTAGRAM_URL,
+  INSTAGRAM_EXIBICAO,
+  FACEBOOK_URL,
+  FACEBOOK_EXIBICAO,
+  linkWhatsApp,
+  MENSAGEM_RESERVA,
+} from '../../config.js';
+
+const fotos = SECOES.visite;
+
+// Perguntas frequentes: só com as respostas que temos de verdade.
+// "html" porque algumas respostas têm link ou a marcação [A CONFIRMAR].
+const perguntas = [
+  { p: 'Qual o horário de check-in e check-out?', r: 'O check-in é a partir das 14:00 e o check-out até as 10:30.' },
+  { p: 'O café da manhã está incluso?', r: 'Sim. O café da manhã está incluso na diária de todas as acomodações.' },
+  {
+    p: 'Dá para visitar sem se hospedar?',
+    r: 'Sim. A entrada de visitantes é cobrada por pessoa, com valor sob consulta pelo WhatsApp. Funcionamento de quarta a domingo; <span class="a-confirmar">[HORÁRIOS A CONFIRMAR]</span>',
+  },
+  {
+    p: 'Tem passeio a cavalo?',
+    r: 'Sim, mediante agendamento pelo WhatsApp. Há passeio curto e passeio longo, com valores sob consulta.',
+  },
+  {
+    p: 'Vocês fazem eventos?',
+    r: 'Sim: casamentos, aniversários, festas de 15 anos, formaturas, confraternizações, eventos corporativos e capacitações. Peça um orçamento na <a href="#eventos">aba Eventos</a>.',
+  },
+  {
+    p: 'Como faço para reservar?',
+    r: `Pelo site, escolhendo as datas na busca (ela abre o motor de reservas), ou pelo WhatsApp ${WHATSAPP_EXIBICAO}.`,
+  },
+  { p: 'As acomodações têm Wi-Fi?', r: 'Sim. Todas têm Wi-Fi, ar-condicionado e TV.' },
+  { p: 'Aceitam animais de estimação?', r: '<span class="a-confirmar">[A CONFIRMAR]</span>' },
+  { p: 'Qual a política para crianças?', r: '<span class="a-confirmar">[A CONFIRMAR]</span>' },
+];
+---
+
+<section class="painel" id="visite" role="tabpanel" aria-labelledby="aba-visite" tabindex="0">
+  <!-- 1. Abertura -->
+  <HeroAba {...fotos.abertura} rotulo="Visite" linhas={['Como', 'chegar']}>
+    <p>{ENDERECO.rua}</p>
+    <a class="botao" href={MAPA_ROTA} target="_blank" rel="noopener">
+      <span class="botao__texto">Traçar rota</span>
+      <span class="botao__seta"><Icone nome="seta" /></span>
+    </a>
+  </HeroAba>
+
+  <!-- 2. Endereço + mapa -->
+  <div class="local secao margem grade">
+    <div class="local__texto">
+      <p class="rotulo" data-surgir>Endereço</p>
+      <address class="paragrafo-grande local__endereco" data-surgir>
+        {ENDERECO.rua}<br />
+        {ENDERECO.cidade}/{ENDERECO.estado} · <span class="sem-quebra">CEP {ENDERECO.cep}</span>
+      </address>
+      <div class="acoes">
+        <a class="botao botao--ouro" href={MAPA_ROTA} target="_blank" rel="noopener">
+          <span class="botao__texto"><Icone nome="rota" /> Como chegar</span>
+          <span class="botao__seta"><Icone nome="seta" /></span>
+        </a>
+        <a class="botao" href={MAPA_AVALIACOES} target="_blank" rel="noopener">
+          <span class="botao__texto">Avaliações no Google</span>
+          <span class="botao__seta"><Icone nome="seta" /></span>
+        </a>
+      </div>
+    </div>
+    <!-- O iframe é uma "janela" para outra página (a do Google).
+         loading="lazy": só carrega quando a aba aparece -->
+    <div class="local__mapa" data-revelar>
+      <iframe
+        class="mapa"
+        src={MAPA_EMBED}
+        title="Mapa com a localização da Chácara Ludwig"
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+        allowfullscreen></iframe>
+    </div>
+  </div>
+
+  <!-- 3. Contatos -->
+  <div class="contatos secao secao--colada margem">
+    <p class="rotulo" data-surgir>Contatos</p>
+    <Linhas tag="h2" class="titulo contatos__titulo" linhas={['Fale com', '<em>a gente</em>']} />
+    <dl class="contatos__lista">
+      <div data-surgir>
+        <dt class="rotulo">WhatsApp · reservas</dt>
+        <dd><a class="link" href={linkWhatsApp(MENSAGEM_RESERVA)} target="_blank" rel="noopener">{WHATSAPP_EXIBICAO}</a></dd>
+      </div>
+      <div data-surgir style="--atraso: 80ms">
+        <dt class="rotulo">Telefone · também WhatsApp</dt>
+        <dd><a class="link" href={`tel:+${TELEFONE_2_NUMERO}`}>{TELEFONE_2_EXIBICAO}</a></dd>
+      </div>
+      <div data-surgir style="--atraso: 160ms">
+        <dt class="rotulo">Instagram</dt>
+        <dd><a class="link" href={INSTAGRAM_URL} target="_blank" rel="noopener">{INSTAGRAM_EXIBICAO}</a></dd>
+      </div>
+      <div data-surgir style="--atraso: 240ms">
+        <dt class="rotulo">Facebook</dt>
+        <dd><a class="link" href={FACEBOOK_URL} target="_blank" rel="noopener">{FACEBOOK_EXIBICAO}</a></dd>
+      </div>
+      <div data-surgir style="--atraso: 320ms">
+        <dt class="rotulo">Funcionamento</dt>
+        <dd>Quarta a domingo <span class="a-confirmar">[HORÁRIOS A CONFIRMAR]</span></dd>
+      </div>
+      <div data-surgir style="--atraso: 400ms">
+        <dt class="rotulo">Hospedagem</dt>
+        <dd>Check-in 14:00 · Check-out 10:30</dd>
+      </div>
+    </dl>
+  </div>
+
+  <!-- 4. Perguntas frequentes -->
+  <div class="duvidas secao secao--fundo-2 margem grade">
+    <div class="duvidas__topo">
+      <p class="rotulo" data-surgir>Dúvidas</p>
+      <Linhas tag="h2" class="titulo" linhas={['Perguntas', '<em>frequentes</em>']} />
+      <p class="texto" data-surgir>Não achou a resposta? Chame no WhatsApp {WHATSAPP_EXIBICAO}.</p>
+    </div>
+    <!-- <details>/<summary> já abre e fecha sozinho, até sem JS.
+         O faq.js só anima a altura ao abrir e fechar. -->
+    <div class="faq" data-faq>
+      {
+        perguntas.map((item) => (
+          <details class="faq__item">
+            <summary class="faq__pergunta">
+              {item.p}
+              <span class="faq__sinal" aria-hidden="true" />
+            </summary>
+            <div class="faq__resposta">
+              <p set:html={item.r} />
+            </div>
+          </details>
+        ))
+      }
+    </div>
+  </div>
+
+  <!-- 5. Chamada -->
+  <Chamada rotulo="Reserve" titulo={['Escolha as datas', '<em>e venha</em>']} busca="busca-visite" />
+</section>
+
+<style>
+  /* ---------- Endereço + mapa ---------- */
+  .local {
+    row-gap: 3rem;
+  }
+
+  .local__texto,
+  .local__mapa {
+    grid-column: 1 / -1;
+  }
+
+  .local__texto {
+    display: grid;
+    gap: 1.4rem;
+    align-content: start;
+  }
+
+  .local__endereco {
+    font-style: normal;
+  }
+
+  /* o CEP não pode quebrar no meio (98975-/000) */
+  .sem-quebra {
+    white-space: nowrap;
+  }
+
+  .mapa {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    border: 0;
+    background: var(--fundo-2);
+    filter: saturate(0.75) sepia(0.12); /* puxa o mapa para os tons do site */
+  }
+
+  @media (min-width: 900px) {
+    .local__texto {
+      grid-column: 1 / 6;
+      align-self: center;
+    }
+
+    .local__mapa {
+      grid-column: 7 / 13;
+    }
+
+    .mapa {
+      aspect-ratio: 5 / 4;
+    }
+  }
+
+  /* ---------- Contatos ---------- */
+  .contatos :global(.contatos__titulo) {
+    margin: 1.2rem 0 2.6rem;
+  }
+
+  .contatos__lista {
+    display: grid;
+    gap: 0 var(--vao);
+  }
+
+  .contatos__lista > div {
+    display: grid;
+    gap: 0.5rem;
+    padding: 1.1rem 0 1.4rem;
+    border-top: 1px solid var(--linha);
+  }
+
+  .contatos__lista dt {
+    color: var(--texto-suave);
+  }
+
+  .contatos__lista dd {
+    font: 400 var(--t-medio) / 1.3 var(--serifa);
+  }
+
+  @media (min-width: 640px) {
+    .contatos__lista {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 900px) {
+    .contatos__lista {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  /* ---------- FAQ ---------- */
+  .duvidas {
+    row-gap: 2.4rem;
+  }
+
+  .duvidas__topo,
+  .faq {
+    grid-column: 1 / -1;
+  }
+
+  .duvidas__topo {
+    display: grid;
+    gap: 1.3rem;
+    align-content: start;
+  }
+
+  .faq {
+    display: grid;
+    border-top: 1px solid var(--texto);
+  }
+
+  .faq__item {
+    border-bottom: 1px solid var(--linha);
+  }
+
+  .faq__pergunta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.2rem;
+    padding: 1.3rem 0;
+    font: 400 clamp(1.3rem, 2vw, 1.65rem) / 1.25 var(--serifa);
+    cursor: pointer;
+    list-style: none; /* tira o triângulo padrão */
+  }
+
+  .faq__pergunta::-webkit-details-marker {
+    display: none;
+  }
+
+  /* sinal de + que vira − (a barra vertical gira e some) */
+  .faq__sinal {
+    position: relative;
+    flex: none;
+    width: 14px;
+    height: 14px;
+  }
+
+  .faq__sinal::before,
+  .faq__sinal::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 14px;
+    height: 1px;
+    background: var(--texto);
+    transition: rotate 0.4s var(--ease);
+  }
+
+  .faq__sinal::after {
+    rotate: 90deg;
+  }
+
+  .faq__item[open] .faq__sinal::after {
+    rotate: 0deg;
+  }
+
+  @media (hover: hover) {
+    .faq__pergunta:hover {
+      color: var(--ouro-escuro);
+    }
+  }
+
+  .faq__resposta {
+    overflow: hidden; /* necessário para a animação de altura */
+  }
+
+  .faq__resposta p {
+    max-width: 40rem;
+    padding: 0 0 1.4rem;
+    color: var(--texto-suave);
+  }
+
+  .faq__resposta :global(a) {
+    color: var(--ouro-escuro);
+  }
+
+  @media (min-width: 900px) {
+    .duvidas__topo {
+      grid-column: 1 / 5;
+    }
+
+    .faq {
+      grid-column: 6 / 13;
+    }
+  }
+</style>

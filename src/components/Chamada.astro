@@ -1,0 +1,79 @@
+---
+// CHAMADA PARA RESERVAR (fim de cada aba)
+// Título grande à esquerda; à direita, um texto curto, a busca de datas
+// (opcional) e os botões que vierem no <slot />.
+//
+// Uso:
+//   <Chamada rotulo="Reserve" titulo={['Escolha as datas', '<em>e venha</em>']} busca="busca-inicio">
+//     <a class="botao" href="...">...</a>
+//   </Chamada>
+//   busca: id único para a busca de datas (sem ele, a chamada não tem busca)
+import Linhas from './Linhas.astro';
+import Busca from './Busca.astro';
+
+interface Props {
+  rotulo: string;
+  titulo: string[];
+  texto?: string;
+  busca?: string;
+  id?: string;
+}
+
+const { rotulo, titulo, texto, busca, id } = Astro.props;
+---
+
+<div class="chamada secao secao--fundo-2 margem grade" id={id}>
+  <div class="chamada__titulo">
+    <p class="rotulo" data-surgir>{rotulo}</p>
+    <Linhas tag="h2" class="titulo" linhas={titulo} />
+  </div>
+  <div class="chamada__corpo" data-surgir style="--atraso: 150ms">
+    {texto && <p class="chamada__texto" set:html={texto} />}
+    {busca && <Busca id={busca} />}
+    {
+      Astro.slots.has('default') && (
+        <div class="acoes">
+          <slot />
+        </div>
+      )
+    }
+  </div>
+</div>
+
+<style>
+  .chamada {
+    row-gap: 2.6rem;
+  }
+
+  .chamada__titulo,
+  .chamada__corpo {
+    grid-column: 1 / -1;
+  }
+
+  .chamada__titulo {
+    display: grid;
+    gap: 1.4rem;
+    align-content: start;
+  }
+
+  .chamada__texto {
+    max-width: 30rem;
+    margin-bottom: 2rem;
+    font: 400 var(--t-medio) / 1.3 var(--serifa);
+  }
+
+  .chamada__corpo :global(.acoes) {
+    margin-top: 1.8rem;
+  }
+
+  @media (min-width: 900px) {
+    .chamada__titulo {
+      grid-column: 1 / 6;
+    }
+
+    .chamada__corpo {
+      grid-column: 7 / 13;
+      align-self: end;
+    }
+  }
+</style>

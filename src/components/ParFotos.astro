@@ -1,0 +1,101 @@
+---
+// PAR DE FOTOS ASSIMÉTRICO
+// Uma foto pequena vertical e uma grande horizontal, em alturas diferentes
+// (a pequena desce um pouco). É o jeito editorial de mostrar duas fotos
+// sem cair numa grade certinha.
+//
+// Uso: <ParFotos fotos={SECOES.inicio.par} legendas={['Detalhe', 'O pátio']} galeria="inicio" />
+//   fotos:     [pequena, grande] (vêm de src/dados/fotos-secoes.js)
+//   invertido: a grande à esquerda e a pequena à direita
+//   O <slot /> (opcional) é um texto curto que fica embaixo da foto pequena.
+import Foto from './Foto.astro';
+import type { ImageMetadata } from 'astro';
+
+type FotoDados = { src: ImageMetadata; alt: string; real: number };
+
+interface Props {
+  fotos: [FotoDados, FotoDados];
+  legendas?: [string?, string?];
+  galeria?: string;
+  invertido?: boolean;
+  colada?: boolean;
+}
+
+const { fotos, legendas = [], galeria, invertido = false, colada = false } = Astro.props;
+const [pequena, grande] = fotos;
+---
+
+<div class:list={['par secao margem grade', { 'par--invertido': invertido, 'secao--colada': colada }]}>
+  <div class="par__pequena">
+    <Foto {...pequena} formato="retrato" galeria={galeria} legenda={legendas[0]} sizes="(min-width: 900px) 30vw, 58vw" />
+    {
+      Astro.slots.has('default') && (
+        <div class="par__texto" data-surgir>
+          <slot />
+        </div>
+      )
+    }
+  </div>
+  <div class="par__grande">
+    <Foto {...grande} formato="paisagem" galeria={galeria} legenda={legendas[1]} sizes="(min-width: 900px) 56vw, 92vw" atraso={150} />
+  </div>
+</div>
+
+<style>
+  /* ---- Celular: a pequena à esquerda, a grande embaixo, mais larga ---- */
+  .par {
+    row-gap: 2.6rem;
+  }
+
+  .par__pequena {
+    grid-column: 1 / 9;
+  }
+
+  .par__grande {
+    grid-column: 1 / -1;
+  }
+
+  .par--invertido .par__pequena {
+    grid-column: 5 / -1;
+  }
+
+  .par__texto {
+    margin-top: 1.4rem;
+  }
+
+  /* ---- Computador: lado a lado, a pequena mais baixa ---- */
+  @media (min-width: 900px) {
+    .par {
+      align-items: start;
+    }
+
+    .par__pequena {
+      grid-column: 1 / 5;
+      grid-row: 1;
+      margin-top: clamp(4rem, 12vw, 11rem);
+    }
+
+    .par__grande {
+      grid-column: 6 / 13;
+      grid-row: 1;
+    }
+
+    .par--invertido .par__pequena {
+      grid-column: 9 / 13;
+    }
+
+    .par--invertido .par__grande {
+      grid-column: 1 / 8;
+    }
+
+    /* a foto grande encosta à direita da coluna (ou à esquerda, invertido),
+       caso a trava de 1,5× deixe ela menor que a coluna */
+    .par__grande :global(.foto) {
+      margin-left: auto;
+    }
+
+    .par--invertido .par__grande :global(.foto) {
+      margin-left: 0;
+    }
+  }
+</style>

@@ -1,0 +1,277 @@
+---
+// MENU EM TELA CHEIA (substitui a barra de abas da v3)
+// Abre pelo botão "Menu" do topo. As abas aparecem em tipografia grande;
+// no computador, uma foto à esquerda muda conforme o mouse passa (ou o
+// foco do teclado anda) em cada nome. A foto é a de abertura da aba, que
+// vem de src/dados/fotos-secoes.js.
+//
+// Continua sendo um tablist de verdade (role="tab", aria-selected,
+// aria-controls), então o comportamento de abas da v3 fica igual:
+// #endereço, botão Voltar e teclado (src/scripts/abas.js).
+// Abrir, fechar, prender o foco e trocar a foto: src/scripts/menu.js.
+import { Image } from 'astro:assets';
+import Icone from './Icone.astro';
+import { ABAS } from '../dados/abas.js';
+import { SECOES } from '../dados/fotos-secoes.js';
+import { linkWhatsApp, MENSAGEM_RESERVA, WHATSAPP_EXIBICAO, INSTAGRAM_URL, INSTAGRAM_EXIBICAO } from '../config.js';
+---
+
+<div class="menu" id="menu" role="dialog" aria-modal="true" aria-label="Menu" hidden>
+  <!-- Fotos: todas empilhadas, só a "ativa" aparece -->
+  <div class="menu__fotos" aria-hidden="true">
+    {
+      ABAS.map((aba, i) => {
+        const { foto, posicao } = SECOES[aba.secao].abertura;
+        // Foto pequena (abertura dividida): não pode cobrir a coluna toda,
+        // senão estica. Ela aparece inteira, centralizada, no máximo 1,5×
+        // o tamanho real (--max-foto). As grandes continuam cobrindo tudo.
+        const contida = !foto.telaCheia;
+        const larguras = [640, 960, 1280].filter((w) => w < foto.src.width).concat(Math.min(foto.src.width, 1280));
+        return (
+          <Image
+            class:list={['menu__foto', { ativa: i === 0, 'menu__foto--contida': contida }]}
+            data-menu-foto={aba.id}
+            src={foto.src}
+            alt=""
+            widths={[...new Set(larguras)]}
+            sizes="42vw"
+            loading="lazy"
+            style={contida ? `--max-foto: ${Math.round(foto.real * 1.5)}px` : `object-position: ${posicao}`}
+          />
+        );
+      })
+    }
+  </div>
+
+  <div class="menu__corpo">
+    <nav class="menu__nav" aria-label="Seções do site">
+      <div class="menu__lista" role="tablist" aria-orientation="vertical" aria-label="Seções do site" data-abas-principais>
+        {
+          ABAS.map((aba, i) => (
+            <a
+              class="menu__item"
+              role="tab"
+              id={`aba-${aba.id}`}
+              href={`#${aba.id}`}
+              aria-controls={aba.id}
+              aria-selected={i === 0 ? 'true' : 'false'}
+              tabindex={i === 0 ? 0 : -1}
+              data-foto={aba.id}
+              style={`--i: ${i}`}
+            >
+              <span class="menu__numero" aria-hidden="true">
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              <span class="linha">
+                <span class="menu__nome">{aba.nome}</span>
+              </span>
+            </a>
+          ))
+        }
+      </div>
+    </nav>
+
+    <div class="menu__rodape">
+      <button class="botao botao--ouro" type="button" data-abrir-busca>
+        <span class="botao__texto">Reservar</span>
+        <span class="botao__seta"><Icone nome="seta" /></span>
+      </button>
+      <!-- v4.1: só WhatsApp e Instagram (o endereço cortava na borda
+           direita no computador; ele continua no rodapé e na aba Visite) -->
+      <ul class="menu__contatos">
+        <li><a class="link" href={linkWhatsApp(MENSAGEM_RESERVA)} target="_blank" rel="noopener">WhatsApp {WHATSAPP_EXIBICAO}</a></li>
+        <li><a class="link" href={INSTAGRAM_URL} target="_blank" rel="noopener">Instagram {INSTAGRAM_EXIBICAO}</a></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<style>
+  .menu {
+    position: fixed;
+    inset: 0;
+    /* 100dvh = a altura que SOBRA na tela do celular com as barras do
+       navegador à mostra. Assim o botão Reservar do rodapé do menu não
+       fica escondido atrás da barra de baixo. */
+    height: 100dvh;
+    z-index: 80;
+    display: grid;
+    background: var(--fundo);
+    color: var(--texto);
+    /* fechado: recortado até sumir no topo; aberto: desce como uma folha */
+    clip-path: inset(0 0 100% 0);
+    transition: clip-path 0.8s var(--ease-mascara);
+  }
+
+  .menu[hidden] {
+    display: none;
+  }
+
+  :global(.menu.menu--aberto) {
+    clip-path: inset(0 0 0 0);
+  }
+
+  /* ---- Fotos (só computador) ---- */
+  .menu__fotos {
+    display: none;
+  }
+
+  /* ---- Lista de abas ---- */
+  .menu__corpo {
+    display: grid;
+    grid-template-rows: 1fr auto;
+    gap: 2.4rem;
+    min-height: 0;
+    padding: calc(var(--altura-topo) + 1.5rem) var(--margem) 1.6rem;
+    overflow-y: auto;
+  }
+
+  .menu__nav {
+    align-self: center;
+  }
+
+  .menu__lista {
+    display: grid;
+    gap: 0.2rem;
+  }
+
+  .menu__item {
+    display: grid;
+    grid-template-columns: 2.2rem 1fr;
+    align-items: baseline;
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.35s;
+  }
+
+  .menu__numero {
+    font: 500 0.66rem/1 var(--sans);
+    letter-spacing: 0.1em;
+    color: var(--texto-suave);
+    transition: color 0.35s;
+  }
+
+  .menu__nome {
+    font: 300 clamp(2.3rem, 4.4vw, 4.3rem) / 1.08 var(--serifa);
+    letter-spacing: -0.015em;
+  }
+
+  /* os nomes sobem por linha quando o menu abre (máscara, como os títulos) */
+  .menu__item .linha > span {
+    transform: translateY(110%);
+    transition: transform 0.9s var(--ease);
+    transition-delay: calc(0.25s + var(--i) * 0.055s);
+  }
+
+  :global(.menu.menu--aberto) .menu__item .linha > span {
+    transform: none;
+  }
+
+  /* aba ativa: número em bronze com um tracinho */
+  .menu__item[aria-selected='true'] .menu__numero {
+    color: var(--ouro-escuro);
+  }
+
+  .menu__item[aria-selected='true'] .menu__numero::before {
+    content: '— ';
+  }
+
+  /* hover e foco do teclado: o nome fica bronze (tom escuro, legível) */
+  .menu__item:is(:hover, :focus-visible, .em-foco) {
+    color: var(--ouro-escuro);
+  }
+
+  .menu__item:focus-visible {
+    outline-offset: 6px;
+  }
+
+  /* ---- Rodapé do menu ---- */
+  .menu__rodape {
+    display: grid;
+    gap: 1.4rem;
+    justify-items: start;
+    padding-top: 1.4rem;
+    border-top: 1px solid var(--linha);
+    opacity: 0;
+    transition: opacity 0.6s 0.5s;
+  }
+
+  :global(.menu.menu--aberto) .menu__rodape {
+    opacity: 1;
+  }
+
+  /* Contatos lado a lado; se não couberem, quebram para a linha de baixo
+     (flex-wrap), mas cada contato fica inteiro numa linha só (nowrap) */
+  .menu__contatos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem 2rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.88rem;
+    color: var(--texto-suave);
+  }
+
+  .menu__contatos li {
+    white-space: nowrap;
+  }
+
+  /* ---- Computador: foto à esquerda, lista à direita ---- */
+  @media (min-width: 900px) {
+    .menu {
+      grid-template-columns: 42% 1fr;
+    }
+
+    .menu__fotos {
+      position: relative;
+      display: block;
+      overflow: hidden;
+      background: var(--noite);
+      transition: background-color 0.7s var(--ease);
+    }
+
+    /* com uma foto pequena (contida) na frente, o fundo fica claro, como
+       na abertura dividida (e o "Reservar" escuro do topo continua legível) */
+    .menu__fotos:has(:global(.menu__foto--contida.ativa)) {
+      background: var(--fundo-2);
+    }
+
+    .menu__fotos :global(.menu__foto) {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transform: scale(1.06);
+      transition:
+        opacity 0.7s var(--ease),
+        transform 1.4s var(--ease);
+    }
+
+    .menu__fotos :global(.menu__foto.ativa) {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* foto pequena: inteira (contain) e com respiro em volta. O respiro
+       dos lados cresce o quanto for preciso para a foto não passar de
+       --max-foto de largura (1,5× o tamanho real). */
+    .menu__fotos :global(.menu__foto--contida) {
+      --respiro: clamp(2rem, 5vw, 5rem);
+      object-fit: contain;
+      padding: var(--respiro) max(var(--respiro), calc((100% - var(--max-foto)) / 2));
+    }
+
+    .menu__corpo {
+      padding-left: clamp(2rem, 6vw, 7rem);
+    }
+
+    .menu__rodape {
+      grid-template-columns: auto minmax(0, 1fr); /* minmax(0): a coluna não estica além da tela */
+      align-items: center;
+      gap: 2.4rem;
+    }
+  }
+</style>

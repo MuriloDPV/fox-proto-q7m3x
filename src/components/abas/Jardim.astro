@@ -1,0 +1,264 @@
+---
+// Aba 3 — Jardim de Esculturas. Ritmo:
+//   1. abertura dividida (título + foto de escultura; o tipo fica em
+//      src/dados/fotos-secoes.js)
+//   2. rótulo + parágrafo grande
+//   3. parede de esculturas: fotos de tamanhos e formatos diferentes, a
+//      ÚNICA parte do site com moldura (um filete dourado fino)
+//   4. número grande
+//   5. carrossel dos jardins (arraste)
+//   6. visitas guiadas (texto + foto vertical)
+//   7. visitante de dia
+//   8. chamada: agendar visita guiada
+// Fotos: src/dados/fotos-secoes.js (SECOES.jardim).
+import HeroAba from '../HeroAba.astro';
+import Intro from '../Intro.astro';
+import Foto from '../Foto.astro';
+import Destaques from '../Destaques.astro';
+import Arrastar from '../Arrastar.astro';
+import Linhas from '../Linhas.astro';
+import Chamada from '../Chamada.astro';
+import Icone from '../Icone.astro';
+import { SECOES } from '../../dados/fotos-secoes.js';
+import { linkWhatsApp, MENSAGEM_VISITA_GUIADA, MENSAGEM_VISITA_DIA } from '../../config.js';
+
+const fotos = SECOES.jardim;
+const parede = fotos.parede;
+
+const jardins = [
+  { ...fotos.carrossel[0], legenda: 'Jardim coberto' },
+  { ...fotos.carrossel[1], legenda: 'Vista aérea' },
+  { ...fotos.carrossel[2], legenda: 'A água e os campos' },
+  { ...fotos.carrossel[3], legenda: 'As construções vistas de cima' },
+];
+---
+
+<section class="painel" id="jardim-de-esculturas" role="tabpanel" aria-labelledby="aba-jardim-de-esculturas" tabindex="0">
+  <!-- 1. Abertura -->
+  <HeroAba {...fotos.abertura} rotulo="Jardim de Esculturas" linhas={['Mais de cem', 'esculturas']}>
+    <p>Esculturas e réplicas espalhadas pelos jardins cultivados da chácara.</p>
+  </HeroAba>
+
+  <!-- 2. Texto -->
+  <Intro rotulo="O jardim">
+    Mais de cem esculturas e réplicas, espalhadas pelos jardins. O caminho é feito para andar sem pressa.
+    <Fragment slot="extra">
+      <p class="texto">Em cada visita guiada, o anfitrião conta a história de cada réplica.</p>
+    </Fragment>
+  </Intro>
+
+  <!-- 3. Parede de esculturas (moldura fina dourada) -->
+  <div class="parede secao secao--colada margem">
+    <p class="rotulo parede__dica" data-surgir>Toque numa foto para ver de perto</p>
+    <div class="parede__obras">
+      <Foto {...parede.principal} class="obra obra--1" formato="paisagem" filete galeria="jardim" legenda="Três figuras entre os canteiros" sizes="(min-width: 900px) 46vw, 92vw" />
+      <Foto {...parede.oval} class="obra obra--2" formato="oval" filete galeria="jardim" legenda="Três figuras com livros" sizes="(min-width: 900px) 22vw, 56vw" atraso={150} />
+      <Foto {...parede.alta} class="obra obra--3" formato="retrato" filete galeria="jardim" legenda="O pergolado" sizes="(min-width: 900px) 24vw, 60vw" atraso={300} />
+      <Foto {...parede.aerea} class="obra obra--4" formato="paisagem" filete galeria="jardim" legenda="Os jardins vistos de cima" sizes="(min-width: 900px) 34vw, 80vw" atraso={150} />
+      <Foto {...parede.detalhe} class="obra obra--5" formato="quadrado" filete galeria="jardim" legenda="Flor de cacto" sizes="(min-width: 900px) 18vw, 50vw" atraso={300} />
+    </div>
+  </div>
+
+  <!-- 4. Número grande -->
+  <Destaques
+    fundo2
+    itens={[
+      { rotulo: 'Esculturas e réplicas', valor: 100, prefixo: '+', contar: true },
+      { rotulo: 'Hectares de jardins e campos', valor: 13, prefixo: '+', contar: true },
+    ]}
+  />
+
+  <!-- 5. Jardins (arraste) -->
+  <Arrastar rotulo="Jardins cultivados" titulo={['Canteiros, jardins cobertos', '<em>e gramados</em>']} fotos={jardins} galeria="jardins" formatos={['paisagem', 'retrato']} />
+
+  <!-- 6. Visitas guiadas -->
+  <div class="visita secao secao--colada margem grade">
+    <div class="visita__texto">
+      <p class="rotulo" data-surgir>Grupos e excursões</p>
+      <Linhas tag="h2" class="titulo" linhas={['Visitas guiadas', '<em>pelo jardim</em>']} />
+      <p class="paragrafo-grande visita__par" data-surgir>
+        Para grupos e excursões, o anfitrião conduz a visita pelos jardins e conta a história de cada réplica.
+      </p>
+      <p class="texto" data-surgir>Agende pelo WhatsApp: diga quantas pessoas vêm e a data pretendida. Valores sob consulta.</p>
+    </div>
+    <div class="visita__foto">
+      <Foto {...fotos.visita} formato="alto" galeria="jardim-visita" legenda="Plantas pendentes no jardim coberto" sizes="(min-width: 900px) 30vw, 70vw" />
+    </div>
+  </div>
+
+  <!-- 7. Visitante de dia -->
+  <div class="dia secao secao--colada margem">
+    <p class="rotulo" data-surgir>Visitante de dia</p>
+    <Linhas tag="h2" class="titulo dia__titulo" linhas={['Dá para vir', '<em>sem se hospedar</em>']} />
+    <dl class="dia__lista">
+      <div data-surgir>
+        <dt class="rotulo">Entrada</dt>
+        <dd>Cobrada por pessoa. Valor sob consulta pelo WhatsApp.</dd>
+      </div>
+      <div data-surgir style="--atraso: 100ms">
+        <dt class="rotulo">Dias</dt>
+        <dd>Quarta a domingo. <span class="a-confirmar">[HORÁRIOS A CONFIRMAR]</span></dd>
+      </div>
+      <div data-surgir style="--atraso: 200ms">
+        <dt class="rotulo">Almoço</dt>
+        <dd>Comida caseira no restaurante e almoço para grupos. <a class="link" href="#gastronomia">Ver Gastronomia</a></dd>
+      </div>
+    </dl>
+    <div class="acoes">
+      <a class="botao" href={linkWhatsApp(MENSAGEM_VISITA_DIA)} target="_blank" rel="noopener">
+        <span class="botao__texto"><Icone nome="whatsapp" /> Consultar valor da entrada</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- 8. Chamada -->
+  <Chamada rotulo="Agende" titulo={['Uma visita', '<em>guiada</em>']} texto="Para grupos e excursões. Valores sob consulta.">
+    <a class="botao botao--ouro" href={linkWhatsApp(MENSAGEM_VISITA_GUIADA)} target="_blank" rel="noopener">
+      <span class="botao__texto"><Icone nome="whatsapp" /> Agendar visita guiada</span>
+      <span class="botao__seta"><Icone nome="seta" /></span>
+    </a>
+    <a class="botao" href="#hospedagem">
+      <span class="botao__texto">Ou se hospede aqui</span>
+      <span class="botao__seta"><Icone nome="seta" /></span>
+    </a>
+  </Chamada>
+</section>
+
+<style>
+  /* ---------- Parede de esculturas ---------- */
+  .parede__dica {
+    margin-bottom: 2.4rem;
+    color: var(--texto-suave);
+  }
+
+  /* celular: obras empilhadas, alternando largura e lado */
+  .parede__obras {
+    display: grid;
+    gap: 3rem;
+  }
+
+  .parede__obras :global(.obra--2) {
+    width: 64%;
+    margin-left: auto;
+  }
+
+  .parede__obras :global(.obra--3) {
+    width: 70%;
+  }
+
+  .parede__obras :global(.obra--4) {
+    width: 86%;
+    margin-left: auto;
+  }
+
+  .parede__obras :global(.obra--5) {
+    width: 58%;
+  }
+
+  /* computador: montagem de exposição, alturas desencontradas */
+  @media (min-width: 900px) {
+    .parede__obras {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: var(--vao);
+      row-gap: 5rem;
+      align-items: start;
+    }
+
+    .parede__obras :global(.obra) {
+      width: auto;
+      margin: 0;
+    }
+
+    .parede__obras :global(.obra--1) {
+      grid-column: 1 / 7;
+    }
+
+    .parede__obras :global(.obra--2) {
+      grid-column: 8 / 10;
+      margin-top: 6rem;
+    }
+
+    .parede__obras :global(.obra--3) {
+      grid-column: 10 / 13;
+      margin-top: 2rem;
+    }
+
+    .parede__obras :global(.obra--4) {
+      grid-column: 2 / 7;
+    }
+
+    .parede__obras :global(.obra--5) {
+      grid-column: 8 / 11;
+      margin-top: 4rem;
+    }
+  }
+
+  /* ---------- Visitas guiadas ---------- */
+  .visita {
+    row-gap: 3rem;
+  }
+
+  .visita__texto,
+  .visita__foto {
+    grid-column: 1 / -1;
+  }
+
+  .visita__texto {
+    display: grid;
+    gap: 1.4rem;
+    align-content: start;
+  }
+
+  .visita__par {
+    margin-top: 1rem;
+  }
+
+  .visita__foto {
+    width: 78%;
+    margin-left: auto;
+  }
+
+  @media (min-width: 900px) {
+    .visita__texto {
+      grid-column: 1 / 7;
+    }
+
+    .visita__foto {
+      grid-column: 8 / 12;
+      width: auto;
+      margin: 0;
+      padding-top: 6rem;
+    }
+  }
+
+  /* ---------- Visitante de dia ---------- */
+  .dia :global(.dia__titulo) {
+    margin: 1.2rem 0 2.6rem;
+  }
+
+  .dia__lista {
+    display: grid;
+    gap: 1.8rem var(--vao);
+  }
+
+  .dia__lista > div {
+    display: grid;
+    gap: 0.6rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--ouro);
+  }
+
+  .dia__lista dt {
+    color: var(--texto-suave);
+  }
+
+  .dia__lista dd {
+    font: 400 var(--t-medio) / 1.3 var(--serifa);
+  }
+
+  @media (min-width: 900px) {
+    .dia__lista {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+</style>

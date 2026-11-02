@@ -1,0 +1,241 @@
+---
+// FOTO EDITORIAL: a peça básica de quase todas as fotos do site (v4).
+// Sem moldura, sem sombra: a foto aparece abrindo de baixo para cima com
+// uma leve escala (data-revelar; animação em global.css, gatilho em
+// src/scripts/revelar.js).
+//
+// Uso:
+//   <Foto {...FOTOS.cafeBolos} formato="retrato" galeria="cafe" legenda="Bolos" sizes="..." />
+//   (FOTOS vem de src/dados/fotos.js e já traz src, alt e real)
+//
+// - formato:  proporção da caixa: paisagem (3:2), largo (16:9), retrato (4:5),
+//             alto (2:3), quadrado, oval (4:5 com cantos ovais)
+// - posicao:  que parte da foto fica visível no corte (object-position)
+// - galeria:  clicar abre o lightbox; fotos com a mesma galeria viram sequência
+// - href:     a foto vira link (ex.: atalho para outra aba)
+// - legenda:  texto em serifa embaixo da foto; "detalhe" = linha pequena
+// - filete:   moldura fina dourada (só na parede de esculturas)
+// - revelar:  false = não abre sozinha na rolagem (v4.3: as fotos da abertura
+//             do Início, que entram pela sequência de src/scripts/entrada.js)
+// - real:     largura da foto ORIGINAL (antes do upscale). A caixa nunca fica
+//             mais larga que 1,5× o pedaço visível da foto original.
+// - sem src:  mostra o que estiver dentro (<slot />), ex.: o mapa
+import { Image, getImage } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+  src?: ImageMetadata;
+  alt?: string;
+  real?: number;
+  telaCheia?: boolean; // vem junto do {...FOTOS.x}; aqui não é usado
+  formato?: 'paisagem' | 'largo' | 'retrato' | 'alto' | 'quadrado' | 'oval';
+  posicao?: string;
+  galeria?: string;
+  href?: string;
+  legenda?: string;
+  detalhe?: string;
+  filete?: boolean;
+  sizes?: string;
+  atraso?: number; // ms, para revelar várias fotos em cascata
+  carregar?: 'lazy' | 'eager';
+  revelar?: boolean;
+  class?: string;
+}
+
+const {
+  src,
+  alt = '',
+  real,
+  formato = 'paisagem',
+  posicao,
+  galeria,
+  href,
+  legenda,
+  detalhe,
+  filete = false,
+  sizes = '(min-width: 900px) 40vw, 92vw',
+  atraso = 0,
+  carregar = 'lazy',
+  revelar = true,
+  class: classe = '',
+} = Astro.props;
+
+// Proporção (largura ÷ altura) de cada formato
+const PROPORCOES = { paisagem: 3 / 2, largo: 16 / 9, retrato: 4 / 5, alto: 2 / 3, quadrado: 1, oval: 4 / 5 };
+const proporcao = PROPORCOES[formato];
+
+let larguras: number[] = [];
+let sizesFinal = sizes;
+let estiloMax = '';
+let alturaReal = 0;
+
+if (src) {
+  const proporcaoFoto = src.width / src.height;
+
+  // object-fit: cover corta a foto para caber na caixa. Numa caixa vertical
+  // com foto deitada, só o meio aparece, então o navegador precisa de um
+  // arquivo MAIS LARGO que a caixa. "sizes" diz a largura da caixa;
+  // multiplicamos pelo quanto a foto é cortada.
+  const fator = Math.max(1, proporcaoFoto / proporcao);
+  if (fator > 1.02) {
+    sizesFinal = sizes
+      .split(',')
+      .map((parte) => {
+        const pedacos = parte.trim().split(/\s+(?=[^\s]+$)/); // [condição, largura]
+        const largura = pedacos.pop();
+        return [...pedacos, `calc(${largura} * ${fator.toFixed(2)})`].join(' ');
+      })
+      .join(', ');
+  }
+
+  // Não pedimos arquivos maiores que a foto (o Astro não amplia)
+  larguras = [400, 640, 900, 1240, 1600].filter((w) => w < src.width);
+  larguras.push(src.width);
+
+  // Trava de 1,5×: largura do pedaço visível da foto original × 1,5
+  const larguraReal = real ?? src.width;
+  alturaReal = Math.round(larguraReal / proporcaoFoto);
+  const visivel = proporcaoFoto > proporcao ? alturaReal * proporcao : larguraReal;
+  estiloMax = `--max-foto: ${Math.round(visivel * 1.5)}px;`;
+}
+
+// Versão grande para o lightbox
+let fotoGrande: string | undefined;
+if (src && galeria) {
+  const grande = await getImage({ src, width: Math.min(src.width, 1600), format: 'webp' });
+  fotoGrande = grande.src;
+}
+
+// A foto pode ser link, botão (abre o lightbox) ou só imagem
+const Tag = href ? 'a' : galeria ? 'button' : 'div';
+const textoLegenda = [legenda, detalhe].filter(Boolean).join(' — ') || alt;
+const atributos: Record<string, string | undefined> = href
+  ? { href }
+  : galeria
+    ? {
+        type: 'button',
+        'data-lightbox': galeria,
+        'data-grande': fotoGrande,
+        'data-legenda': textoLegenda,
+        'data-alt': alt,
+        'aria-label': `Ampliar foto: ${alt}`,
+      }
+    : {};
+---
+
+<figure
+  class:list={['foto', `foto--${formato}`, { 'foto--filete': filete, 'foto--interativa': href || galeria }, classe]}
+  style={`--atraso: ${atraso}ms; ${estiloMax}`}
+>
+  <Tag class="foto__caixa" data-revelar={revelar ? '' : undefined} {...atributos}>
+    {
+      src ? (
+        <Image
+          src={src}
+          alt={alt}
+          widths={larguras}
+          sizes={sizesFinal}
+          loading={carregar}
+          class="foto__img"
+          style={posicao ? `object-position: ${posicao}` : undefined}
+          data-real={real ?? src.width}
+          data-real-altura={alturaReal}
+        />
+      ) : (
+        <slot />
+      )
+    }
+  </Tag>
+
+  {
+    legenda && (
+      <figcaption class="legenda">
+        {legenda}
+        {detalhe && <small>{detalhe}</small>}
+      </figcaption>
+    )
+  }
+</figure>
+
+<style>
+  .foto {
+    width: 100%;
+    max-width: var(--max-foto, none);
+  }
+
+  .foto__caixa {
+    position: relative;
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    background: var(--fundo-2); /* aparece enquanto a foto carrega */
+    color: inherit;
+    text-decoration: none;
+  }
+
+  /* Proporção da caixa por formato */
+  .foto--paisagem .foto__caixa {
+    aspect-ratio: 3 / 2;
+  }
+  .foto--largo .foto__caixa {
+    aspect-ratio: 16 / 9;
+  }
+  .foto--retrato .foto__caixa,
+  .foto--oval .foto__caixa {
+    aspect-ratio: 4 / 5;
+  }
+  .foto--alto .foto__caixa {
+    aspect-ratio: 2 / 3;
+  }
+  .foto--quadrado .foto__caixa {
+    aspect-ratio: 1;
+  }
+
+  .foto--oval .foto__caixa {
+    border-radius: 50%;
+  }
+
+  .foto__caixa :global(.foto__img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Moldura fina: um filete dourado com um respiro entre ele e a foto.
+     A borda fica DENTRO da caixa, então a animação de abrir não a corta. */
+  .foto--filete .foto__caixa {
+    padding: clamp(6px, 0.9vw, 12px);
+    border: 1px solid var(--ouro);
+    background: transparent;
+  }
+
+  .foto--filete .foto__caixa :global(.foto__img) {
+    background: var(--fundo-2);
+  }
+
+  .foto--filete.foto--oval .foto__caixa :global(.foto__img) {
+    border-radius: 50%;
+  }
+
+  /* Clicável: zoom-in no cursor e a foto aproxima de leve no hover */
+  .foto--interativa .foto__caixa {
+    cursor: zoom-in;
+  }
+
+  .foto a.foto__caixa {
+    cursor: pointer;
+  }
+
+  .foto__caixa:focus-visible {
+    outline-offset: 4px;
+  }
+
+  @media (hover: hover) {
+    .foto.foto--interativa .foto__caixa:hover :global(.foto__img) {
+      transform: scale(1.035);
+      transition: transform 1.2s var(--ease);
+    }
+  }
+</style>

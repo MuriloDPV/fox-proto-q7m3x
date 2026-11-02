@@ -1,0 +1,43 @@
+# dependências e build
+node_modules/
+dist/
+.astro/
+
+# fotos brutas baixadas do site atual (pesadas, não vão para o repositório)
+fotos-originais/
+
+# prints e vídeos de verificação (centenas de MB)
+prints/
+
+# versões antigas do protótipo
+_versao-*/
+
+# estudo do site atual (prints e scripts descartáveis)
+_referencia/
+
+# notas internas da proposta
+PROMPT-*.md
+APRENDA.md
+FOTOS-PARA-SESSAO.md
+fotos-pendentes.txt
+
+.env
+.env.*
+.DS_Store
+
+# ferramentas locais
+.playwright-mcp/
+.impeccable/hook.cache.json
+.claude/settings.local.json
+
+# Real-ESRGAN (executável baixado das releases do GitHub, ~50 MB), modelos e temporários do upscale
+ferramentas/
+*.exe
+*.dll
+*.zip
+*.bin
+*.param
+*.log
+
+# Cloudflare (wrangler)
+.wrangler/

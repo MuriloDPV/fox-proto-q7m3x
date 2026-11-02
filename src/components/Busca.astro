@@ -1,0 +1,95 @@
+---
+// Busca de datas. Não reserva nada sozinha: monta a URL do motor de
+// reservas (/search/AAAA-MM-DD/AAAA-MM-DD/N) e abre em nova aba.
+// A lógica está em src/scripts/busca.js; aparece em vários lugares, por isso
+// cada uso recebe um "id" diferente (os <label> precisam de ids únicos).
+// Visual v4: só filetes finos embaixo dos campos, sem caixa nem cantos.
+import Icone from './Icone.astro';
+
+interface Props {
+  id: string;
+  rotulo?: string; // texto do botão
+}
+
+const { id, rotulo = 'Reservar' } = Astro.props;
+---
+
+<form class="busca" data-busca aria-label="Buscar disponibilidade">
+  <div class="busca__campo">
+    <label class="rotulo" for={`${id}-checkin`}>Check-in</label>
+    <input type="date" id={`${id}-checkin`} name="checkin" required />
+  </div>
+  <div class="busca__campo">
+    <label class="rotulo" for={`${id}-checkout`}>Check-out</label>
+    <input type="date" id={`${id}-checkout`} name="checkout" required />
+  </div>
+  <div class="busca__campo">
+    <label class="rotulo" for={`${id}-hospedes`}>Hóspedes</label>
+    <select id={`${id}-hospedes`} name="hospedes">
+      {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => <option value={n} selected={n === 2}>{n}</option>)}
+    </select>
+  </div>
+  <button class="botao botao--ouro busca__botao" type="submit">
+    <span class="botao__texto">{rotulo}</span>
+    <span class="botao__seta"><Icone nome="seta" /></span>
+  </button>
+</form>
+
+<style>
+  .busca {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.4rem var(--vao);
+    align-items: end;
+  }
+
+  .busca__campo {
+    display: grid;
+    gap: 0.35rem;
+    min-width: 0;
+  }
+
+  label {
+    color: var(--texto-suave);
+  }
+
+  input,
+  select {
+    width: 100%;
+    min-width: 0;
+    padding: 0.4rem 0 0.55rem;
+    border: 0;
+    border-bottom: 1px solid var(--texto);
+    border-radius: 0;
+    background: transparent;
+    color: var(--texto);
+    font: 400 1.3rem/1.2 var(--serifa);
+    color-scheme: light;
+  }
+
+  input:focus-visible,
+  select:focus-visible {
+    outline: none;
+    border-bottom-color: var(--ouro);
+    box-shadow: 0 1px 0 var(--ouro);
+  }
+
+  .busca__botao {
+    justify-self: stretch;
+  }
+
+  .busca__botao :global(.botao__texto) {
+    flex: 1;
+    justify-content: center;
+  }
+
+  @media (min-width: 640px) {
+    .busca {
+      grid-template-columns: 1fr 1fr 0.6fr auto;
+    }
+
+    .busca__botao {
+      justify-self: start;
+    }
+  }
+</style>

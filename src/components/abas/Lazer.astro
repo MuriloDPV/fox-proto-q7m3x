@@ -1,0 +1,244 @@
+---
+// Aba 6 — Lazer. Ritmo:
+//   1. abertura em tela cheia (piscina com cascata) + título gigante
+//   2. rótulo + parágrafo grande (piscina)
+//   3. par de fotos assimétrico
+//   4. carrossel da piscina (arraste)
+//   5. passeio a cavalo (duas opções, foto ainda [A CONFIRMAR])
+//   6. fim de tarde: colagem solta de fotos pequenas
+//   7. jardins e recreação (duas colunas)
+//   8. chamada para reservar
+// Fotos: src/dados/fotos-secoes.js (SECOES.lazer).
+import HeroAba from '../HeroAba.astro';
+import Intro from '../Intro.astro';
+import ParFotos from '../ParFotos.astro';
+import Arrastar from '../Arrastar.astro';
+import Foto from '../Foto.astro';
+import Linhas from '../Linhas.astro';
+import Chamada from '../Chamada.astro';
+import Icone from '../Icone.astro';
+import { SECOES } from '../../dados/fotos-secoes.js';
+import { linkWhatsApp, MENSAGEM_CAVALO } from '../../config.js';
+
+const fotos = SECOES.lazer;
+
+const legendasPiscina = ['Jatos de água', 'A parte rasa', 'Cascata entre flores', 'A piscina à noite'];
+const piscina = fotos.carrossel.map((f, i) => ({ ...f, legenda: legendasPiscina[i] }));
+---
+
+<section class="painel" id="lazer" role="tabpanel" aria-labelledby="aba-lazer" tabindex="0">
+  <!-- 1. Abertura -->
+  <HeroAba {...fotos.abertura} rotulo="Lazer" linhas={['Piscina,', 'cavalos e', 'pôr do sol']}>
+    <p>Piscina com cascata, passeios a cavalo, jardins e o fim de tarde sobre os campos.</p>
+  </HeroAba>
+
+  <!-- 2. Piscina -->
+  <Intro rotulo="Piscina">
+    Água, pedra e cascata. A piscina tem jatos de água e fica cercada de capim e flores.
+    <Fragment slot="extra">
+      <p><span class="a-confirmar">[A CONFIRMAR: horário de uso da piscina]</span></p>
+    </Fragment>
+  </Intro>
+
+  <!-- 3. Par de fotos -->
+  <ParFotos fotos={fotos.par} legendas={['Água caindo das pedras', 'A cascata e o capim florido']} galeria="piscina" colada />
+
+  <!-- 4. Piscina (arraste) -->
+  <Arrastar rotulo="A piscina" fotos={piscina} galeria="piscina" formatos={['paisagem', 'retrato']} colada />
+
+  <!-- 5. Passeio a cavalo -->
+  <div class="cavalo secao secao--fundo-2 margem grade">
+    <div class="cavalo__texto">
+      <p class="rotulo" data-surgir>Passeio a cavalo</p>
+      <Linhas tag="h2" class="titulo" linhas={['Passeios', '<em>a cavalo</em>']} />
+      <p class="paragrafo-grande" data-surgir>Mediante agendamento, em duas opções. Valores sob consulta.</p>
+      <dl class="cavalo__opcoes">
+        <div data-surgir>
+          <dt class="rotulo">Passeio curto</dt>
+          <dd>Valor sob consulta. <span class="a-confirmar">[DURAÇÃO A CONFIRMAR]</span></dd>
+        </div>
+        <div data-surgir style="--atraso: 100ms">
+          <dt class="rotulo">Passeio longo</dt>
+          <dd>Valor sob consulta. <span class="a-confirmar">[DURAÇÃO A CONFIRMAR]</span></dd>
+        </div>
+      </dl>
+      <div class="acoes">
+        <a class="botao botao--ouro" href={linkWhatsApp(MENSAGEM_CAVALO)} target="_blank" rel="noopener">
+          <span class="botao__texto"><Icone nome="whatsapp" /> Agendar passeio</span>
+          <span class="botao__seta"><Icone nome="seta" /></span>
+        </a>
+      </div>
+    </div>
+    <!-- Ainda não temos foto do passeio: a caixa fica vazia, marcada -->
+    <div class="cavalo__foto foto-vazia" data-surgir>
+      <span class="a-confirmar">[FOTO DO PASSEIO A CAVALO — A CONFIRMAR]</span>
+    </div>
+  </div>
+
+  <!-- 6. Fim de tarde: colagem solta -->
+  <div class="tarde secao margem">
+    <div class="tarde__topo">
+      <p class="rotulo" data-surgir>Fim de tarde</p>
+      <Linhas tag="h2" class="titulo" linhas={['Quando o céu', '<em>muda de cor</em>']} />
+    </div>
+    <div class="tarde__colagem">
+      <Foto {...fotos.fimDeTarde[0]} class="solta solta--1" formato="paisagem" galeria="por-do-sol" sizes="(min-width: 900px) 30vw, 70vw" />
+      <Foto {...fotos.fimDeTarde[1]} class="solta solta--2" formato="retrato" galeria="por-do-sol" sizes="(min-width: 900px) 16vw, 44vw" atraso={150} />
+      <Foto {...fotos.fimDeTarde[2]} class="solta solta--3" formato="quadrado" galeria="por-do-sol" sizes="(min-width: 900px) 18vw, 46vw" atraso={300} />
+      <Foto {...fotos.fimDeTarde[3]} class="solta solta--4" formato="paisagem" galeria="por-do-sol" sizes="(min-width: 900px) 26vw, 64vw" atraso={150} />
+    </div>
+  </div>
+
+  <!-- 7. Jardins e recreação -->
+  <div class="duas secao secao--colada margem">
+    <div class="duas__item">
+      <Foto {...fotos.recreacao} formato="paisagem" galeria="lazer" legenda="Recreação" detalhe="Espaço com brinquedos, ao ar livre." sizes="(min-width: 900px) 44vw, 92vw" />
+    </div>
+    <div class="duas__item">
+      <Foto
+        {...fotos.jardim}
+        href="#jardim-de-esculturas"
+        formato="paisagem"
+        legenda="Jardim de Esculturas"
+        detalhe="Jardins para caminhar, com esculturas e réplicas pelo caminho."
+        sizes="(min-width: 900px) 44vw, 92vw"
+        atraso={150}
+      />
+    </div>
+  </div>
+
+  <!-- 8. Chamada -->
+  <Chamada rotulo="Reserve" titulo={['Fique alguns dias', '<em>e aproveite</em>']} busca="busca-lazer" />
+</section>
+
+<style>
+  /* ---------- Cavalo ---------- */
+  .cavalo {
+    row-gap: 3rem;
+  }
+
+  .cavalo__texto,
+  .cavalo__foto {
+    grid-column: 1 / -1;
+  }
+
+  .cavalo__texto {
+    display: grid;
+    gap: 1.3rem;
+    align-content: start;
+  }
+
+  .cavalo__opcoes {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.4rem var(--vao);
+    margin-top: 1rem;
+  }
+
+  .cavalo__opcoes > div {
+    display: grid;
+    gap: 0.5rem;
+    align-content: start;
+    padding-top: 1rem;
+    border-top: 1px solid var(--ouro);
+  }
+
+  .cavalo__opcoes dd {
+    font: 400 var(--t-medio) / 1.3 var(--serifa);
+  }
+
+  .cavalo__foto {
+    aspect-ratio: 4 / 5;
+    width: 78%;
+    margin-left: auto;
+  }
+
+  @media (min-width: 900px) {
+    .cavalo__texto {
+      grid-column: 1 / 7;
+    }
+
+    .cavalo__foto {
+      grid-column: 8 / 12;
+      width: auto;
+      margin: 0;
+    }
+  }
+
+  /* ---------- Fim de tarde: colagem solta ----------
+     Fotos pequenas espalhadas em alturas diferentes, como na referência.
+     Assim as fotos de 620 px aparecem pequenas e nítidas. */
+  .tarde__topo {
+    display: grid;
+    gap: 1.2rem;
+    margin-bottom: 3rem;
+  }
+
+  .tarde__colagem {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--vao);
+    row-gap: 2rem;
+    align-items: start;
+  }
+
+  .tarde__colagem :global(.solta--1) {
+    grid-column: 1 / 10;
+  }
+
+  .tarde__colagem :global(.solta--2) {
+    grid-column: 7 / 13;
+    margin-top: -3rem;
+  }
+
+  .tarde__colagem :global(.solta--3) {
+    grid-column: 1 / 7;
+    grid-row: 2;
+    margin-top: 3rem;
+  }
+
+  .tarde__colagem :global(.solta--4) {
+    grid-column: 3 / 13;
+  }
+
+  @media (min-width: 900px) {
+    .tarde__colagem :global(.solta--1) {
+      grid-column: 1 / 5;
+      grid-row: 1;
+    }
+
+    .tarde__colagem :global(.solta--2) {
+      grid-column: 6 / 8;
+      grid-row: 1;
+      margin-top: 9rem;
+    }
+
+    .tarde__colagem :global(.solta--3) {
+      grid-column: 9 / 11;
+      grid-row: 1;
+      margin-top: 3rem;
+    }
+
+    .tarde__colagem :global(.solta--4) {
+      grid-column: 9 / 13;
+      grid-row: 2;
+      margin-top: -2rem;
+    }
+  }
+
+  /* ---------- Jardins e recreação ---------- */
+  .duas {
+    display: grid;
+    gap: 3rem var(--vao);
+  }
+
+  @media (min-width: 900px) {
+    .duas {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .duas__item:nth-child(2) {
+      margin-top: 6rem;
+    }
+  }
+</style>

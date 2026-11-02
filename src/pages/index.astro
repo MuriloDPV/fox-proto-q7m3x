@@ -1,0 +1,54 @@
+---
+// A página única do site. Ela só monta a estrutura em abas:
+//   topo mínimo (Reservar · logo · Menu) + menu em tela cheia + palco (onde
+//   cada aba aparece) + rodapé, mais o atalho do WhatsApp e as janelas
+//   (lightbox e busca de datas).
+// Cada aba é um componente em src/components/abas/.
+// Qual foto aparece em cada lugar: src/dados/fotos-secoes.js.
+import Base from '../layouts/Base.astro';
+import Abertura from '../components/Abertura.astro';
+import Topo from '../components/Topo.astro';
+import Menu from '../components/Menu.astro';
+import Rodape from '../components/Rodape.astro';
+import Lightbox from '../components/Lightbox.astro';
+import Flutuantes from '../components/Flutuantes.astro';
+import Reservar from '../components/Reservar.astro';
+
+import Inicio from '../components/abas/Inicio.astro';
+import Hospedagem from '../components/abas/Hospedagem.astro';
+import Jardim from '../components/abas/Jardim.astro';
+import Eventos from '../components/abas/Eventos.astro';
+import Gastronomia from '../components/abas/Gastronomia.astro';
+import Lazer from '../components/abas/Lazer.astro';
+import Visite from '../components/abas/Visite.astro';
+
+import { ABAS } from '../dados/abas.js';
+
+const titulo = 'Chácara Ludwig · Pousada, Jardim de Esculturas e Eventos';
+const descricao =
+  'Pousada com 22 acomodações temáticas, jardim com mais de 100 esculturas e réplicas e espaço para casamentos e eventos em mais de 13 hectares.';
+---
+
+<Base titulo={titulo} descricao={descricao} ids={ABAS.map((a) => a.id)}>
+  <Abertura />
+  <Topo />
+  <Menu />
+
+  <main class="palco" id="palco">
+    <Inicio />
+    <Hospedagem />
+    <Jardim />
+    <Eventos />
+    <Gastronomia />
+    <Lazer />
+    <Visite />
+  </main>
+
+  <Rodape />
+
+  <!-- WhatsApp sempre à mão (o Reservar fica no topo) -->
+  <Flutuantes />
+
+  <Lightbox />
+  <Reservar />
+</Base>

@@ -1,0 +1,199 @@
+---
+// TELA DE ABERTURA (v4.3) — só na primeira visita da sessão
+// 1) Tela creme. A logo aparece no centro e uma faixa de luz dourada passa
+//    por ela (o brilho só existe onde a logo existe: a própria logo serve
+//    de máscara). Embaixo, uma linha dourada fina enche como barra de
+//    carregamento, acompanhando as fotos da primeira tela.
+// 2) Saída: o papel creme abre em ARCO, do centro para fora (a forma dos
+//    arcos do pátio), com um fio dourado na borda; ao mesmo tempo a logo
+//    encolhe e voa até o lugar dela no topo.
+//
+// Camadas, de baixo para cima:
+//   .abertura__aro    fio dourado (fica embaixo do papel; só aparece na borda do arco)
+//   .abertura__papel  o creme que abre em arco (clip-path)
+//   .abertura__centro a logo (que voa) e a linha de carregamento
+//
+// A logo e o brilho começam por CSS, assim que a página pinta (antes do
+// JS chegar). O resto é src/scripts/entrada.js. Tempos: src/dados/entrada.js.
+// Só aparece com o <html> marcado .entrada-completa (script do <head> em
+// Base.astro); com "menos movimento", nem aparece.
+import { getImage } from 'astro:assets';
+import logoClara from '../assets/marca/logo-clara.png';
+import { ABERTURA } from '../dados/entrada.js';
+
+const logo = await getImage({ src: logoClara, width: 360, format: 'webp' });
+
+// Os tempos viram variáveis CSS (o CSS lá embaixo usa)
+const tempos = [
+  `--logo-atraso: ${ABERTURA.logo.atraso}ms`,
+  `--logo-duracao: ${ABERTURA.logo.duracao}ms`,
+  `--brilho-atraso: ${ABERTURA.brilho.atraso}ms`,
+  `--brilho-duracao: ${ABERTURA.brilho.duracao}ms`,
+  `--linha-atraso: ${ABERTURA.linha.atraso}ms`,
+  // a logo é a máscara do brilho
+  `--mascara: url("${logo.src}")`,
+].join('; ');
+---
+
+<div class="abertura" id="abertura" aria-hidden="true" style={tempos}>
+  <div class="abertura__aro"></div>
+  <div class="abertura__papel"></div>
+
+  <div class="abertura__centro">
+    <!-- .abertura__marca é quem voa até o topo (sem nada de transform no
+         repouso: o JS mede a posição dela daqui) -->
+    <div class="abertura__marca">
+      <div class="abertura__logo">
+        <img
+          src={logo.src}
+          alt=""
+          width="360"
+          height={Math.round((360 * logoClara.height) / logoClara.width)}
+          fetchpriority="high"
+        />
+        <span class="abertura__brilho"><span class="abertura__faixa"></span></span>
+      </div>
+    </div>
+
+    <div class="abertura__linha"><span class="abertura__progresso"></span></div>
+  </div>
+</div>
+
+<style>
+  .abertura {
+    display: none;
+  }
+
+  /* Só aparece na entrada completa (e nunca com "menos movimento") */
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.entrada-completa) .abertura {
+      position: fixed;
+      inset: 0;
+      z-index: 100; /* acima do topo (90) e do menu */
+      display: block;
+      cursor: pointer; /* clicar pula */
+    }
+  }
+
+  .abertura__aro,
+  .abertura__papel,
+  .abertura__centro {
+    position: absolute;
+    inset: 0;
+  }
+
+  .abertura__aro {
+    background: var(--ouro);
+  }
+
+  /* Um tom abaixo do fundo do site: quando o arco abre, o site aparece
+     mais claro por dentro, como luz entrando por um portal */
+  .abertura__papel {
+    background: var(--fundo-2);
+  }
+
+  .abertura__centro {
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: clamp(1.75rem, 4.5vh, 2.6rem);
+  }
+
+  .abertura__marca {
+    width: min(42vw, 180px);
+  }
+
+  /* ---- A logo aparece: sobe um pouco e acende ---- */
+  .abertura__logo {
+    position: relative;
+    animation: abertura-logo var(--logo-duracao) var(--logo-atraso) var(--ease) both;
+  }
+
+  .abertura__logo img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  @keyframes abertura-logo {
+    from {
+      opacity: 0;
+      transform: translateY(14px) scale(0.97);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* ---- O brilho ----
+     .abertura__brilho cobre a logo e usa a PRÓPRIA LOGO como máscara
+     (mask-image): o que estiver dentro dele só aparece onde a logo tem
+     tinta. Dentro, uma faixa de luz inclinada atravessa da esquerda para a
+     direita (só transform). mix-blend-mode: screen = a luz clareia o que
+     está embaixo, como reflexo em metal, sem cobrir a logo. */
+  .abertura__brilho {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    mix-blend-mode: screen;
+    -webkit-mask: var(--mascara) center / 100% 100% no-repeat;
+    mask: var(--mascara) center / 100% 100% no-repeat;
+  }
+
+  .abertura__faixa {
+    position: absolute;
+    top: -10%;
+    bottom: -10%;
+    left: 0;
+    width: 55%;
+    background: linear-gradient(
+      100deg,
+      rgb(255 230 180 / 0) 0%,
+      rgb(255 228 176 / 0.45) 30%,
+      rgb(255 246 226 / 1) 50%,
+      rgb(255 228 176 / 0.45) 70%,
+      rgb(255 230 180 / 0) 100%
+    );
+    transform: translateX(-130%) skewX(-14deg);
+    animation: abertura-brilho var(--brilho-duracao) var(--brilho-atraso) cubic-bezier(0.45, 0, 0.25, 1) both;
+  }
+
+  @keyframes abertura-brilho {
+    from {
+      transform: translateX(-130%) skewX(-14deg);
+    }
+    to {
+      transform: translateX(300%) skewX(-14deg);
+    }
+  }
+
+  /* ---- A linha de carregamento ----
+     O trilho (bem clarinho) aparece; o dourado (.abertura__progresso)
+     cresce da esquerda para a direita com transform: scaleX(0 a 1), que o
+     JS atualiza conforme as fotos chegam. */
+  .abertura__linha {
+    position: relative;
+    width: min(34vw, 150px);
+    height: 1px;
+    overflow: hidden;
+    background: rgb(176 141 87 / 0.25);
+    transform-origin: right; /* na saída, recolhe para a direita */
+    animation: abertura-trilho 600ms var(--linha-atraso) var(--ease) both;
+  }
+
+  @keyframes abertura-trilho {
+    from {
+      opacity: 0;
+    }
+  }
+
+  .abertura__progresso {
+    position: absolute;
+    inset: 0;
+    background: var(--ouro);
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+</style>

@@ -1,0 +1,14 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "inter",
+        "createdAt": "2026-11-02T15:00:49.538Z",
+        "reason": "v4 design system: Cormorant Garamond + Inter chosen in the v4 editorial spec (APRENDA.md seção 1, PROMPT-V4); v4.3 brief says not to touch anything outside the entrance"
+      }
+    ]
+  }
+}

@@ -1,0 +1,128 @@
+---
+// Lightbox: a foto ampliada sobre fundo marrom-escuro, sem moldura.
+// Usa <dialog> (o navegador cuida do foco, do Esc e do fundo).
+// Setas, teclado e swipe ficam em src/scripts/lightbox.js
+---
+
+<dialog class="lightbox" id="lightbox" aria-label="Foto ampliada">
+  <div class="lightbox__conteudo">
+    <div class="lightbox__passe">
+      <!-- o lightbox.js troca este espaço pela <img> da foto clicada -->
+      <span data-lugar-foto></span>
+    </div>
+    <p class="lightbox__legenda" aria-live="polite"></p>
+  </div>
+  <button class="lightbox__botao lightbox__fechar rotulo" type="button" data-fechar>Fechar</button>
+  <button class="lightbox__botao lightbox__seta lightbox__seta--anterior rotulo" type="button" data-anterior aria-label="Foto anterior">Anterior</button>
+  <button class="lightbox__botao lightbox__seta lightbox__seta--proxima rotulo" type="button" data-proxima aria-label="Próxima foto">Próxima</button>
+  <p class="lightbox__contador rotulo"></p>
+</dialog>
+
+<style>
+  .lightbox {
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--sobre-foto);
+    overflow: hidden;
+  }
+
+  .lightbox::backdrop {
+    background: rgb(42 32 25 / 0.985);
+  }
+
+  .lightbox[open] {
+    display: grid;
+    place-items: center;
+  }
+
+  .lightbox__conteudo {
+    display: grid;
+    justify-items: center;
+    gap: 1.2rem;
+    padding: 4rem 1rem 5rem;
+    touch-action: pan-y; /* deixa o JS tratar o arrasto para os lados */
+  }
+
+  .lightbox__passe :global(.lightbox__foto) {
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: min(1100px, 100vw - 2rem);
+    max-height: calc(100dvh - 11rem);
+    object-fit: contain;
+  }
+
+  .lightbox__legenda {
+    max-width: 36rem;
+    font: italic 400 1.25rem/1.3 var(--serifa);
+    text-align: center;
+  }
+
+  .lightbox[open] .lightbox__conteudo {
+    animation: lightbox-abre 0.6s var(--ease) both;
+  }
+
+  @keyframes lightbox-abre {
+    from {
+      opacity: 0;
+      transform: scale(0.97);
+    }
+  }
+
+  /* Botões de texto, discretos, nos cantos */
+  .lightbox__botao {
+    position: fixed;
+    padding: 0.8rem 0.4rem;
+    border: 0;
+    background: none;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .lightbox__botao::after {
+    content: '';
+    display: block;
+    height: 1px;
+    margin-top: 0.3rem;
+    background: var(--ouro-claro);
+    transform: scaleX(0);
+    transition: transform 0.4s var(--ease);
+  }
+
+  @media (hover: hover) {
+    .lightbox__botao:hover::after {
+      transform: scaleX(1);
+    }
+  }
+
+  .lightbox__fechar {
+    top: 1rem;
+    right: var(--margem);
+  }
+
+  .lightbox__seta {
+    bottom: 1rem;
+  }
+
+  .lightbox__seta--anterior {
+    left: var(--margem);
+  }
+
+  .lightbox__seta--proxima {
+    right: var(--margem);
+  }
+
+  .lightbox__contador {
+    position: fixed;
+    bottom: 1.8rem;
+    left: 50%;
+    translate: -50% 0;
+    color: var(--ouro-claro);
+  }
+</style>

@@ -1,0 +1,190 @@
+---
+// Aba 5 — Gastronomia. Ritmo:
+//   1. abertura dividida (título + foto do café; o tipo fica em
+//      src/dados/fotos-secoes.js)
+//   2. rótulo + parágrafo grande
+//   3. as quatro frentes (colunas com filete, sem ícones)
+//   4. par de fotos assimétrico: café da manhã + trecho de depoimento
+//   5. carrossel do café (arraste)
+//   6. cardápio e horários [A CONFIRMAR]
+//   7. chamada: almoço para grupos
+// Fotos: src/dados/fotos-secoes.js (SECOES.gastronomia).
+import HeroAba from '../HeroAba.astro';
+import Intro from '../Intro.astro';
+import ParFotos from '../ParFotos.astro';
+import Arrastar from '../Arrastar.astro';
+import Destaques from '../Destaques.astro';
+import Foto from '../Foto.astro';
+import Linhas from '../Linhas.astro';
+import Icone from '../Icone.astro';
+import { SECOES } from '../../dados/fotos-secoes.js';
+import { linkWhatsApp, MENSAGEM_ALMOCO } from '../../config.js';
+
+const fotos = SECOES.gastronomia;
+
+const frentes = [
+  { nome: 'Restaurante', texto: 'Comida caseira, no ambiente familiar da chácara.' },
+  { nome: 'Choperia e petiscaria', texto: 'Chopes artesanais e petiscos para acompanhar.' },
+  { nome: 'Almoço para grupos', texto: 'Para excursões, famílias e empresas. Combine pelo WhatsApp.' },
+  { nome: 'Café da manhã', texto: 'Incluso na diária de quem se hospeda.' },
+];
+
+const legendasCafe = ['A mesa do café', 'Bolos caseiros', 'Frutas, bolos e pães', 'Mesa com espelho dourado'];
+const cafe = fotos.carrossel.map((f, i) => ({ ...f, legenda: legendasCafe[i] }));
+---
+
+<section class="painel" id="gastronomia" role="tabpanel" aria-labelledby="aba-gastronomia" tabindex="0">
+  <!-- 1. Abertura -->
+  <HeroAba {...fotos.abertura} rotulo="Gastronomia" linhas={['Comida caseira', 'e chope', 'artesanal']}>
+    <p>Restaurante, choperia, almoço para grupos e café da manhã para os hóspedes.</p>
+  </HeroAba>
+
+  <!-- 2. Texto -->
+  <Intro rotulo="À mesa">
+    Comida caseira no restaurante, chope artesanal na choperia e, para quem se hospeda, café da manhã incluso na
+    diária.
+  </Intro>
+
+  <!-- 3. As quatro frentes -->
+  <div class="frentes secao secao--colada margem">
+    <ul class="frentes__lista">
+      {
+        frentes.map((f, i) => (
+          <li class="frente" data-surgir style={`--atraso: ${i * 100}ms`}>
+            <h3 class="frente__nome">{f.nome}</h3>
+            <p class="texto">{f.texto}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+
+  <!-- 4. Café da manhã: par de fotos + depoimento real -->
+  <ParFotos fotos={fotos.par} legendas={['Pães e doces', 'Frutas, frios, queijos e pães']} galeria="cafe" colada>
+    <blockquote class="cafe__citacao">
+      <p>“Café da manhã com omelete feito na hora.”</p>
+      <footer class="rotulo">Joane, hóspede</footer>
+    </blockquote>
+  </ParFotos>
+
+  <!-- 5. Café (arraste) -->
+  <Arrastar rotulo="Para os hóspedes" titulo={['Café da manhã', '<em>incluso na diária</em>']} fotos={cafe} galeria="cafe" colada />
+
+  <!-- 6. Cardápio e horários -->
+  <Destaques
+    rotulo="Cardápio e horários"
+    fundo2
+    itens={[
+      { rotulo: 'Cardápio do restaurante', valor: '<span class="a-confirmar">[CARDÁPIO A CONFIRMAR]</span>' },
+      { rotulo: 'Chopes artesanais', valor: '<span class="a-confirmar">[ESTILOS A CONFIRMAR]</span>' },
+      { rotulo: 'Horários', valor: '<span class="a-confirmar">[HORÁRIOS A CONFIRMAR]</span>' },
+    ]}
+  />
+
+  <!-- 7. Almoço para grupos -->
+  <div class="almoco secao margem grade">
+    <div class="almoco__texto">
+      <p class="rotulo" data-surgir>Grupos</p>
+      <Linhas tag="h2" class="titulo" linhas={['Almoço', '<em>para grupos</em>']} />
+      <p class="paragrafo-grande" data-surgir>
+        Excursões, famílias e empresas combinam o almoço pelo WhatsApp. Dá para juntar com a visita guiada ao Jardim de
+        Esculturas.
+      </p>
+      <div class="acoes">
+        <a class="botao botao--ouro" href={linkWhatsApp(MENSAGEM_ALMOCO)} target="_blank" rel="noopener">
+          <span class="botao__texto"><Icone nome="whatsapp" /> Combinar almoço</span>
+          <span class="botao__seta"><Icone nome="seta" /></span>
+        </a>
+        <a class="botao" href="#jardim-de-esculturas">
+          <span class="botao__texto">Ver o jardim</span>
+          <span class="botao__seta"><Icone nome="seta" /></span>
+        </a>
+      </div>
+    </div>
+    <div class="almoco__foto">
+      <Foto {...fotos.almoco} formato="retrato" galeria="gastronomia" legenda="Mesas no pátio coberto" sizes="(min-width: 900px) 30vw, 70vw" />
+    </div>
+  </div>
+</section>
+
+<style>
+  /* ---------- Frentes ---------- */
+  .frentes__lista {
+    display: grid;
+    gap: 2rem var(--vao);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .frente {
+    display: grid;
+    gap: 0.7rem;
+    align-content: start;
+    padding-top: 1.1rem;
+    border-top: 1px solid var(--ouro);
+  }
+
+  .frente__nome {
+    font-size: clamp(1.8rem, 2.4vw, 2.3rem);
+  }
+
+  @media (min-width: 640px) {
+    .frentes__lista {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 900px) {
+    .frentes__lista {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  /* ---------- Citação embaixo da foto pequena ---------- */
+  .cafe__citacao {
+    display: grid;
+    gap: 0.9rem;
+  }
+
+  .cafe__citacao p {
+    font: 400 var(--t-medio) / 1.25 var(--serifa);
+  }
+
+  .cafe__citacao footer {
+    color: var(--ouro-escuro);
+  }
+
+  /* ---------- Almoço ---------- */
+  .almoco {
+    row-gap: 3rem;
+  }
+
+  .almoco__texto,
+  .almoco__foto {
+    grid-column: 1 / -1;
+  }
+
+  .almoco__texto {
+    display: grid;
+    gap: 1.3rem;
+    align-content: start;
+  }
+
+  .almoco__foto {
+    width: 76%;
+    margin-left: auto;
+  }
+
+  @media (min-width: 900px) {
+    .almoco__texto {
+      grid-column: 1 / 7;
+    }
+
+    .almoco__foto {
+      grid-column: 8 / 12;
+      width: auto;
+      margin: 0;
+    }
+  }
+</style>

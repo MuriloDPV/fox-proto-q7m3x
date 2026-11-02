@@ -1,0 +1,104 @@
+---
+// NÚMEROS / DESTAQUES
+// Uma fileira de dados curtos: rótulo pequeno em cima, valor grande em
+// serifa embaixo, separados por um filete fino.
+// Números com "contar" sobem de 0 até o valor quando aparecem
+// (src/scripts/numeros.js).
+//
+// Uso:
+//   <Destaques rotulo="Em números" itens={[
+//     { rotulo: 'hectares de natureza', valor: 13, prefixo: '+', contar: true },
+//     { rotulo: 'Capacidade', valor: '<span class="a-confirmar">[A CONFIRMAR]</span>' },
+//   ]} />
+interface Item {
+  rotulo: string;
+  valor: string | number;
+  prefixo?: string;
+  sufixo?: string;
+  contar?: boolean; // anima de 0 (ou "de") até o valor
+  de?: number;
+  nota?: string; // linha pequena embaixo do valor
+}
+
+interface Props {
+  itens: Item[];
+  rotulo?: string; // título pequeno da fileira (opcional)
+  colada?: boolean;
+  fundo2?: boolean;
+}
+
+const { itens, rotulo, colada = false, fundo2 = false } = Astro.props;
+---
+
+<div class:list={['destaques secao margem', { 'secao--colada': colada, 'secao--fundo-2': fundo2 }]}>
+  {rotulo && <p class="rotulo destaques__titulo" data-surgir>{rotulo}</p>}
+  <dl class="destaques__lista" style={`--quantos: ${itens.length}`}>
+    {
+      itens.map((item, i) => (
+        <div class="destaque" data-surgir style={`--atraso: ${i * 110}ms`}>
+          <dt class="rotulo">{item.rotulo}</dt>
+          <dd class="destaque__valor">
+            {item.prefixo}
+            {item.contar ? (
+              <span data-contar={item.valor} data-de={item.de}>
+                {item.valor}
+              </span>
+            ) : (
+              <span set:html={String(item.valor)} />
+            )}
+            {item.sufixo}
+          </dd>
+          {item.nota && <dd class="destaque__nota">{item.nota}</dd>}
+        </div>
+      ))
+    }
+  </dl>
+</div>
+
+<style>
+  .destaques__titulo {
+    margin-bottom: 2.4rem;
+  }
+
+  /* celular: duas por linha */
+  .destaques__lista {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2.6rem var(--vao);
+  }
+
+  .destaque {
+    display: grid;
+    align-content: start;
+    gap: 0.9rem;
+    padding-top: 1.1rem;
+    border-top: 1px solid var(--ouro);
+  }
+
+  .destaque dt {
+    color: var(--texto-suave);
+  }
+
+  .destaque__valor {
+    font: 300 clamp(3rem, 7.4vw, 6.6rem) / 0.9 var(--serifa);
+    letter-spacing: -0.02em;
+    font-variant-numeric: lining-nums tabular-nums;
+  }
+
+  /* placeholder [A CONFIRMAR] dentro de um valor grande */
+  .destaque__valor :global(.a-confirmar) {
+    vertical-align: middle;
+  }
+
+  .destaque__nota {
+    font-size: 0.85rem;
+    color: var(--texto-suave);
+  }
+
+  /* computador: todos na mesma linha */
+  @media (min-width: 900px) {
+    .destaques__lista {
+      grid-template-columns: repeat(var(--quantos), minmax(0, 1fr));
+    }
+  }
+</style>

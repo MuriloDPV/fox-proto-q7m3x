@@ -1,0 +1,70 @@
+---
+// RÓTULO + PARÁGRAFO GRANDE
+// O bloco mais típico do estilo editorial: um rótulo pequeno em caixa alta
+// na coluna da esquerda e um parágrafo grande em serifa na metade direita.
+//
+// Uso:
+//   <Intro rotulo="Nossa história">
+//     Texto do parágrafo grande.
+//     <Fragment slot="extra"><p class="texto">Texto pequeno opcional</p></Fragment>
+//   </Intro>
+interface Props {
+  rotulo: string;
+  colada?: boolean; // sem espaço em cima (quando vem logo depois de outro bloco)
+}
+
+const { rotulo, colada = false } = Astro.props;
+---
+
+<div class:list={['intro secao margem grade', { 'secao--colada': colada }]}>
+  <p class="rotulo intro__rotulo" data-surgir>{rotulo}</p>
+  <div class="intro__corpo">
+    <p class="paragrafo-grande" data-surgir style="--atraso: 120ms"><slot /></p>
+    {
+      Astro.slots.has('extra') && (
+        <div class="intro__extra" data-surgir style="--atraso: 240ms">
+          <slot name="extra" />
+        </div>
+      )
+    }
+  </div>
+</div>
+
+<style>
+  /* Celular: um embaixo do outro */
+  .intro__rotulo,
+  .intro__corpo {
+    grid-column: 1 / -1;
+  }
+
+  .intro__rotulo {
+    margin-bottom: 1.4rem;
+  }
+
+  .intro__extra {
+    margin-top: 2rem;
+  }
+
+  /* Computador: rótulo nas colunas 1–4, texto nas 6–12 */
+  @media (min-width: 900px) {
+    .intro__rotulo {
+      grid-column: 1 / 5;
+      margin: 0.7rem 0 0;
+    }
+
+    .intro__corpo {
+      grid-column: 6 / 13;
+    }
+
+    .intro__extra {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1.6rem var(--vao);
+      margin-top: 3rem;
+    }
+
+    .intro__extra > :global(:only-child) {
+      grid-column: 1 / -1;
+    }
+  }
+</style>

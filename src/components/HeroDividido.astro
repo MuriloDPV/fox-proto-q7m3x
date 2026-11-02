@@ -1,0 +1,148 @@
+---
+// ABERTURA "DIVIDIDA" (v4.1): título grande de um lado, foto real do
+// assunto da aba do outro. É a saída para as abas que ainda não têm uma
+// foto de 1600 px ou mais mostrando o assunto delas (ex.: Gastronomia, que
+// antes abria com um pôr do sol).
+//
+// Quem escolhe entre esta abertura e a de tela cheia é o arquivo central
+// src/dados/fotos-secoes.js (tipo: 'dividida'). O HeroAba chama este
+// componente sozinho, então as abas não mudam quando a foto muda.
+//
+// A foto entra pelo componente Foto: a trava de 1,5× vale aqui também, e a
+// foto nunca fica maior que 1,5× o tamanho real dela (ela para de crescer
+// e encosta na direita).
+//
+// Fundo off-white, sem foto atrás do topo: por isso a classe NÃO é
+// .heroi-aba. Sem .heroi-aba na aba, o topo.js deixa o topo sólido (texto
+// escuro) desde o início e o parallax.js não faz nada.
+import Foto from './Foto.astro';
+import Linhas from './Linhas.astro';
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+  foto: { src: ImageMetadata; alt: string; real: number; telaCheia?: boolean };
+  posicao?: string; // object-position (que parte da foto fica visível)
+  rotulo: string; // texto pequeno acima do título
+  linhas: string[]; // o título, uma linha por item
+  recuo?: number[]; // linhas recuadas para a direita
+  nivel?: 'h1' | 'h2';
+  carregar?: 'eager' | 'lazy';
+}
+
+const { foto, posicao, rotulo, linhas, recuo = [1], nivel = 'h2', carregar = 'lazy' } = Astro.props;
+---
+
+<header class="heroi-dividido margem grade">
+  <div class="heroi-dividido__texto">
+    <p class="rotulo heroi-dividido__rotulo">{rotulo}</p>
+    <Linhas tag={nivel} class="gigante heroi-dividido__titulo" linhas={linhas} recuo={recuo} rolagem={false} />
+    <div class="heroi-dividido__rodape">
+      <slot />
+    </div>
+  </div>
+
+  <!-- paisagem (3:2): é o formato que menos corta as fotos que temos
+       (todas deitadas), então é o que deixa a foto maior sem esticar -->
+  <div class="heroi-dividido__foto">
+    <Foto {...foto} posicao={posicao} formato="paisagem" carregar={carregar} sizes="(min-width: 900px) 46vw, 92vw" />
+  </div>
+</header>
+
+<style>
+  /* Celular: texto em cima, foto embaixo, ocupando a largura toda.
+     Embaixo não tem espaço: quem dá o respiro é o bloco seguinte (.secao). */
+  .heroi-dividido {
+    row-gap: 2.4rem;
+    padding-top: calc(var(--altura-topo) + clamp(2rem, 6vw, 3.5rem));
+    background: var(--fundo);
+    color: var(--texto);
+  }
+
+  .heroi-dividido__texto,
+  .heroi-dividido__foto {
+    grid-column: 1 / -1;
+  }
+
+  .heroi-dividido__texto {
+    display: grid;
+    gap: 1.2rem;
+    align-content: center;
+  }
+
+  .heroi-dividido__rotulo {
+    color: var(--ouro-escuro);
+  }
+
+  /* frase curta + botão embaixo do título (mesmo papel do HeroAba) */
+  .heroi-dividido__rodape {
+    display: grid;
+    justify-items: start;
+    gap: 1.2rem;
+    max-width: 24rem;
+    margin-top: 0.8rem;
+    font-size: 0.98rem;
+    line-height: 1.5;
+    color: var(--texto-suave);
+  }
+
+  .heroi-dividido__rodape:empty {
+    display: none;
+  }
+
+  /* Computador: metade texto, metade foto, centralizados na altura da tela.
+     O título gigante normal (9,4vw) não cabe em meia tela: aqui ele vai
+     até 5vw. */
+  @media (min-width: 900px) {
+    .heroi-dividido {
+      min-height: min(100svh, 60rem);
+      align-content: center;
+      align-items: center;
+      padding-bottom: 3rem;
+    }
+
+    .heroi-dividido__texto {
+      grid-column: 1 / 7;
+    }
+
+    .heroi-dividido__foto {
+      grid-column: 7 / -1;
+      display: grid;
+      justify-items: end; /* quando a trava de 1,5× segura a foto, ela fica à direita */
+    }
+
+    .heroi-dividido :global(.heroi-dividido__titulo) {
+      font-size: clamp(2.3rem, 5vw, 6rem);
+    }
+  }
+
+  /* ---- Animações (iguais às do HeroAba: repetem sempre que a aba abre) ----
+     A foto já abre sozinha pelo data-revelar do componente Foto. */
+  .heroi-dividido :global(.heroi-dividido__titulo .linha > span) {
+    animation: dividido-linha 1.15s var(--ease) both;
+    animation-delay: calc(0.2s + var(--i, 0) * 0.1s);
+  }
+
+  @keyframes dividido-linha {
+    from {
+      transform: translateY(110%);
+    }
+  }
+
+  .heroi-dividido__rotulo,
+  .heroi-dividido__rodape {
+    animation: dividido-texto 1s 0.55s var(--ease) both;
+  }
+
+  @keyframes dividido-texto {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+  }
+
+  /* Enquanto a tela de abertura do site está na frente, as animações esperam */
+  :global(html.js:not(.aberto)) .heroi-dividido :is(.heroi-dividido__rotulo, .heroi-dividido__rodape),
+  :global(html.js:not(.aberto)) .heroi-dividido :global(.heroi-dividido__titulo .linha > span) {
+    animation-play-state: paused;
+  }
+</style>

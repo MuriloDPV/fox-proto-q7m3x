@@ -1,0 +1,578 @@
+/* =========================================================
+   Chácara Ludwig — estilos globais (v4, estilo editorial)
+   Inspiração: sites editoriais de hotelaria (fundo off-white,
+   serifa fina gigante, fotos grandes sem moldura, muito espaço).
+   O dourado/bronze da logo aparece só em detalhes: filetes,
+   botão Reservar e hover.
+   Cada componente tem o próprio <style>; aqui fica só o que é
+   compartilhado (cores, tipografia, botões, animações).
+   ========================================================= */
+
+:root {
+  /* ---- Cores ---- */
+  --fundo: #f4eee6; /* off-white quente: o "papel" do site */
+  --fundo-2: #ebe2d6; /* um tom abaixo, para blocos alternados */
+  --texto: #33271d; /* marrom-escuro */
+  --texto-suave: #6e5f51; /* textos pequenos e legendas */
+  --linha: rgb(51 39 29 / 0.16); /* filetes finos entre itens */
+  --ouro: #b08d57; /* bronze da logo: linhas, botão Reservar, hover */
+  --ouro-claro: #d8bf8f; /* bronze sobre fundo escuro */
+  --ouro-escuro: #876635; /* bronze para TEXTO pequeno (contraste 4,5:1 no off-white) */
+  --noite: #2a2019; /* rodapé e lightbox */
+  --sobre-foto: #f7f2ea; /* texto por cima das fotos */
+
+  /* ---- Tipografia ----
+     Duas famílias só: uma serifa fina para tudo que é grande e uma sans
+     discreta para rótulos e textos pequenos. */
+  --serifa: 'Cormorant Garamond', Georgia, serif;
+  --sans: 'Inter', system-ui, sans-serif;
+
+  /* ESCALA TIPOGRÁFICA (bem contrastada: gigante x minúsculo).
+     clamp(mínimo, preferido, máximo): o tamanho acompanha a largura da
+     tela (vw), mas nunca passa dos limites. */
+  --t-gigante: clamp(2.3rem, 9.4vw, 8.5rem); /* título de tela cheia, CAIXA ALTA */
+  --t-titulo: clamp(2.3rem, 5.2vw, 5rem); /* títulos de bloco */
+  --t-paragrafo: clamp(1.5rem, 2.45vw, 2.35rem); /* o "parágrafo grande" em serifa */
+  --t-medio: clamp(1.3rem, 1.7vw, 1.65rem); /* nomes, legendas grandes */
+  --t-texto: 0.95rem; /* texto corrido pequeno (sans) */
+  --t-rotulo: 0.7rem; /* rótulos em caixa alta (sans) */
+
+  /* ---- Medidas ---- */
+  --margem: clamp(1rem, 2.6vw, 2.5rem); /* margem lateral da página */
+  --vao: clamp(1rem, 2vw, 2rem); /* espaço entre colunas */
+  --espaco: clamp(5.5rem, 12vw, 11rem); /* espaço vertical entre blocos */
+  --altura-topo: 64px;
+
+  /* ---- Movimento ---- */
+  --ease: cubic-bezier(0.22, 1, 0.36, 1); /* sai rápido, pousa devagar */
+  --ease-mascara: cubic-bezier(0.7, 0, 0.2, 1); /* para as máscaras de texto */
+}
+
+@media (min-width: 900px) {
+  :root {
+    --altura-topo: 84px;
+  }
+}
+
+/* ---------- Base ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  /* a página inteira rola (na v3 quem rolava era um "palco" interno) */
+  scroll-padding-top: var(--altura-topo);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--fundo);
+  color: var(--texto);
+  font: 400 var(--t-texto) / 1.65 var(--sans);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip; /* nada pode criar rolagem lateral */
+}
+
+/* Menu aberto: a página por baixo não rola */
+body.menu-aberto {
+  overflow: hidden;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+h1,
+h2,
+h3,
+p,
+blockquote,
+figure,
+dl,
+dd {
+  margin: 0;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--serifa);
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+a {
+  color: inherit;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 1.5px solid var(--ouro-escuro);
+  outline-offset: 3px;
+}
+
+/* ---------- Tipografia reaproveitada ---------- */
+
+/* Título gigante de tela cheia (por cima da foto) */
+.gigante {
+  font: 300 var(--t-gigante) / 0.9 var(--serifa);
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+/* Título de bloco */
+.titulo {
+  font: 300 var(--t-titulo) / 1 var(--serifa);
+  letter-spacing: -0.015em;
+}
+
+.titulo em,
+.gigante em {
+  font-style: italic;
+}
+
+/* Parágrafo grande em serifa: o bloco que mais se repete no site */
+.paragrafo-grande {
+  font: 400 var(--t-paragrafo) / 1.18 var(--serifa);
+  letter-spacing: -0.005em;
+}
+
+/* Rótulo pequeno em caixa alta (sans) */
+.rotulo {
+  font: 500 var(--t-rotulo) / 1.4 var(--sans);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* Texto corrido pequeno */
+.texto {
+  max-width: 34rem;
+  color: var(--texto-suave);
+}
+
+.texto + .texto {
+  margin-top: 1em;
+}
+
+/* Legenda de foto, em serifa */
+.legenda {
+  margin-top: 0.7rem;
+  font: 400 var(--t-medio) / 1.2 var(--serifa);
+}
+
+.legenda small {
+  display: block;
+  margin-top: 0.3rem;
+  font: 400 0.82rem/1.5 var(--sans);
+  color: var(--texto-suave);
+}
+
+/* ---------- Layout ---------- */
+
+/* Margem lateral (o conteúdo vai quase de ponta a ponta) */
+.margem {
+  padding-inline: var(--margem);
+}
+
+/* Grade de 12 colunas. Os filhos escolhem as colunas com grid-column. */
+.grade {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--vao);
+}
+
+/* Bloco de seção: muito espaço em cima e embaixo */
+.secao {
+  padding-block: var(--espaco);
+}
+
+.secao--fundo-2 {
+  background: var(--fundo-2);
+}
+
+/* "colado" no bloco anterior (sem o espaço de cima) */
+.secao--colada {
+  padding-top: 0;
+}
+
+/* Filete dourado fino, usado como divisor */
+.filete {
+  height: 1px;
+  border: 0;
+  margin: 0;
+  background: var(--ouro);
+}
+
+/* ---------- Botões ----------
+   Como na referência: uma caixinha com o texto e, colado nela, um
+   quadradinho com a seta. Variante ouro = o "Reservar". */
+.botao {
+  display: inline-flex;
+  align-items: stretch;
+  gap: 3px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: 500 var(--t-rotulo) / 1 var(--sans);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.botao__texto,
+.botao__seta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  border: 1px solid currentColor;
+  transition:
+    background-color 0.35s,
+    color 0.35s,
+    border-color 0.35s;
+}
+
+.botao__texto {
+  padding: 0.95em 1.15em;
+}
+
+.botao__seta {
+  justify-content: center;
+  width: 2.9em;
+}
+
+.botao svg {
+  width: 1.35em;
+  height: 1.35em;
+  flex: none;
+}
+
+.botao__seta svg {
+  width: 1.1em;
+  height: 1.1em;
+  transition: transform 0.45s var(--ease);
+}
+
+@media (hover: hover) {
+  .botao:hover .botao__texto,
+  .botao:hover .botao__seta {
+    border-color: var(--ouro);
+    background: var(--ouro);
+    color: var(--noite);
+  }
+
+  .botao:hover .botao__seta svg {
+    transform: translateX(3px);
+  }
+}
+
+/* Reservar: preenchido de bronze */
+.botao--ouro .botao__texto,
+.botao--ouro .botao__seta {
+  border-color: var(--ouro);
+  background: var(--ouro);
+  color: var(--noite);
+}
+
+@media (hover: hover) {
+  .botao--ouro:hover .botao__texto,
+  .botao--ouro:hover .botao__seta {
+    border-color: var(--texto);
+    background: var(--texto);
+    color: var(--fundo);
+  }
+}
+
+/* Linha de botões */
+.acoes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.8rem 1.4rem;
+  margin-top: 2.2rem;
+}
+
+.acoes__nota {
+  font-size: 0.82rem;
+  color: var(--texto-suave);
+}
+
+/* Link de texto com filete dourado embaixo, que cresce no hover */
+.link {
+  color: inherit;
+  text-decoration: none;
+  background: linear-gradient(var(--ouro), var(--ouro)) 0 100% / 100% 1px no-repeat;
+  transition: background-size 0.4s var(--ease);
+}
+
+@media (hover: hover) {
+  .link:hover {
+    background-size: 100% 2px;
+  }
+}
+
+/* ---------- Placeholders [A CONFIRMAR] ---------- */
+.a-confirmar {
+  display: inline-block;
+  padding: 0.1em 0.45em;
+  border: 1px dashed var(--ouro-escuro);
+  color: var(--ouro-escuro);
+  font: 500 0.72rem/1.5 var(--sans);
+  letter-spacing: 0.06em;
+}
+
+/* Caixa vazia no lugar de uma foto que ainda não existe */
+.foto-vazia {
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  background:
+    repeating-linear-gradient(135deg, transparent 0 14px, rgb(51 39 29 / 0.035) 14px 15px),
+    var(--fundo-2);
+  text-align: center;
+}
+
+/* ---------- Painéis (abas) ----------
+   Com JS, só a aba ativa aparece (o CSS gerado em Base.astro mostra a do
+   endereço já no primeiro desenho da tela). Sem JS, tudo aparece em
+   sequência, como uma página comprida. */
+.js .painel {
+  display: none;
+}
+
+.painel:focus {
+  outline: none;
+}
+
+/* =========================================================
+   ANIMAÇÕES DE ENTRADA
+   Todas usam só transform, opacity e clip-path (as três que o
+   navegador anima sem recalcular o layout = lisas no celular).
+   Só valem com JS (classe .js no <html>): sem JS, tudo já aparece.
+   ========================================================= */
+
+/* ---- 1. Texto por linha, com máscara ----
+   Cada linha é uma "janela" (.linha, overflow: hidden) e o texto dentro
+   dela (span) começa empurrado para baixo, escondido. Quando o bloco
+   ganha .visivel, o texto sobe e aparece pela janela, uma linha depois
+   da outra (--i = número da linha, vira o atraso).
+   O padding/margin negativo dá folga para acentos (Á, Õ) e cedilha (Ç)
+   não serem cortados pela janela. */
+.linha {
+  display: block;
+  overflow: hidden;
+  padding-block: 0.14em 0.1em;
+  margin-block: -0.14em -0.1em;
+}
+
+.linha > span {
+  display: block;
+}
+
+.js [data-linhas] .linha > span {
+  transform: translateY(110%);
+  transition: transform 1.1s var(--ease);
+  transition-delay: calc(var(--i, 0) * 90ms + var(--atraso, 0ms));
+}
+
+.js [data-linhas].visivel .linha > span {
+  transform: none;
+}
+
+/* ---- 2. Fotos que revelam com leve escala ----
+   A caixa abre de baixo para cima (clip-path) e a foto dentro dela
+   "assenta" de 112% para 100%. */
+.js [data-revelar] {
+  clip-path: inset(100% 0 0 0);
+  transition: clip-path 1.25s var(--ease-mascara);
+  transition-delay: var(--atraso, 0ms);
+}
+
+.js [data-revelar] img {
+  transform: scale(1.12);
+  transition: transform 1.8s var(--ease);
+  transition-delay: var(--atraso, 0ms);
+}
+
+.js [data-revelar].visivel {
+  clip-path: inset(0 0 0 0);
+}
+
+.js [data-revelar].visivel img {
+  transform: none;
+}
+
+/* ---- 3. Blocos que sobem e aparecem ---- */
+.js [data-surgir] {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 1s var(--ease),
+    transform 1.1s var(--ease);
+  transition-delay: var(--atraso, 0ms);
+}
+
+.js [data-surgir].visivel {
+  opacity: 1;
+  transform: none;
+}
+
+/* Troca simples dentro de um bloco (depoimentos, foto do lightbox) */
+.revelar-local {
+  animation: aparecer 0.7s var(--ease) both;
+}
+
+@keyframes aparecer {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+/* =========================================================
+   TROCA DE ABA (View Transitions)
+   O transicao.js chama document.startViewTransition(). O navegador
+   tira uma "foto" da tela antiga e outra da nova, e o CSS abaixo anima
+   as duas: a antiga some (fade) e a nova é revelada de baixo para cima
+   (clip-path). Sem cortina, sem moldura: um corte limpo.
+   O topo tem nome próprio (view-transition-name: topo) para ficar
+   parado por cima, sem piscar.
+   ========================================================= */
+::view-transition-old(root) {
+  animation: vt-some 0.45s ease both;
+}
+
+::view-transition-new(root) {
+  animation: vt-revela 0.95s var(--ease-mascara) both;
+}
+
+@keyframes vt-some {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes vt-revela {
+  from {
+    clip-path: inset(100% 0 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/* Navegador sem View Transitions: o palco só aparece suave */
+.palco.entrando {
+  animation: aparecer-palco 0.7s var(--ease) both;
+}
+
+@keyframes aparecer-palco {
+  from {
+    opacity: 0;
+  }
+}
+
+/* ---------- Etiqueta discreta do protótipo ---------- */
+.etiqueta-prototipo {
+  position: fixed;
+  left: 50%;
+  bottom: 0.35rem;
+  z-index: 40;
+  translate: -50% 0; /* centralizada embaixo: não cobre os botões dos cantos */
+  padding: 0.25rem 0.5rem;
+  background: rgb(244 238 230 / 0.85);
+  color: var(--texto-suave);
+  font: 500 0.58rem/1 var(--sans);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+/* =========================================================
+   ENTRADA DO SITE (v4.3)
+   O <html> ganha .entrando antes de pintar a tela (script do <head>,
+   Base.astro) e perde no fim da entrada (src/scripts/entrada.js).
+   Enquanto isso, cada peça marcada com data-entrada começa AQUI
+   escondida, no mesmo estado do 1º quadro da animação dela: nada
+   aparece antes da hora e nada salta quando o JS assume.
+   Com "menos movimento" o <html> não ganha .entrando: tudo já no lugar.
+   ========================================================= */
+html.entrando [data-entrada='topo-botao'],
+html.entrando [data-entrada='topo-logo'],
+html.entrando [data-entrada='extra'],
+html.entrando [data-entrada='rotulo'],
+html.entrando [data-entrada='frase'],
+html.entrando [data-entrada='busca'],
+html.entrando [data-entrada='pilar'] .legenda {
+  opacity: 0;
+}
+
+/* o filete embaixo do topo, que se desenha do centro para as pontas */
+html.entrando .topo::before {
+  transform: scaleX(0);
+}
+
+/* o título sobe linha por linha por trás da máscara (.linha) */
+html.entrando [data-entrada='titulo'] .linha > span {
+  transform: translateY(110%);
+}
+
+/* as fotos abrem de baixo para cima e "assentam" de 1,08 para 1 */
+html.entrando [data-entrada='pilar'] .foto__caixa {
+  clip-path: inset(100% 0 0 0);
+}
+
+html.entrando [data-entrada='pilar'] .foto__img {
+  transform: scale(1.08);
+  transition: none;
+}
+
+/* =========================================================
+   MENOS MOVIMENTO
+   Quem ligou "reduzir movimento" no sistema vê tudo já no lugar:
+   sem máscaras, sem escala, sem parallax, sem transição de aba.
+   ========================================================= */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .js [data-linhas] .linha > span,
+  .js [data-revelar] img,
+  .js [data-surgir] {
+    transform: none;
+    opacity: 1;
+  }
+
+  .js [data-revelar] {
+    clip-path: none;
+  }
+
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}

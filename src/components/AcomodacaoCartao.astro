@@ -1,0 +1,315 @@
+---
+// Cartão de uma acomodação (aba Hospedagem).
+//   - carrossel das fotos dela, sem moldura (setas, contador e swipe;
+//     lógica em src/scripts/carrossel.js). Clicar numa foto abre o lightbox
+//     com todas as fotos dessa acomodação.
+//   - nome, capacidade, camas e ícones das comodidades
+//   - "Ver datas": abre a janela de reserva já com o nome e os hóspedes
+// data-etiquetas guarda em quais filtros o cartão entra (src/scripts/filtros.js).
+import { Image, getImage } from 'astro:assets';
+import Icone from './Icone.astro';
+import { ITENS, etiquetas } from '../dados/acomodacoes.js';
+import { fotosDoQuarto } from '../dados/fotos-quartos.js';
+
+interface Props {
+  acomodacao: {
+    slug: string;
+    nome: string;
+    tipo: string;
+    hospedes: number | null;
+    camas: string | null;
+    itens: string[];
+    confirmar?: boolean;
+  };
+  atraso?: number;
+}
+
+const { acomodacao: a, atraso = 0 } = Astro.props;
+const fotos = fotosDoQuarto(a.slug);
+
+// Para cada foto: a versão grande (lightbox) e as larguras do srcset.
+// As fotos de quarto são HD (o dobro do original): data-real guarda a
+// largura original, para a conferência de "foto esticada" dos prints.
+const preparadas = await Promise.all(
+  fotos.map(async (src, i) => ({
+    src,
+    larguras: [400, 640, 900].filter((w) => w < src.width).concat(src.width),
+    grande: (await getImage({ src, width: Math.min(src.width, 1600), format: 'webp' })).src,
+    alt: `${a.nome}: foto ${i + 1} de ${fotos.length}`,
+  })),
+);
+---
+
+<article class="acomod" id={`acomodacao-${a.slug}`} data-etiquetas={etiquetas(a).join(' ')} aria-labelledby={`nome-${a.slug}`}>
+  <div class="acomod__fotos" data-revelar style={`--atraso: ${atraso}ms`}>
+    <div class="fotos" data-carrossel>
+      <ul class="fotos__trilho" data-trilho>
+        {
+          preparadas.map((f) => (
+            <li class="fotos__item">
+              <button
+                class="fotos__botao"
+                type="button"
+                data-lightbox={`quarto-${a.slug}`}
+                data-grande={f.grande}
+                data-legenda={f.alt}
+                data-alt={f.alt}
+                aria-label={`Ampliar ${f.alt}`}
+              >
+                <Image
+                  src={f.src}
+                  alt={f.alt}
+                  widths={f.larguras}
+                  sizes="(min-width: 1100px) 31vw, (min-width: 640px) 46vw, 92vw"
+                  data-real={f.src.width / 2}
+                  data-real-altura={f.src.height / 2}
+                />
+              </button>
+            </li>
+          ))
+        }
+      </ul>
+      {
+        fotos.length > 1 && (
+          <>
+            <button class="fotos__seta fotos__seta--anterior" type="button" data-anterior aria-label={`Foto anterior: ${a.nome}`}>
+              <Icone nome="seta" />
+            </button>
+            <button class="fotos__seta fotos__seta--proxima" type="button" data-proxima aria-label={`Próxima foto: ${a.nome}`}>
+              <Icone nome="seta" />
+            </button>
+            <span class="fotos__contador" aria-hidden="true">
+              <span data-atual>1</span> / {fotos.length}
+            </span>
+          </>
+        )
+      }
+    </div>
+  </div>
+
+  <div class="acomod__info">
+    <p class="acomod__tipo">
+      {`${a.tipo === 'suite' ? 'Suíte' : 'Casa'}${a.hospedes ? ` · até ${a.hospedes} hóspedes` : ''}`}
+    </p>
+    <h3 id={`nome-${a.slug}`}>{a.nome}</h3>
+
+    {
+      a.camas ? (
+        <p class="acomod__camas">
+          <Icone nome="cama" />
+          {a.camas}
+        </p>
+      ) : (
+        <p class="acomod__camas">
+          <span class="a-confirmar">[CAPACIDADE E CAMAS A CONFIRMAR]</span>
+        </p>
+      )
+    }
+
+    <ul class="acomod__itens">
+      {
+        a.itens.map((chave) => (
+          <li>
+            <Icone nome={ITENS[chave].icone} />
+            {ITENS[chave].rotulo}
+          </li>
+        ))
+      }
+      {a.confirmar && <li class="a-confirmar">[DEMAIS DETALHES A CONFIRMAR]</li>}
+    </ul>
+
+    <button
+      class="botao acomod__botao"
+      type="button"
+      data-abrir-busca
+      data-acomodacao={a.nome}
+      data-hospedes={a.hospedes ?? undefined}
+    >
+      <span class="botao__texto">Ver datas</span>
+      <span class="botao__seta"><Icone nome="seta" /></span>
+    </button>
+  </div>
+</article>
+
+<style>
+  .acomod {
+    display: grid;
+    align-content: start;
+    gap: 1.3rem;
+  }
+
+  .acomod[hidden] {
+    display: none;
+  }
+
+  /* ---------- Carrossel de fotos ---------- */
+  .fotos {
+    position: relative;
+    aspect-ratio: 3 / 2;
+    background: var(--fundo-2);
+  }
+
+  /* trilho: as fotos lado a lado; o ímã (scroll-snap) para em cada uma */
+  .fotos__trilho {
+    display: flex;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    list-style: none;
+    overscroll-behavior-x: contain;
+  }
+
+  .fotos__trilho::-webkit-scrollbar {
+    display: none;
+  }
+
+  .fotos__item {
+    flex: 0 0 100%;
+    scroll-snap-align: start;
+  }
+
+  .fotos__botao {
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: zoom-in;
+  }
+
+  .fotos__botao:focus-visible {
+    outline-offset: -4px;
+  }
+
+  .fotos__botao :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* setas: quadradinhos off-white, discretos, que aparecem no hover */
+  .fotos__seta {
+    position: absolute;
+    bottom: 0.7rem;
+    z-index: 4;
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 0;
+    background: rgb(244 238 230 / 0.92);
+    color: var(--texto);
+    cursor: pointer;
+    transition:
+      opacity 0.3s,
+      background-color 0.3s;
+  }
+
+  .fotos__seta :global(svg) {
+    width: 16px;
+    height: 16px;
+  }
+
+  .fotos__seta--anterior {
+    right: calc(0.7rem + 40px);
+  }
+
+  .fotos__seta--anterior :global(svg) {
+    transform: scaleX(-1);
+  }
+
+  .fotos__seta--proxima {
+    right: 0.7rem;
+  }
+
+  .fotos__seta:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+
+  @media (hover: hover) {
+    .fotos__seta:not(:disabled):hover {
+      background: var(--ouro);
+    }
+  }
+
+  .fotos__contador {
+    position: absolute;
+    left: 0.7rem;
+    bottom: 0.7rem;
+    z-index: 4;
+    padding: 0.35rem 0.55rem;
+    background: rgb(244 238 230 / 0.92);
+    color: var(--texto);
+    font: 500 0.68rem/1 var(--sans);
+    letter-spacing: 0.08em;
+    pointer-events: none;
+  }
+
+  /* ---------- Informações ---------- */
+  .acomod__info {
+    display: grid;
+    justify-items: start;
+    gap: 0.5rem;
+  }
+
+  .acomod__tipo {
+    font: 500 var(--t-rotulo) / 1.4 var(--sans);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ouro-escuro);
+  }
+
+  .acomod h3 {
+    font-size: clamp(1.9rem, 2.6vw, 2.4rem);
+  }
+
+  .acomod__camas {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--texto-suave);
+  }
+
+  .acomod__camas :global(svg) {
+    flex: none;
+    width: 18px;
+    height: 18px;
+  }
+
+  /* comodidades: lista corrida separada por pontos, sem caixinhas */
+  .acomod__itens {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0;
+    margin: 0.1rem 0 0.6rem;
+    padding: 0;
+    list-style: none;
+    font-size: 0.86rem;
+    color: var(--texto-suave);
+  }
+
+  .acomod__itens li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .acomod__itens li:not(:last-child)::after {
+    content: '·';
+    margin-inline: 0.55rem;
+    color: var(--ouro);
+  }
+
+  .acomod__itens :global(svg) {
+    flex: none;
+    width: 16px;
+    height: 16px;
+    color: var(--ouro-escuro);
+  }
+</style>

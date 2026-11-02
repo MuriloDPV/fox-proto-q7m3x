@@ -1,0 +1,173 @@
+---
+// Rodapé: aparece no fim de toda aba (fica depois dos painéis).
+// Bloco marrom-escuro com a logo original (versão para fundo escuro),
+// endereço (só rua e CEP), contatos e os links das abas.
+import { Image } from 'astro:assets';
+import logoEscura from '../assets/marca/logo-escura.png';
+import { ABAS } from '../dados/abas.js';
+import {
+  ENDERECO,
+  linkWhatsApp,
+  MENSAGEM_RESERVA,
+  WHATSAPP_EXIBICAO,
+  TELEFONE_2_EXIBICAO,
+  TELEFONE_2_NUMERO,
+  INSTAGRAM_URL,
+  INSTAGRAM_EXIBICAO,
+  FACEBOOK_URL,
+  MAPA_ROTA,
+} from '../config.js';
+
+const ano = new Date().getFullYear();
+---
+
+<footer class="rodape margem">
+  <div class="rodape__marca">
+    <Image class="rodape__logo" src={logoEscura} alt="Chácara Ludwig — Festas e Eventos" widths={[180, 360]} sizes="160px" />
+    <p class="rodape__frase">Pousada, jardim de esculturas e eventos.</p>
+  </div>
+
+  <div class="rodape__grade">
+    <div class="rodape__bloco">
+      <p class="rotulo rodape__titulo">Endereço</p>
+      <p>
+        {ENDERECO.rua}<br />
+        CEP {ENDERECO.cep}
+      </p>
+      <a class="link" href={MAPA_ROTA} target="_blank" rel="noopener">Como chegar</a>
+    </div>
+
+    <div class="rodape__bloco">
+      <p class="rotulo rodape__titulo">Contato</p>
+      <p>
+        <!-- números e horários ficam num <span> que não quebra: "(55) 98115-9007" inteiro -->
+        <a class="link" href={linkWhatsApp(MENSAGEM_RESERVA)} target="_blank" rel="noopener">WhatsApp <span class="rodape__sem-quebra">{WHATSAPP_EXIBICAO}</span></a><br />
+        <a class="link" href={`tel:+${TELEFONE_2_NUMERO}`}>Telefone <span class="rodape__sem-quebra">{TELEFONE_2_EXIBICAO}</span></a>
+      </p>
+      <p><span class="rodape__sem-quebra">Check-in 14:00</span> · <span class="rodape__sem-quebra">Check-out 10:30</span></p>
+    </div>
+
+    <div class="rodape__bloco">
+      <p class="rotulo rodape__titulo">Redes</p>
+      <p>
+        <a class="link" href={INSTAGRAM_URL} target="_blank" rel="noopener">Instagram {INSTAGRAM_EXIBICAO}</a><br />
+        <a class="link" href={FACEBOOK_URL} target="_blank" rel="noopener">Facebook</a>
+      </p>
+    </div>
+
+    <nav class="rodape__bloco" aria-label="Rodapé">
+      <p class="rotulo rodape__titulo">No site</p>
+      <ul class="rodape__links">
+        {ABAS.map((aba) => <li><a href={`#${aba.id}`}>{aba.nome}</a></li>)}
+      </ul>
+    </nav>
+  </div>
+
+  <p class="rodape__final">
+    <span>© {ano} Chácara Ludwig</span>
+    <span>Protótipo — FOX</span>
+  </p>
+</footer>
+
+<style>
+  .rodape {
+    display: grid;
+    gap: 3.6rem;
+    padding-top: clamp(4rem, 8vw, 7rem);
+    padding-bottom: 2rem;
+    background: var(--noite);
+    color: rgb(247 242 234 / 0.72);
+    font-size: 0.88rem;
+  }
+
+  .rodape__marca {
+    display: grid;
+    justify-items: start;
+    gap: 1.2rem;
+  }
+
+  .rodape :global(.rodape__logo) {
+    width: 140px;
+    height: auto;
+  }
+
+  .rodape__frase {
+    max-width: 22rem;
+    font: 300 clamp(1.6rem, 2.6vw, 2.3rem) / 1.15 var(--serifa);
+    color: var(--sobre-foto);
+  }
+
+  .rodape__grade {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2.4rem var(--vao);
+  }
+
+  .rodape__titulo {
+    margin-bottom: 0.9rem;
+    color: var(--ouro-claro);
+  }
+
+  .rodape__bloco p + p,
+  .rodape__bloco p + a {
+    display: inline-block;
+    margin-top: 0.7rem;
+  }
+
+  .rodape a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  /* Telefone e horário nunca quebram no meio. Se a coluna for estreita, quem desce
+     para a linha de baixo é o pedaço inteiro, não metade dele. */
+  .rodape__sem-quebra {
+    white-space: nowrap;
+  }
+
+  .rodape__links {
+    display: grid;
+    gap: 0.3rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (hover: hover) {
+    .rodape a:hover {
+      color: var(--sobre-foto);
+    }
+  }
+
+  .rodape__final {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.6rem 2rem;
+    padding-top: 1.4rem;
+    border-top: 1px solid rgb(216 191 143 / 0.25);
+    font-size: 0.74rem;
+    letter-spacing: 0.06em;
+    color: rgb(247 242 234 / 0.5);
+  }
+
+  @media (min-width: 900px) {
+    .rodape {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: var(--vao);
+    }
+
+    .rodape__marca {
+      grid-column: 1 / 5;
+    }
+
+    .rodape__grade {
+      grid-column: 6 / 13;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .rodape__final {
+      grid-column: 1 / -1;
+    }
+  }
+</style>

@@ -1,0 +1,147 @@
+---
+// Depoimentos: os dois depoimentos reais do site atual (só a digitação foi
+// corrigida), um de cada vez, como citação grande em serifa. Não copiamos
+// avaliações do Google: o botão abre a ficha do lugar no Google Maps.
+// Troca: setas, números e automática a cada 8 s (src/scripts/depoimentos.js).
+import Icone from './Icone.astro';
+import { MAPA_AVALIACOES } from '../config.js';
+
+const depoimentos = [
+  {
+    texto: 'Lugar excelente para férias e passeios, ambiente acolhedor para toda a família.',
+    nome: 'Lenita Griza',
+  },
+  {
+    texto:
+      'Experiência incrível! Ficamos dois dias hospedados nas cabanas. Tudo limpinho, café da manhã com omelete feito na hora. Adorei!',
+    nome: 'Joane',
+  },
+];
+---
+
+<div class="depoimentos secao margem grade" data-depoimentos>
+  <p class="rotulo depoimentos__rotulo" data-surgir>Depoimentos</p>
+
+  <div class="depoimentos__corpo" data-surgir style="--atraso: 120ms">
+    <div class="depoimentos__lista" aria-live="polite">
+      {
+        depoimentos.map((d, i) => (
+          <blockquote class="depoimento" data-depoimento hidden={i !== 0}>
+            <p>“{d.texto}”</p>
+            <footer class="rotulo">{d.nome}</footer>
+          </blockquote>
+        ))
+      }
+    </div>
+
+    <div class="depoimentos__controles">
+      <button class="depoimentos__seta rotulo" type="button" data-anterior aria-label="Depoimento anterior">Anterior</button>
+      <div class="depoimentos__pontos">
+        {
+          depoimentos.map((d, i) => (
+            <button
+              class="depoimentos__ponto rotulo"
+              type="button"
+              data-ponto={i}
+              aria-label={`Depoimento de ${d.nome}`}
+              aria-pressed={i === 0 ? 'true' : 'false'}
+            >
+              {String(i + 1).padStart(2, '0')}
+            </button>
+          ))
+        }
+      </div>
+      <button class="depoimentos__seta rotulo" type="button" data-proximo aria-label="Próximo depoimento">Próximo</button>
+    </div>
+
+    <a class="botao depoimentos__google" href={MAPA_AVALIACOES} target="_blank" rel="noopener">
+      <span class="botao__texto">Avaliações no Google</span>
+      <span class="botao__seta"><Icone nome="seta" /></span>
+    </a>
+  </div>
+</div>
+
+<style>
+  .depoimentos__rotulo,
+  .depoimentos__corpo {
+    grid-column: 1 / -1;
+  }
+
+  .depoimentos__rotulo {
+    margin-bottom: 1.6rem;
+  }
+
+  /* todos os depoimentos ocupam a mesma célula: o bloco não muda de altura */
+  .depoimentos__lista {
+    display: grid;
+  }
+
+  .depoimento {
+    grid-area: 1 / 1;
+    display: grid;
+    align-content: start;
+    gap: 2rem;
+  }
+
+  .depoimento[hidden] {
+    display: grid;
+    visibility: hidden;
+  }
+
+  .depoimento p {
+    font: 300 clamp(1.9rem, 3.9vw, 3.6rem) / 1.12 var(--serifa);
+    letter-spacing: -0.01em;
+  }
+
+  .depoimento footer {
+    color: var(--ouro-escuro);
+  }
+
+  .depoimentos__controles {
+    display: flex;
+    align-items: center;
+    gap: 1.6rem;
+    margin-top: 2.6rem;
+  }
+
+  .depoimentos__seta,
+  .depoimentos__ponto {
+    padding: 0.6rem 0;
+    border: 0;
+    background: none;
+    color: var(--texto-suave);
+    cursor: pointer;
+  }
+
+  .depoimentos__pontos {
+    display: flex;
+    gap: 0.9rem;
+  }
+
+  .depoimentos__ponto[aria-pressed='true'] {
+    color: var(--texto);
+    box-shadow: inset 0 -1px 0 var(--ouro);
+  }
+
+  @media (hover: hover) {
+    .depoimentos__seta:hover,
+    .depoimentos__ponto:hover {
+      color: var(--texto);
+    }
+  }
+
+  .depoimentos__google {
+    margin-top: 2.6rem;
+  }
+
+  @media (min-width: 900px) {
+    .depoimentos__rotulo {
+      grid-column: 1 / 4;
+      margin: 0.9rem 0 0;
+    }
+
+    .depoimentos__corpo {
+      grid-column: 4 / 12;
+    }
+  }
+</style>

@@ -1,0 +1,51 @@
+---
+// Atalho do WhatsApp sempre à mão, em qualquer aba (canto de baixo).
+// Na v4 o "Reservar" foi para o topo (Topo.astro), então aqui ficou só o
+// WhatsApp, num círculo discreto marrom com o ícone claro.
+import Icone from './Icone.astro';
+import { linkWhatsApp, MENSAGEM_RESERVA } from '../config.js';
+---
+
+<a class="whats" data-entrada="extra" href={linkWhatsApp(MENSAGEM_RESERVA)} target="_blank" rel="noopener" aria-label="Falar no WhatsApp">
+  <Icone nome="whatsapp" />
+</a>
+
+<style>
+  .whats {
+    position: fixed;
+    right: var(--margem);
+    bottom: max(var(--margem), env(safe-area-inset-bottom));
+    z-index: 60;
+    display: grid;
+    place-items: center;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--texto);
+    color: var(--fundo);
+    box-shadow: 0 0 0 1px rgb(244 238 230 / 0.25);
+    transition:
+      background-color 0.35s,
+      color 0.35s,
+      transform 0.45s var(--ease);
+  }
+
+  .whats :global(svg) {
+    width: 24px;
+    height: 24px;
+  }
+
+  @media (hover: hover) {
+    .whats:hover {
+      background: var(--ouro);
+      color: var(--noite);
+      transform: translateY(-2px);
+    }
+  }
+
+  /* com o menu aberto, sai da frente */
+  :global(body.menu-aberto) .whats {
+    opacity: 0;
+    pointer-events: none;
+  }
+</style>

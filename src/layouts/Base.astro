@@ -1,0 +1,135 @@
+---
+// Layout = a "casca" da página: <head>, fontes, CSS global, dados para o
+// Google (JSON-LD) e o script que escolhe a aba antes de desenhar a tela.
+import '../styles/global.css';
+import { ENDERECO, INSTAGRAM_URL, FACEBOOK_URL } from '../config.js';
+import { CHAVE_SESSAO } from '../dados/entrada.js';
+
+interface Props {
+  titulo: string;
+  descricao: string;
+  ids: string[]; // ids das abas, na ordem
+}
+
+const { titulo, descricao, ids } = Astro.props;
+
+// O WhatsApp exige endereço completo (https://...) na imagem de prévia.
+// Astro.site vem do astro.config.mjs; enquanto não houver, fica relativo.
+const imagemOg = Astro.site ? new URL('/og.jpg', Astro.site).href : '/og.jpg';
+
+// DADOS ESTRUTURADOS (JSON-LD, padrão schema.org)
+// Um bloco invisível que descreve o negócio para o Google em formato de
+// dados: tipo (pousada = LodgingBusiness), endereço, telefone, horários de
+// check-in/out e redes. Ajuda o Google a montar a ficha nos resultados.
+const dadosEstruturados = {
+  '@context': 'https://schema.org',
+  '@type': 'LodgingBusiness',
+  name: 'Chácara Ludwig',
+  description: descricao,
+  telephone: '+55-55-98115-9007',
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: ENDERECO.rua,
+    addressLocality: ENDERECO.cidade,
+    addressRegion: ENDERECO.estado,
+    postalCode: ENDERECO.cep,
+    addressCountry: 'BR',
+  },
+  checkinTime: '14:00',
+  checkoutTime: '10:30',
+  numberOfRooms: 22,
+  amenityFeature: ['Café da manhã incluso', 'Wi-Fi', 'Ar-condicionado', 'TV', 'Piscina'].map((nome) => ({
+    '@type': 'LocationFeatureSpecification',
+    name: nome,
+    value: true,
+  })),
+  contactPoint: [
+    { '@type': 'ContactPoint', telephone: '+55-55-98115-9007', contactType: 'reservations' },
+    { '@type': 'ContactPoint', telephone: '+55-55-99908-9584', contactType: 'customer service' },
+  ],
+  sameAs: [INSTAGRAM_URL, FACEBOOK_URL],
+  ...(Astro.site ? { url: Astro.site.href, image: imagemOg } : {}),
+};
+
+// CSS gerado: "se o <html> diz data-aba=eventos, mostre o painel #eventos".
+// Assim a aba certa já aparece no primeiro desenho da tela, antes do JS.
+const cssAbaInicial = `<style>${ids
+  .map((id) => `html[data-aba="${id}"] #${id}`)
+  .join(',')}{display:block}</style>`;
+---
+
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{titulo}</title>
+    <meta name="description" content={descricao} />
+
+    <!-- Protótipo: não deixar o Google indexar -->
+    <meta name="robots" content="noindex, nofollow" />
+
+    <!-- Open Graph: o que aparece quando o link é colado no WhatsApp -->
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:site_name" content="Chácara Ludwig" />
+    <meta property="og:title" content={titulo} />
+    <meta property="og:description" content={descricao} />
+    <meta property="og:image" content={imagemOg} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <meta name="theme-color" content="#f4eee6" />
+    <link rel="icon" type="image/png" href="/icone.png" />
+    <link rel="apple-touch-icon" href="/icone.png" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Fontes: Cormorant Garamond (serifa fina, títulos e parágrafos
+         grandes) e Inter (sans discreta, rótulos e textos pequenos) -->
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@400;500&display=swap"
+    />
+
+    <!-- Roda antes de pintar a tela: marca que existe JS, descobre, pelo
+         #endereço, qual aba abrir (link direto para #eventos etc.) e qual
+         entrada do site vai rodar (v4.3, src/scripts/entrada.js) -->
+    <script is:inline define:vars={{ ids, chaveEntrada: CHAVE_SESSAO }}>
+      var raiz = document.documentElement;
+      raiz.classList.add('js');
+      var pedido = decodeURIComponent(location.hash.slice(1));
+      raiz.dataset.aba = ids.indexOf(pedido) > -1 ? pedido : ids[0];
+
+      // ENTRADA: completa na primeira visita da sessão, curta nas outras,
+      // nenhuma com "menos movimento". Decidir aqui (e não no JS do site,
+      // que chega depois) evita que algo apareça antes da hora.
+      if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        var vista = false;
+        try {
+          vista = sessionStorage.getItem(chaveEntrada) === '1';
+        } catch (e) {} // armazenamento bloqueado: trata como primeira visita
+        raiz.classList.add('entrando', vista ? 'entrada-curta' : 'entrada-completa');
+        // Rede de segurança: se o JS do site não assumir em 5 s (deu erro
+        // ou a internet está muito lenta), mostra tudo do jeito normal
+        setTimeout(function () {
+          if (!window.entradaAssumida) raiz.classList.remove('entrando', 'entrada-curta', 'entrada-completa');
+        }, 5000);
+      }
+    </script>
+    <Fragment set:html={cssAbaInicial} />
+
+    <!-- JSON-LD: o Google lê; a pessoa não vê -->
+    <script type="application/ld+json" set:html={JSON.stringify(dadosEstruturados)} />
+  </head>
+  <body>
+    <slot />
+
+    <div class="etiqueta-prototipo" aria-hidden="true" data-entrada="extra">Protótipo — FOX</div>
+
+    <script>
+      import '../scripts/main.js';
+    </script>
+  </body>
+</html>

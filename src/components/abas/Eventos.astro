@@ -1,0 +1,314 @@
+---
+// Aba 4 — Eventos. Ritmo:
+//   1. abertura em tela cheia (o pátio iluminado) + título gigante
+//   2. rótulo + parágrafo grande
+//   3. par de fotos assimétrico
+//   4. tipos de evento (lista numerada, sem ícones)
+//   5. carrossel do cenário (arraste)
+//   6. espaços e capacidade (números, com [A CONFIRMAR])
+//   7. formulário "Orçar meu evento": monta a mensagem e abre o WhatsApp.
+//      Nada é enviado a servidor nenhum (src/scripts/orcamento.js)
+//   8. dica: hospede seus convidados (leva à aba Hospedagem)
+// Fotos: src/dados/fotos-secoes.js (SECOES.eventos).
+import HeroAba from '../HeroAba.astro';
+import Intro from '../Intro.astro';
+import ParFotos from '../ParFotos.astro';
+import Arrastar from '../Arrastar.astro';
+import Destaques from '../Destaques.astro';
+import Linhas from '../Linhas.astro';
+import Foto from '../Foto.astro';
+import Icone from '../Icone.astro';
+import { SECOES } from '../../dados/fotos-secoes.js';
+import { fotosDoQuarto } from '../../dados/fotos-quartos.js';
+import { WHATSAPP_EXIBICAO } from '../../config.js';
+
+const fotos = SECOES.eventos;
+
+const tipos = [
+  { nome: 'Casamento', texto: 'Para celebrar o grande dia entre jardins e esculturas.' },
+  { nome: '15 anos', texto: 'Uma festa à altura da data.' },
+  { nome: 'Aniversário', texto: 'Para comemorar com a família e os amigos.' },
+  { nome: 'Formatura', texto: 'Para celebrar a conquista com a turma.' },
+  { nome: 'Corporativo', texto: 'Eventos de empresa e capacitações.' },
+  { nome: 'Confraternização', texto: 'Fim de ano, reencontros e datas especiais.' },
+];
+
+const legendasCenario = ['Pátio coberto', 'Jardim coberto', 'O pergolado', 'Vista aérea', 'A piscina à noite', 'O pátio no fim da tarde'];
+const cenario = fotos.carrossel.map((f, i) => ({ ...f, legenda: legendasCenario[i] }));
+
+const fotoCasa = fotosDoQuarto(fotos.hospedar)[0];
+---
+
+<section class="painel" id="eventos" role="tabpanel" aria-labelledby="aba-eventos" tabindex="0">
+  <!-- 1. Abertura -->
+  <HeroAba {...fotos.abertura} rotulo="Eventos" linhas={['Foi com festas', 'que tudo', 'começou']}>
+    <p>Casamentos, aniversários, 15 anos, formaturas, confraternizações e eventos de empresa.</p>
+    <a class="botao" href="#orcar">
+      <span class="botao__texto">Orçar meu evento</span>
+      <span class="botao__seta"><Icone nome="seta" /></span>
+    </a>
+  </HeroAba>
+
+  <!-- 2. Texto -->
+  <Intro rotulo="Eventos">
+    A Chácara nasceu como salão de festas. Hoje recebe casamentos, aniversários, festas de 15 anos, formaturas,
+    confraternizações, eventos corporativos e capacitações.
+  </Intro>
+
+  <!-- 3. Par de fotos -->
+  <ParFotos fotos={fotos.par} legendas={['Mesa de doces', 'Mesas entre os tijolos']} galeria="eventos" colada />
+
+  <!-- 4. Tipos de evento -->
+  <div class="tipos secao secao--colada margem">
+    <div class="tipos__topo">
+      <p class="rotulo" data-surgir>Para cada ocasião</p>
+      <Linhas tag="h2" class="titulo" linhas={['O que dá para', '<em>celebrar aqui</em>']} />
+    </div>
+    <ol class="tipos__lista">
+      {
+        tipos.map((t, i) => (
+          <li class="tipo" data-surgir style={`--atraso: ${(i % 3) * 90}ms`}>
+            <span class="rotulo tipo__numero">{String(i + 1).padStart(2, '0')}</span>
+            <h3 class="tipo__nome">{t.nome}</h3>
+            <p class="texto">{t.texto}</p>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+
+  <!-- 5. Cenário (arraste) -->
+  <Arrastar rotulo="O cenário" titulo={['Pátio, pergolado', '<em>e jardins</em>']} fotos={cenario} galeria="eventos-cenario" colada />
+
+  <!-- 6. Espaços e capacidade -->
+  <Destaques
+    rotulo="Estrutura"
+    fundo2
+    itens={[
+      { rotulo: 'Capacidade de convidados', valor: '<span class="a-confirmar">[A CONFIRMAR]</span>' },
+      { rotulo: 'Espaços para cerimônia e recepção', valor: '<span class="a-confirmar">[A CONFIRMAR]</span>' },
+      { rotulo: 'Hectares de área', valor: 13, prefixo: '+', contar: true },
+      { rotulo: 'Acomodações no local', valor: 22, contar: true },
+    ]}
+  />
+
+  <!-- 7. Formulário de orçamento -->
+  <div class="orcar secao margem grade" id="orcar">
+    <div class="orcar__texto">
+      <p class="rotulo" data-surgir>Orçamento</p>
+      <Linhas tag="h2" class="titulo" linhas={['Orçar', '<em>meu evento</em>']} />
+      <p class="texto" data-surgir>
+        Preencha os campos e toque em enviar: o WhatsApp abre com a mensagem pronta, é só mandar. Nada fica salvo neste
+        site. Atendimento pelo WhatsApp {WHATSAPP_EXIBICAO}.
+      </p>
+      <p class="rotulo orcar__previa-rotulo">Mensagem que vai ser enviada</p>
+      <pre class="orcar__previa" data-previa aria-live="polite"></pre>
+    </div>
+
+    <!-- novalidate não: deixamos o navegador conferir os campos obrigatórios -->
+    <form class="orcamento" data-orcamento data-surgir style="--atraso: 150ms">
+      <div class="orcamento__campo">
+        <label class="rotulo" for="orc-tipo">Tipo de evento</label>
+        <select id="orc-tipo" name="tipo" required>
+          <option value="">Escolha…</option>
+          {tipos.map((t) => <option>{t.nome}</option>)}
+          <option>Outro</option>
+        </select>
+      </div>
+      <div class="orcamento__campo">
+        <label class="rotulo" for="orc-data">Data pretendida</label>
+        <input type="date" id="orc-data" name="data" />
+      </div>
+      <div class="orcamento__campo">
+        <label class="rotulo" for="orc-convidados">Número de convidados</label>
+        <input type="number" id="orc-convidados" name="convidados" min="1" max="2000" inputmode="numeric" placeholder="Ex.: 120" />
+      </div>
+      <div class="orcamento__campo">
+        <label class="rotulo" for="orc-nome">Seu nome</label>
+        <input type="text" id="orc-nome" name="nome" autocomplete="name" required placeholder="Como podemos te chamar" />
+      </div>
+      <button class="botao botao--ouro orcamento__botao" type="submit">
+        <span class="botao__texto"><Icone nome="whatsapp" /> Enviar pelo WhatsApp</span>
+        <span class="botao__seta"><Icone nome="seta" /></span>
+      </button>
+    </form>
+  </div>
+
+  <!-- 8. Hospede seus convidados -->
+  <div class="hospedar secao secao--fundo-2 margem grade">
+    <div class="hospedar__foto">
+      <Foto src={fotoCasa} alt="Casa Bahia: foto da acomodação" real={fotoCasa.width / 2} href="#hospedagem" formato="paisagem" sizes="(min-width: 900px) 40vw, 92vw" />
+    </div>
+    <div class="hospedar__texto">
+      <p class="rotulo" data-surgir>Dica</p>
+      <Linhas tag="h2" class="titulo" linhas={['Hospede seus', '<em>convidados</em>']} />
+      <p class="paragrafo-grande" data-surgir>
+        Quem vem de longe pode dormir aqui mesmo: são 22 suítes e casas, algumas para famílias de até 6 pessoas.
+      </p>
+      <div class="acoes">
+        <a class="botao" href="#hospedagem">
+          <span class="botao__texto">Ver as acomodações</span>
+          <span class="botao__seta"><Icone nome="seta" /></span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* ---------- Tipos de evento ---------- */
+  .tipos__topo {
+    display: grid;
+    gap: 1.2rem;
+    margin-bottom: clamp(2.4rem, 5vw, 4rem);
+  }
+
+  .tipos__lista {
+    display: grid;
+    gap: 0 var(--vao);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .tipo {
+    display: grid;
+    grid-template-columns: 2.6rem 1fr;
+    align-items: baseline;
+    gap: 0.3rem 0.8rem;
+    padding: 1.4rem 0 1.6rem;
+    border-top: 1px solid var(--linha);
+  }
+
+  .tipo__numero {
+    color: var(--ouro-escuro);
+  }
+
+  .tipo__nome {
+    font-size: clamp(2rem, 3.4vw, 3rem);
+  }
+
+  .tipo .texto {
+    grid-column: 2;
+  }
+
+  @media (min-width: 900px) {
+    .tipos__lista {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  /* ---------- Orçamento ---------- */
+  .orcar {
+    row-gap: 3rem;
+  }
+
+  .orcar__texto,
+  .orcamento {
+    grid-column: 1 / -1;
+  }
+
+  .orcar__texto {
+    display: grid;
+    gap: 1.3rem;
+    align-content: start;
+  }
+
+  .orcar__previa-rotulo {
+    margin-top: 1.4rem;
+    color: var(--texto-suave);
+  }
+
+  /* prévia da mensagem: um balão de conversa claro, com filete dourado */
+  .orcar__previa {
+    max-width: 30rem;
+    margin: 0;
+    padding: 1rem 1.2rem;
+    border-left: 2px solid var(--ouro);
+    background: var(--fundo-2);
+    color: var(--texto);
+    font: 400 0.9rem/1.55 var(--sans);
+    white-space: pre-wrap; /* respeita as quebras de linha da mensagem */
+  }
+
+  .orcamento {
+    display: grid;
+    gap: 1.6rem;
+    align-content: start;
+  }
+
+  .orcamento__campo {
+    display: grid;
+    gap: 0.35rem;
+  }
+
+  .orcamento label {
+    color: var(--texto-suave);
+  }
+
+  .orcamento :is(input, select) {
+    width: 100%;
+    min-width: 0;
+    padding: 0.45rem 0 0.6rem;
+    border: 0;
+    border-bottom: 1px solid var(--texto);
+    border-radius: 0;
+    background: transparent;
+    color: var(--texto);
+    font: 400 1.35rem/1.2 var(--serifa);
+    color-scheme: light;
+  }
+
+  .orcamento ::placeholder {
+    color: rgb(51 39 29 / 0.4);
+  }
+
+  .orcamento :is(input, select):focus-visible {
+    outline: none;
+    border-bottom-color: var(--ouro);
+    box-shadow: 0 1px 0 var(--ouro);
+  }
+
+  .orcamento__botao {
+    justify-self: start;
+    margin-top: 0.6rem;
+  }
+
+  @media (min-width: 900px) {
+    .orcar__texto {
+      grid-column: 1 / 6;
+    }
+
+    .orcamento {
+      grid-column: 7 / 13;
+      padding-top: 3.2rem;
+    }
+  }
+
+  /* ---------- Hospede seus convidados ---------- */
+  .hospedar {
+    row-gap: 2.6rem;
+  }
+
+  .hospedar__foto,
+  .hospedar__texto {
+    grid-column: 1 / -1;
+  }
+
+  .hospedar__texto {
+    display: grid;
+    gap: 1.3rem;
+    align-content: start;
+  }
+
+  @media (min-width: 900px) {
+    .hospedar__foto {
+      grid-column: 1 / 6;
+    }
+
+    .hospedar__texto {
+      grid-column: 7 / 13;
+      align-self: center;
+    }
+  }
+</style>

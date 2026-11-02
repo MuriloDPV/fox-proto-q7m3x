@@ -1,0 +1,47 @@
+---
+// TÍTULO QUE ENTRA POR LINHA (máscara de baixo para cima)
+// Cada linha do título vira uma "janela" (.linha) com o texto dentro.
+// O texto começa escondido embaixo e sobe quando o título aparece na tela
+// (data-linhas + revelar.js) ou, no topo de cada aba, sempre que a aba abre
+// (animação CSS em HeroAba.astro).
+//
+// Uso: <Linhas tag="h2" class="titulo" linhas={['Orçar', '<em>meu evento</em>']} />
+//   linhas: um texto por linha (pode ter <em> para itálico)
+//   recuo:  números das linhas que andam para a direita (ex.: [1] = a 2ª)
+//   rolagem: true (padrão) = anima quando aparece na rolagem (data-linhas).
+//            false = quem anima é o CSS de quem usa (o HeroAba).
+interface Props {
+  linhas: string[];
+  tag?: 'h1' | 'h2' | 'h3' | 'p';
+  recuo?: number[];
+  rolagem?: boolean;
+  id?: string;
+  class?: string;
+}
+
+const { linhas, tag: Tag = 'h2', recuo = [], rolagem = true, id, class: classe = '' } = Astro.props;
+---
+
+<Tag class={classe} id={id} data-linhas={rolagem ? '' : undefined}>
+  {
+    linhas.map((texto, i) => (
+      <span class:list={['linha', { 'linha--recuo': recuo.includes(i) }]} style={`--i: ${i}`}>
+        <span set:html={texto} />
+      </span>
+    ))
+  }
+</Tag>
+
+<style>
+  /* Linha recuada: como a 2ª linha do título da referência, que começa
+     mais para a direita. No celular o recuo é menor. */
+  .linha--recuo {
+    padding-left: 12%;
+  }
+
+  @media (min-width: 900px) {
+    .linha--recuo {
+      padding-left: 22%;
+    }
+  }
+</style>
