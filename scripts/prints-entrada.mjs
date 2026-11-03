@@ -94,15 +94,28 @@ const INSTRUMENTO = () => {
     return { x: b.left + b.width / 2, y: b.top + b.height / 2, w: b.width };
   };
   const opacidade = (el) => (el ? parseFloat(getComputedStyle(el).opacity) : 0);
+  // v4.4: o topo tem só o brasão (o nome é texto). O pouso compara brasão
+  // com brasão: o da logo que voa (recorte x 5, y 4, 603 × 408 da logo de
+  // 612 × 519, igual a BRASAO_NA_LOGO em src/dados/topo.js) e o do topo.
+  const brasaoDaMarca = (marca) => {
+    const img = marca?.querySelector('img');
+    if (!img) return null;
+    const b = img.getBoundingClientRect();
+    return {
+      x: b.left + b.width * ((5 + 603 / 2) / 612),
+      y: b.top + b.height * ((4 + 408 / 2) / 519),
+      w: b.width * (603 / 612),
+    };
+  };
   const amostrar = () => {
     const marca = document.querySelector('.abertura__marca');
-    const topo = document.querySelector('[data-entrada="topo-logo"]');
+    const topo = document.querySelector('[data-entrada="topo-logo"] .topo__brasao');
     window.__amostras.push({
       t: performance.now(),
-      marca: caixa(marca),
+      marca: brasaoDaMarca(marca),
       marcaOp: marca ? opacidade(marca) * opacidade(marca.firstElementChild) : 0,
       topo: caixa(topo),
-      topoOp: opacidade(topo),
+      topoOp: opacidade(topo?.closest('[data-entrada="topo-logo"]')),
       lateral: document.documentElement.scrollWidth - innerWidth,
       entrando: document.documentElement.classList.contains('entrando'),
     });

@@ -1,33 +1,76 @@
 ---
-// TOPO MÍNIMO (v4): "Reservar" à esquerda, logo no centro, "Menu" à direita.
-// Começa transparente, por cima da foto de abertura de cada aba (texto
-// claro e logo para fundo escuro). Depois de rolar a foto, ganha fundo
-// off-white, texto escuro e a logo para fundo claro. Rolando para baixo
-// ele se esconde; rolando para cima, volta. (src/scripts/topo.js)
+// TOPO (v4.4): logo horizontal, botão "Reservar" dourado e "Menu" com ícone.
+//
+// A LOGO: o brasão (coroa + escudo "CL" + folhas), recortado da logo
+// original sem redesenhar (src/assets/marca/brasao.png), e ao lado o nome
+// em texto: "Chácara Ludwig" na serifa dos títulos e "Festas e Eventos"
+// embaixo, em caixa alta espaçada. Texto de verdade = nítido em qualquer
+// tamanho e muda de cor pelo CSS (claro sobre foto, escuro sobre o creme).
+// O brasão é o mesmo nas duas versões da logo: serve nos dois fundos.
+//
+// DOIS TAMANHOS: grande no começo da página; compacto assim que a pessoa
+// rola (.topo--compacto), com fundo creme meio transparente e desfoque.
+// Rolando para baixo ele se esconde; rolando para cima, volta.
+// Quem coloca as classes: src/scripts/topo.js.
+//
+// POSIÇÃO: logo à esquerda, Reservar + Menu à direita.
+//
 // O menu em tela cheia fica em Menu.astro (src/scripts/menu.js).
 // data-entrada: peças que entram na abertura do site (src/scripts/entrada.js;
-// a logo daqui é o ponto de pouso da logo que voa da tela de abertura).
+// o brasão daqui é o ponto de pouso da logo que voa da tela de abertura).
 import { Image } from 'astro:assets';
-import logoClara from '../assets/marca/logo-clara.png';
-import logoEscura from '../assets/marca/logo-escura.png';
+import brasao from '../assets/marca/brasao.png';
 ---
 
 <header class="topo" id="topo">
-  <button class="topo__acao topo__reservar" type="button" data-abrir-busca data-entrada="topo-botao">Reservar</button>
-
   <a class="topo__logo" data-entrada="topo-logo" href="#inicio" aria-label="Chácara Ludwig — voltar ao início">
-    <!-- duas versões da logo, uma em cima da outra; o CSS mostra a certa -->
-    <Image class="topo__logo-img topo__logo-img--foto" src={logoEscura} alt="" widths={[120, 180, 240]} sizes="90px" loading="eager" />
-    <Image class="topo__logo-img topo__logo-img--papel" src={logoClara} alt="" widths={[120, 180, 240]} sizes="90px" loading="eager" />
+    <!-- tamanho do arquivo bem maior que o da tela (até 156 px de altura
+         numa tela retina): o navegador só reduz, nunca amplia -->
+    <Image class="topo__brasao" src={brasao} alt="" widths={[120, 180, 240]} sizes="120px" loading="eager" />
+    <span class="topo__nome" data-entrada="topo-nome" aria-hidden="true">
+      <span class="topo__nome-linha">Chácara Ludwig</span>
+      <span class="topo__nome-sub">Festas e Eventos</span>
+    </span>
   </a>
 
-  <button class="topo__acao topo__menu" data-entrada="topo-botao" type="button" aria-expanded="false" aria-controls="menu" data-abrir-menu>
-    <span class="topo__menu-abrir">Menu</span>
-    <span class="topo__menu-fechar" aria-hidden="true">Fechar</span>
+  <button class="topo__reservar" type="button" data-abrir-busca data-entrada="topo-botao">Reservar</button>
+
+  <button class="topo__menu" data-entrada="topo-botao" type="button" aria-expanded="false" aria-controls="menu" data-abrir-menu>
+    <span class="topo__menu-palavra">
+      <span class="topo__menu-abrir">Menu</span>
+      <span class="topo__menu-fechar" aria-hidden="true">Fechar</span>
+    </span>
+    <!-- três traços que viram um X (as regras estão em "Ícone do menu") -->
+    <span class="topo__tracos" aria-hidden="true"><span></span><span></span><span></span></span>
   </button>
 </header>
 
 <style>
+  /* ---- Medidas (tudo que muda de tamanho está aqui) ----
+     --alto / --baixo: altura do topo grande e do compacto
+     --brasao: altura do brasão no topo grande
+     --nome: tamanho de "Chácara Ludwig"
+     --encolhe: quanto a logo diminui no topo compacto (0,66 = 66%) */
+  .topo {
+    --alto: 76px;
+    --baixo: 62px;
+    --brasao: 42px;
+    --nome: 1.2rem;
+    --encolhe: 0.84;
+    --botao: 44px; /* altura mínima de toque recomendada */
+  }
+
+  @media (min-width: 900px) {
+    .topo {
+      --alto: 120px;
+      --baixo: 80px;
+      --brasao: 78px;
+      --nome: 2.1rem;
+      --encolhe: 0.66;
+      --botao: 48px;
+    }
+  }
+
   .topo {
     position: fixed;
     top: 0;
@@ -35,26 +78,30 @@ import logoEscura from '../assets/marca/logo-escura.png';
     right: 0;
     z-index: 90; /* acima do menu em tela cheia (80) */
     display: grid;
-    grid-template-columns: 1fr auto 1fr;
     align-items: center;
-    height: var(--altura-topo);
+    gap: 0.75rem;
+    height: var(--alto);
     padding-inline: var(--margem);
     color: var(--sobre-foto);
     view-transition-name: topo; /* fica parado durante a troca de aba */
     transition:
       transform 0.6s var(--ease),
+      height 0.5s var(--ease),
       color 0.4s;
   }
 
-  /* Fundo off-white: uma camada separada (::before) que aparece com
-     opacity, para a troca ser suave. Na entrada do site (v4.3) o filete
-     de baixo se desenha do centro para as pontas (transform: scaleX). */
+  /* Fundo creme: uma camada separada (::before) que aparece com opacity,
+     para a troca ser suave. Meio transparente + desfoque (backdrop-filter)
+     = o que passa por baixo aparece borrado, "vidro fosco". Na entrada do
+     site o filete de baixo se desenha do centro para as pontas. */
   .topo::before {
     content: '';
     position: absolute;
     inset: 0;
     z-index: -1;
-    background: var(--fundo);
+    background: rgb(244 238 230 / 0.86); /* = --fundo, 86% opaco */
+    -webkit-backdrop-filter: blur(12px) saturate(1.2);
+    backdrop-filter: blur(12px) saturate(1.2);
     box-shadow: 0 1px 0 var(--linha);
     opacity: 0;
     transition:
@@ -72,12 +119,16 @@ import logoEscura from '../assets/marca/logo-escura.png';
     opacity: 1;
   }
 
+  :global(.topo.topo--compacto) {
+    height: var(--baixo);
+  }
+
   :global(.topo.topo--escondido) {
     transform: translateY(-100%);
   }
 
   /* com o menu aberto, o topo nunca se esconde e fica sem fundo
-     (o menu já é off-white) */
+     (o menu já é creme) */
   :global(body.menu-aberto) .topo {
     transform: none;
   }
@@ -86,51 +137,129 @@ import logoEscura from '../assets/marca/logo-escura.png';
     opacity: 0;
   }
 
-  /* ---- Botões de texto (Reservar e Menu) ---- */
-  .topo__acao {
-    position: relative;
-    justify-self: start;
-    padding: 0.8rem 0;
+  /* ---- Logo: brasão + nome ---- */
+  .topo__logo {
+    grid-area: logo;
+    display: flex;
+    align-items: center;
+    gap: calc(var(--brasao) * 0.2);
+    min-width: 0;
+    color: inherit;
+    text-decoration: none;
+    transform-origin: left center;
+    transition: transform 0.5s var(--ease);
+  }
+
+  /* topo compacto: a logo inteira diminui junto (transform = liso) */
+  :global(.topo.topo--compacto) .topo__logo {
+    transform: scale(var(--encolhe));
+  }
+
+  .topo__logo :global(.topo__brasao) {
+    flex: none;
+    width: auto;
+    height: var(--brasao);
+  }
+
+  .topo__nome {
+    display: grid;
+    gap: 0.4em;
+    white-space: nowrap;
+  }
+
+  .topo__nome-linha {
+    font: 500 var(--nome) / 1 var(--serifa);
+    letter-spacing: 0.01em;
+  }
+
+  /* "Festas e Eventos": caixa alta espaçada, como na logo original.
+     Vai junto com a fonte do nome (0,32 do tamanho dele). */
+  .topo__nome-sub {
+    font: 500 calc(var(--nome) * 0.32) / 1 var(--sans);
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--ouro-claro);
+    transition: color 0.4s;
+  }
+
+  /* sobre o creme, o bronze escuro (o claro some no fundo claro) */
+  :global(.topo.topo--solido) .topo__nome-sub,
+  :global(body.menu-aberto) .topo__nome-sub {
+    color: var(--ouro-escuro);
+  }
+
+  /* No celular o subtítulo ficaria com menos de 7 px: só o nome */
+  @media (max-width: 899px) {
+    .topo__nome-sub {
+      display: none;
+    }
+  }
+
+  /* ---- Botão Reservar: dourado, de verdade ---- */
+  .topo__reservar {
+    grid-area: reservar;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: var(--botao);
+    padding: 0 1.15em;
+    border: 0;
+    border-radius: 2px;
+    background: var(--ouro);
+    color: var(--noite); /* contraste 5,1:1 sobre o dourado */
+    font: 500 0.8rem / 1 var(--sans);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      background-color 0.35s,
+      color 0.35s;
+  }
+
+  @media (min-width: 900px) {
+    .topo__reservar {
+      padding: 0 1.6em;
+      font-size: 0.86rem;
+    }
+  }
+
+  @media (hover: hover) {
+    .topo__reservar:hover {
+      background: var(--texto);
+      color: var(--fundo);
+    }
+  }
+
+  /* ---- Botão Menu: palavra + três traços ---- */
+  .topo__menu {
+    grid-area: menu;
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.7rem;
+    min-width: var(--botao);
+    min-height: var(--botao);
+    padding: 0;
     border: 0;
     background: none;
     color: inherit;
-    font: 500 var(--t-rotulo) / 1 var(--sans);
+    font: 500 0.86rem / 1 var(--sans);
     letter-spacing: 0.14em;
     text-transform: uppercase;
     cursor: pointer;
   }
 
-  .topo__menu {
-    justify-self: end;
+  /* troca Menu ↔ Fechar (as duas no mesmo lugar, alinhadas à direita) */
+  .topo__menu-palavra {
+    position: relative;
   }
 
-  /* filete dourado embaixo do texto, que cresce no hover */
-  .topo__acao::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0.45rem;
-    height: 1px;
-    background: var(--ouro);
-    transform: scaleX(0);
-    transform-origin: right;
-    transition: transform 0.45s var(--ease);
+  .topo__menu-abrir,
+  .topo__menu-fechar {
+    transition: opacity 0.3s;
   }
 
-  /* "Reservar" sempre com o filete: é o botão principal */
-  .topo__reservar::after {
-    transform: scaleX(1);
-  }
-
-  @media (hover: hover) {
-    .topo__acao:hover::after {
-      transform: scaleX(1);
-      transform-origin: left;
-    }
-  }
-
-  /* troca Menu ↔ Fechar */
   .topo__menu-fechar {
     position: absolute;
     right: 0;
@@ -145,50 +274,129 @@ import logoEscura from '../assets/marca/logo-escura.png';
     opacity: 1;
   }
 
-  /* ---- Logo ---- */
-  .topo__logo {
+  /* ---- Ícone do menu: três traços que viram X ----
+     Os traços ficam a 7 px um do outro. Abrindo, o de cima desce 7 px e
+     gira 45°, o de baixo sobe 7 px e gira -45° (os dois se cruzam no
+     meio) e o do meio some. */
+  .topo__tracos {
     position: relative;
     display: block;
-    width: 56px;
-    aspect-ratio: 612 / 519; /* proporção do arquivo da logo */
-    transform-origin: 50% 30%;
-    transition: transform 0.6s var(--ease);
+    flex: none;
+    width: 26px;
+    height: 16px;
   }
 
-  .topo__logo :global(.topo__logo-img) {
+  .topo__tracos span {
     position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    transition: opacity 0.4s;
+    left: 0;
+    right: 0;
+    height: 1.5px;
+    background: currentColor;
+    transition:
+      transform 0.45s var(--ease),
+      opacity 0.25s;
   }
 
-  .topo__logo :global(.topo__logo-img--papel) {
+  .topo__tracos span:nth-child(1) {
+    top: 0.5px;
+  }
+
+  .topo__tracos span:nth-child(2) {
+    top: 7.25px;
+  }
+
+  .topo__tracos span:nth-child(3) {
+    top: 14px;
+  }
+
+  .topo__menu[aria-expanded='true'] .topo__tracos span:nth-child(1) {
+    transform: translateY(6.75px) rotate(45deg);
+  }
+
+  .topo__menu[aria-expanded='true'] .topo__tracos span:nth-child(2) {
     opacity: 0;
   }
 
-  :global(.topo.topo--solido) .topo__logo :global(.topo__logo-img--foto),
-  :global(body.menu-aberto) .topo__logo :global(.topo__logo-img--foto) {
-    opacity: 0;
+  .topo__menu[aria-expanded='true'] .topo__tracos span:nth-child(3) {
+    transform: translateY(-6.75px) rotate(-45deg);
   }
 
-  :global(.topo.topo--solido) .topo__logo :global(.topo__logo-img--papel),
-  :global(body.menu-aberto) .topo__logo :global(.topo__logo-img--papel) {
-    opacity: 1;
+  /* No celular só o ícone aparece (a palavra não cabe ao lado da logo e
+     do Reservar). Ela continua lá para quem usa leitor de tela. */
+  @media (max-width: 899px) {
+    .topo__menu-palavra {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
   }
 
-  /* sobre a foto a logo fica um pouco maior; no topo sólido, encolhe */
-  .topo__logo {
-    transform: translateY(6px) scale(1.18);
+  /* MENU ABERTO NO COMPUTADOR
+     O menu tem uma foto na coluna da esquerda e o creme à direita. A logo
+     e o Reservar do topo ficariam em cima da foto. Então eles saem, e a logo aparece dentro da coluna
+     creme do menu (Menu.astro, .menu__marca); o Reservar do menu fica no
+     rodapé dele. Do topo sobra só o "Fechar".
+     visibility: hidden também tira do Tab; o "0s 0.3s" espera o
+     opacity terminar antes de esconder de vez. */
+  @media (min-width: 900px) {
+    :global(body.menu-aberto) .topo {
+      height: var(--baixo); /* mesma altura da faixa da logo no menu */
+    }
+
+    .topo__logo,
+    .topo__reservar {
+      transition:
+        transform 0.5s var(--ease),
+        opacity 0.3s,
+        visibility 0s,
+        background-color 0.35s,
+        color 0.35s;
+    }
+
+    :global(body.menu-aberto) .topo__logo,
+    :global(body.menu-aberto) .topo__reservar {
+      opacity: 0;
+      visibility: hidden;
+      transition:
+        transform 0.5s var(--ease),
+        opacity 0.3s,
+        visibility 0s 0.3s;
+    }
   }
 
-  :global(.topo.topo--solido) .topo__logo {
-    transform: none;
+  /* ---- Posição: logo à esquerda, Reservar + Menu à direita ----
+     (v4.4: escolhida entre duas opções; a outra, com a logo no centro,
+     foi apagada). A coluna "." do meio é um vão que estica. */
+  .topo {
+    grid-template-columns: auto 1fr auto auto;
+    grid-template-areas: 'logo . reservar menu';
+  }
+
+  /* No celular cada pixel conta: sem o vão da grade (ele somaria 3 vezes,
+     contando a coluna vazia do meio) e Reservar um pouco mais estreito */
+  @media (max-width: 899px) {
+    .topo {
+      column-gap: 0;
+    }
+
+    .topo__reservar {
+      margin-left: 0.6rem;
+      padding: 0 0.9em;
+      font-size: 0.76rem;
+      letter-spacing: 0.1em;
+    }
+
+    .topo__menu {
+      margin-left: 0.25rem;
+    }
   }
 
   @media (min-width: 900px) {
-    .topo__logo {
-      width: 74px;
+    .topo {
+      column-gap: 1.6rem;
     }
   }
 </style>

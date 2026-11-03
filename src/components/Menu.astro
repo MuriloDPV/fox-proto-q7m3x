@@ -11,6 +11,7 @@
 // Abrir, fechar, prender o foco e trocar a foto: src/scripts/menu.js.
 import { Image } from 'astro:assets';
 import Icone from './Icone.astro';
+import brasao from '../assets/marca/brasao.png';
 import { ABAS } from '../dados/abas.js';
 import { SECOES } from '../dados/fotos-secoes.js';
 import { linkWhatsApp, MENSAGEM_RESERVA, WHATSAPP_EXIBICAO, INSTAGRAM_URL, INSTAGRAM_EXIBICAO } from '../config.js';
@@ -44,6 +45,19 @@ import { linkWhatsApp, MENSAGEM_RESERVA, WHATSAPP_EXIBICAO, INSTAGRAM_URL, INSTA
   </div>
 
   <div class="menu__corpo">
+    <!-- v4.4: a logo do menu (só no computador). Com o menu aberto, a logo
+         do topo sai (ela ficaria em cima da foto) e esta aparece aqui, no
+         creme, alinhada com a lista. Mesmo desenho da logo do topo
+         (Topo.astro): brasão recortado + nome em texto. Enfeite: o
+         "Início" da lista já leva ao começo, e o leitor de tela pula. -->
+    <div class="menu__marca" aria-hidden="true">
+      <Image class="menu__brasao" src={brasao} alt="" widths={[120, 180]} sizes="80px" loading="lazy" />
+      <span class="menu__marca-nome">
+        <span class="menu__marca-linha">Chácara Ludwig</span>
+        <span class="menu__marca-sub">Festas e Eventos</span>
+      </span>
+    </div>
+
     <nav class="menu__nav" aria-label="Seções do site">
       <div class="menu__lista" role="tablist" aria-orientation="vertical" aria-label="Seções do site" data-abas-principais>
         {
@@ -111,8 +125,9 @@ import { linkWhatsApp, MENSAGEM_RESERVA, WHATSAPP_EXIBICAO, INSTAGRAM_URL, INSTA
     clip-path: inset(0 0 0 0);
   }
 
-  /* ---- Fotos (só computador) ---- */
-  .menu__fotos {
+  /* ---- Fotos e logo do menu (só computador) ---- */
+  .menu__fotos,
+  .menu__marca {
     display: none;
   }
 
@@ -265,7 +280,44 @@ import { linkWhatsApp, MENSAGEM_RESERVA, WHATSAPP_EXIBICAO, INSTAGRAM_URL, INSTA
     }
 
     .menu__corpo {
+      position: relative; /* referência para a logo (.menu__marca) */
       padding-left: clamp(2rem, 6vw, 7rem);
+    }
+
+    /* Logo do menu: na faixa de cima, com a mesma altura do topo
+       compacto (80px, ver --baixo em Topo.astro), então fica na mesma
+       linha do "Fechar". Começa onde a lista começa. */
+    .menu__marca {
+      position: absolute;
+      top: 0;
+      left: clamp(2rem, 6vw, 7rem);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      height: 80px;
+    }
+
+    .menu__marca :global(.menu__brasao) {
+      width: auto;
+      height: 51px; /* o brasão do topo compacto */
+    }
+
+    .menu__marca-nome {
+      display: grid;
+      gap: 0.4em;
+      white-space: nowrap;
+    }
+
+    .menu__marca-linha {
+      font: 500 1.4rem / 1 var(--serifa);
+      letter-spacing: 0.01em;
+    }
+
+    .menu__marca-sub {
+      font: 500 0.6rem / 1 var(--sans);
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--ouro-escuro);
     }
 
     .menu__rodape {

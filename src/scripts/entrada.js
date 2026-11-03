@@ -21,6 +21,7 @@
 //
 // TODOS OS TEMPOS: src/dados/entrada.js
 import { ABERTURA, SAIDA, CASCATA, RITMO_CURTO, PULO, CURVAS, ARCO, CHAVE_SESSAO } from '../dados/entrada.js';
+import { BRASAO_NA_LOGO } from '../dados/topo.js';
 
 const raiz = document.documentElement;
 const abertura = document.getElementById('abertura');
@@ -241,35 +242,68 @@ function sair() {
 
 // FLIP (First, Last, Invert, Play): a técnica para mover algo de um lugar
 // para outro animando SÓ transform (liso até no celular).
+// v4.4: o topo tem só o brasão (o nome é texto ao lado). Então a logo
+// inteira da abertura voa até que o BRASÃO dela fique em cima do brasão
+// do topo; no caminho, o nome embaixo do brasão é recortado de baixo para
+// cima, e depois do pouso o nome do topo aparece ao lado.
 function voarLogo() {
   const marca = abertura.querySelector('.abertura__marca');
+  const imagem = marca?.querySelector('img');
   const logoTopo = document.querySelector('[data-entrada="topo-logo"]');
-  if (!marca || !logoTopo) return;
+  const brasaoTopo = logoTopo?.querySelector('.topo__brasao');
+  if (!marca || !imagem || !brasaoTopo) return;
 
-  // F (first): onde a logo está agora, no meio da tela
-  const primeiro = marca.getBoundingClientRect();
-  // L (last): onde ela tem que chegar = onde está a logo do topo. O topo
+  // F (first): onde a logo está agora, no meio da tela, e onde o brasão
+  // fica dentro dela (BRASAO_NA_LOGO = o retângulo do recorte, em frações)
+  const caixa = marca.getBoundingClientRect();
+  const img = imagem.getBoundingClientRect();
+  const B = BRASAO_NA_LOGO;
+  const brasao = {
+    x: img.left + img.width * (B.x + B.largura / 2), // centro do brasão
+    y: img.top + img.height * (B.y + B.altura / 2),
+    largura: img.width * B.largura,
+    base: img.top + img.height * (B.y + B.altura), // onde o brasão termina
+  };
+  // L (last): onde ela tem que chegar = onde está o brasão do topo. O topo
   // pode estar no meio de uma transição dele; com "transition: none" a
   // medida já sai no estado final.
   logoTopo.style.transition = 'none';
-  const ultimo = logoTopo.getBoundingClientRect();
+  const ultimo = brasaoTopo.getBoundingClientRect();
   logoTopo.style.transition = '';
-  // I (invert): a diferença entre os dois (centro com centro) e a escala
-  const dx = ultimo.left + ultimo.width / 2 - (primeiro.left + primeiro.width / 2);
-  const dy = ultimo.top + ultimo.height / 2 - (primeiro.top + primeiro.height / 2);
-  const escala = ultimo.width / primeiro.width;
+  // I (invert): a escala (brasão com brasão) e o deslocamento. O transform
+  // gira em volta do centro da caixa (c): um ponto p vai para
+  // c + (p − c) × escala + deslocamento. Queremos o centro do brasão (p)
+  // no centro do brasão do topo, então: deslocamento = alvo − c − (p − c) × escala.
+  const escala = ultimo.width / brasao.largura;
+  const cx = caixa.left + caixa.width / 2;
+  const cy = caixa.top + caixa.height / 2;
+  const dx = ultimo.left + ultimo.width / 2 - cx - (brasao.x - cx) * escala;
+  const dy = ultimo.top + ultimo.height / 2 - cy - (brasao.y - cy) * escala;
   // P (play): anima só o transform, daqui até lá
   const voo = [{ transform: 'none' }, { transform: `translate(${dx}px, ${dy}px) scale(${escala})` }];
   animar(entrada, marca, voo, { ...SAIDA.voo, curva: CURVAS.voo });
 
-  // A troca: depois do pouso, as duas logos são a mesma imagem no mesmo
-  // lugar (diferença medida: menos de 0,2 px). No MESMO quadro, a do topo
-  // acende e a que voou some. Nunca as duas meio transparentes (isso
-  // deixaria a logo mais fraca ou com os raios mais fortes por um instante).
+  // O nome embaixo do brasão some recortado de baixo para cima (clip-path
+  // conta em px da caixa SEM o transform, então dá para medir daqui)
+  const corte = caixa.bottom - brasao.base;
+  const recorte = [{ clipPath: 'inset(0 0 0 0)' }, { clipPath: `inset(0 0 ${corte}px 0)` }];
+  animar(entrada, marca, recorte, { ...SAIDA.recorte, curva: CURVAS.mascara });
+
+  // A troca: depois do pouso, os dois brasões são a mesma imagem no mesmo
+  // lugar. No MESMO quadro, a logo do topo acende e a que voou some. Nunca
+  // as duas meio transparentes (isso deixaria o brasão mais fraco ou com
+  // os raios mais fortes por um instante).
   const troca = SAIDA.voo.atraso + SAIDA.voo.duracao + SAIDA.troca;
   // (duração 0 = muda de uma vez, exatamente no instante do atraso)
   animar(entrada, logoTopo, [{ opacity: 0 }, { opacity: 1 }], { atraso: troca, duracao: 0 });
   animar(entrada, marca, [{ opacity: 1 }, { opacity: 0 }], { atraso: troca, duracao: 0 });
+
+  // E o nome do topo entra deslizando um pouco da esquerda (de trás do brasão)
+  const nome = [
+    { opacity: 0, transform: 'translateX(-10px)' },
+    { opacity: 1, transform: 'none' },
+  ];
+  animar(entrada, logoTopo.querySelector('[data-entrada="topo-nome"]'), nome, { atraso: troca, duracao: SAIDA.nome.duracao });
 }
 
 // Os quadros do arco. Para cada quadro: um polígono com o retângulo da

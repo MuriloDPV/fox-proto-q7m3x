@@ -41,7 +41,9 @@ export const ABERTURA = {
 export const SAIDA = {
   arco: { atraso: 0, duracao: 1100 }, // o papel creme abre em arco, do centro
   voo: { atraso: 40, duracao: 950 }, // a logo encolhe e voa até o topo
+  recorte: { atraso: 40, duracao: 600 }, // v4.4: o nome embaixo do brasão some, de baixo para cima, durante o voo
   troca: 60, // depois do pouso, a logo que voou dá lugar à logo do topo (num quadro só)
+  nome: { duracao: 600 }, // v4.4: depois da troca, o nome aparece ao lado do brasão do topo
   linha: { atraso: 0, duracao: 400 }, // a linha de carregamento recolhe
 };
 
