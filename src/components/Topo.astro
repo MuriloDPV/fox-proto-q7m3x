@@ -63,7 +63,10 @@ import brasao from '../assets/marca/brasao.png';
     --alto: 76px;
     --baixo: 62px;
     --brasao: 42px;
-    --nome: 1.2rem;
+    /* min(): o nome é a logo, então nunca passa de 5,6% da largura da tela,
+       nem com a fonte do celular aumentada (v4.6). Em tela de 320 px e
+       fonte grande ele diminui em vez de ser cortado. */
+    --nome: min(1.2rem, 5.6vw);
     --encolhe: 0.84;
     --botao: 44px; /* altura mínima de toque recomendada */
   }
@@ -385,21 +388,35 @@ import brasao from '../assets/marca/brasao.png';
   }
 
   /* No celular cada pixel conta: sem o vão da grade (ele somaria 3 vezes,
-     contando a coluna vazia do meio) e Reservar um pouco mais estreito */
+     contando a coluna vazia do meio).
+     v4.6: o Reservar SAI do topo no celular. Brasão + nome + Reservar +
+     menu não cabiam numa linha: em celular com fonte do sistema aumentada
+     (Samsung, acessibilidade) o botão ficava em cima do nome e cortava
+     "Chácara Ludwig". No celular o Reservar vira a barra fixa no rodapé da
+     tela (Flutuantes.astro), sempre à mão. */
   @media (max-width: 899px) {
     .topo {
       column-gap: 0;
     }
 
     .topo__reservar {
-      margin-left: 0.6rem;
-      padding: 0 0.9em;
-      font-size: 0.76rem;
-      letter-spacing: 0.1em;
+      display: none;
     }
 
     .topo__menu {
-      margin-left: 0.25rem;
+      margin-left: 0.75rem;
+    }
+
+    /* rede de segurança: se mesmo assim faltar espaço (tela de 320 px com
+       fonte grande), o nome encolhe com reticências em vez de passar por
+       baixo do menu */
+    .topo__nome {
+      min-width: 0;
+    }
+
+    .topo__nome-linha {
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
   }
 

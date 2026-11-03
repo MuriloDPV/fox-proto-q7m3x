@@ -1,16 +1,36 @@
 ---
-// Atalho do WhatsApp sempre à mão, em qualquer aba (canto de baixo).
-// Na v4 o "Reservar" foi para o topo (Topo.astro), então aqui ficou só o
-// WhatsApp, num círculo discreto marrom com o ícone claro.
+// Atalhos sempre à mão, em qualquer aba.
+//
+// COMPUTADOR (900 px ou mais): o "Reservar" fica no topo (Topo.astro) e
+// aqui sobra só o WhatsApp, num círculo discreto no canto de baixo.
+//
+// CELULAR (até 899 px) — v4.6: o topo não tem espaço para logo + nome +
+// Reservar + menu (o botão cobria o nome). Então o Reservar desce para
+// uma barra fixa no rodapé da tela, ocupando quase toda a largura, com o
+// WhatsApp do lado. É o padrão de site de hotel no celular: o botão de
+// reserva sempre no alcance do polegar.
+//
+// O botão da barra usa data-abrir-busca, igual ao do topo: o mesmo
+// src/scripts/reservar.js abre a janela de datas.
 import Icone from './Icone.astro';
 import { linkWhatsApp, MENSAGEM_RESERVA } from '../config.js';
 ---
 
+<!-- celular: barra fixa embaixo -->
+<div class="barra" data-entrada="extra">
+  <button class="barra__reservar" type="button" data-abrir-busca>Reservar</button>
+  <a class="barra__whats" href={linkWhatsApp(MENSAGEM_RESERVA)} target="_blank" rel="noopener" aria-label="Falar no WhatsApp">
+    <Icone nome="whatsapp" />
+  </a>
+</div>
+
+<!-- computador: só o círculo do WhatsApp -->
 <a class="whats" data-entrada="extra" href={linkWhatsApp(MENSAGEM_RESERVA)} target="_blank" rel="noopener" aria-label="Falar no WhatsApp">
   <Icone nome="whatsapp" />
 </a>
 
 <style>
+  /* ---------- Computador: círculo do WhatsApp ---------- */
   .whats {
     position: fixed;
     right: var(--margem);
@@ -30,7 +50,8 @@ import { linkWhatsApp, MENSAGEM_RESERVA } from '../config.js';
       transform 0.45s var(--ease);
   }
 
-  .whats :global(svg) {
+  .whats :global(svg),
+  .barra__whats :global(svg) {
     width: 24px;
     height: 24px;
   }
@@ -43,8 +64,68 @@ import { linkWhatsApp, MENSAGEM_RESERVA } from '../config.js';
     }
   }
 
-  /* com o menu aberto, sai da frente */
-  :global(body.menu-aberto) .whats {
+  /* ---------- Celular: barra fixa ---------- */
+  .barra {
+    display: none;
+  }
+
+  @media (max-width: 899px) {
+    /* no celular o círculo some: o WhatsApp vai para dentro da barra */
+    .whats {
+      display: none;
+    }
+
+    .barra {
+      --altura-botao: 50px; /* área de toque confortável (mín. 48) */
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 60;
+      display: flex;
+      gap: 0.6rem;
+      /* env(safe-area-inset-bottom): a faixa do gesto de "home" do iPhone */
+      padding: 0.6rem var(--margem) calc(0.6rem + env(safe-area-inset-bottom));
+      background: rgb(244 238 230 / 0.92); /* = --fundo, 92% opaco */
+      -webkit-backdrop-filter: blur(12px) saturate(1.2);
+      backdrop-filter: blur(12px) saturate(1.2);
+      box-shadow: 0 -1px 0 var(--linha);
+    }
+
+    .barra__reservar {
+      flex: 1;
+      min-height: var(--altura-botao);
+      border: 0;
+      border-radius: 2px;
+      background: var(--ouro);
+      color: var(--noite); /* contraste 5,1:1 sobre o dourado */
+      font: 500 0.86rem / 1 var(--sans);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    .barra__whats {
+      flex: none;
+      display: grid;
+      place-items: center;
+      width: var(--altura-botao);
+      height: var(--altura-botao);
+      border-radius: 2px;
+      background: var(--texto);
+      color: var(--fundo);
+    }
+
+    /* espaço no fim da página: sem isso a barra cobriria o fim do rodapé.
+       (altura do botão + respiros de cima e de baixo + faixa do iPhone) */
+    :global(body) {
+      padding-bottom: calc(50px + 1.2rem + env(safe-area-inset-bottom));
+    }
+  }
+
+  /* com o menu aberto, os dois saem da frente (o menu tem o próprio Reservar) */
+  :global(body.menu-aberto) .whats,
+  :global(body.menu-aberto) .barra {
     opacity: 0;
     pointer-events: none;
   }
