@@ -1,212 +1,39 @@
 ---
-// ABERTURA DE ABA: foto em tela cheia + título gigante por cima.
-// Toda aba começa com este bloco.
+// ABERTURA DE ABA: o primeiro bloco de toda aba (menos o Início, que tem a
+// AberturaInicio.astro). As abas usam sempre
+//   <HeroAba {...fotos.abertura} rotulo="..." linhas={[...]}>frase + botão</HeroAba>
+// e não precisam saber qual modelo vai aparecer: quem escolhe é o
+// arquivo central src/dados/fotos-secoes.js (campo "tipo").
 //
-// Regra da v4: só fotos de 1600 px ou mais DE VERDADE vão em tela cheia.
-// Se alguém trocar a foto em src/dados/fotos-secoes.js por uma pequena, o
-// build PARA com uma mensagem (melhor do que uma foto borrada no ar).
-//
-// Animações (todas em CSS, então repetem sempre que a aba abre, porque o
-// painel sai de display:none):
-//   - a foto entra com leve escala;
-//   - o título sobe linha por linha por trás da máscara;
-//   - o resto aparece em seguida.
-// O parallax (a foto anda mais devagar que a página) fica em
-// src/scripts/parallax.js.
-//
-// v4.1: se a abertura da aba vier com tipo: 'dividida' (em
-// src/dados/fotos-secoes.js), este componente entrega a abertura dividida
-// (HeroDividido.astro: título de um lado, foto do assunto do outro).
-// As abas usam sempre <HeroAba {...fotos.abertura} ... /> e não precisam
-// saber qual das duas vai aparecer.
-import { Image } from 'astro:assets';
-import type { ImageMetadata } from 'astro';
-import Linhas from './Linhas.astro';
+// Regra da v4.5: NENHUM texto em cima de foto. Por isso a antiga abertura
+// "tela cheia com título gigante por cima" saiu, e sobraram dois modelos:
+//   tipo: 'dividida'  -> HeroDividido.astro: texto à esquerda, foto à direita
+//   tipo: 'empilhada' -> HeroEmpilhado.astro: texto em cima, no creme, e
+//                        logo abaixo a foto larga (cinema) com topo em arco
+// As abas vizinhas alternam os dois modelos (ver fotos-secoes.js).
 import HeroDividido from './HeroDividido.astro';
+import HeroEmpilhado from './HeroEmpilhado.astro';
+import type { ImageMetadata } from 'astro';
 
 interface Props {
   foto: { src: ImageMetadata; alt: string; real: number; telaCheia?: boolean };
-  tipo?: 'tela-cheia' | 'dividida'; // vem de fotos-secoes.js; sem tipo = tela cheia
+  tipo: 'dividida' | 'empilhada'; // vem de fotos-secoes.js
   posicao?: string; // object-position (que parte da foto fica visível)
   rotulo: string; // texto pequeno acima do título
-  linhas: string[]; // o título, uma linha por item
-  recuo?: number[]; // linhas recuadas para a direita
+  linhas: string[]; // o título, uma linha por item (no máximo 2)
   nivel?: 'h1' | 'h2';
   carregar?: 'eager' | 'lazy';
 }
 
-const { foto, tipo = 'tela-cheia', posicao = '50% 50%', rotulo, linhas, recuo = [1], nivel = 'h2', carregar = 'lazy' } = Astro.props;
-const dividida = tipo === 'dividida';
+const { tipo, ...resto } = Astro.props;
 
-if (!dividida && !foto.telaCheia) {
-  throw new Error(
-    `HeroAba: a foto "${foto.alt}" tem ${foto.real} px reais. Tela cheia só aceita fotos com 1600 px ou mais. Use tipo: 'dividida' ou outra foto (ver src/dados/fotos-secoes.js).`,
-  );
+if (tipo !== 'dividida' && tipo !== 'empilhada') {
+  throw new Error(`HeroAba: tipo "${tipo}" não existe. Use 'dividida' ou 'empilhada' em src/dados/fotos-secoes.js.`);
 }
 
-// No celular a tela é alta e estreita: com object-fit cover, a foto
-// precisa ter (largura ÷ altura da foto) × altura da tela de largura.
-// O sizes avisa isso ao navegador, senão ele baixa a versão pequena.
-const proporcao = (foto.src.width / foto.src.height).toFixed(3);
-const larguras = [768, 1280, 1600, 1920, 2400].filter((w) => w < foto.src.width).concat(foto.src.width);
+const Modelo = tipo === 'empilhada' ? HeroEmpilhado : HeroDividido;
 ---
 
-{
-  dividida ? (
-    <HeroDividido foto={foto} posicao={posicao} rotulo={rotulo} linhas={linhas} recuo={recuo} nivel={nivel} carregar={carregar}>
-      <slot />
-    </HeroDividido>
-  ) : (
-<header class="heroi-aba">
-  <div class="heroi-aba__foto" aria-hidden="true">
-    <Image
-      src={foto.src}
-      alt=""
-      widths={larguras}
-      sizes={`(max-aspect-ratio: ${foto.src.width}/${foto.src.height}) calc(100svh * ${proporcao}), 100vw`}
-      loading={carregar}
-      fetchpriority={carregar === 'eager' ? 'high' : 'auto'}
-      style={`object-position: ${posicao}`}
-      data-real={foto.real}
-      data-real-altura={foto.src.height}
-      data-tela-cheia
-    />
-  </div>
-
-  <div class="heroi-aba__conteudo margem">
-    <p class="rotulo heroi-aba__rotulo">{rotulo}</p>
-    <Linhas tag={nivel} class="gigante heroi-aba__titulo" linhas={linhas} recuo={recuo} rolagem={false} />
-    <div class="heroi-aba__rodape">
-      <slot />
-    </div>
-  </div>
-</header>
-  )
-}
-
-<style>
-  .heroi-aba {
-    position: relative;
-    display: grid;
-    min-height: 100svh;
-    min-height: max(100svh, 560px);
-    overflow: hidden;
-    color: var(--sobre-foto);
-    background: var(--noite);
-  }
-
-  /* ---- Foto ---- */
-  .heroi-aba__foto {
-    position: absolute;
-    inset: 0;
-    animation: heroi-foto 1.9s var(--ease) both;
-  }
-
-  /* scale(1.12): sobra de foto para o parallax mover sem mostrar borda.
-     --desloca vem do parallax.js (em px). */
-  .heroi-aba__foto :global(img) {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transform: translate3d(0, var(--desloca, 0px), 0) scale(1.12);
-  }
-
-  /* Escurece de leve em cima (para o topo) e embaixo (para o texto) */
-  .heroi-aba__foto::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background:
-      linear-gradient(180deg, rgb(24 17 12 / 0.42) 0%, rgb(24 17 12 / 0) 26%),
-      linear-gradient(0deg, rgb(24 17 12 / 0.55) 0%, rgb(24 17 12 / 0.12) 45%, rgb(24 17 12 / 0) 70%);
-  }
-
-  @keyframes heroi-foto {
-    from {
-      opacity: 0.4;
-      transform: scale(1.07);
-    }
-  }
-
-  /* ---- Texto ---- */
-  .heroi-aba__conteudo {
-    position: relative;
-    display: grid;
-    align-content: end;
-    gap: 1.2rem;
-    padding-top: calc(var(--altura-topo) + 3rem);
-    padding-bottom: clamp(1.6rem, 4vw, 3rem);
-  }
-
-  /* (o título é outro componente, Linhas: por isso o :global) */
-  .heroi-aba :global(.heroi-aba__titulo) {
-    text-shadow: 0 1px 40px rgb(0 0 0 / 0.18);
-  }
-
-  /* O título sobe por linha toda vez que a aba abre */
-  .heroi-aba :global(.heroi-aba__titulo .linha > span) {
-    animation: linha-sobe 1.15s var(--ease) both;
-    animation-delay: calc(0.2s + var(--i, 0) * 0.1s);
-  }
-
-  @keyframes linha-sobe {
-    from {
-      transform: translateY(110%);
-    }
-  }
-
-  .heroi-aba__rotulo,
-  .heroi-aba__rodape {
-    animation: heroi-texto 1s 0.55s var(--ease) both;
-  }
-
-  @keyframes heroi-texto {
-    from {
-      opacity: 0;
-      transform: translateY(14px);
-    }
-  }
-
-  /* Rodapé do hero: frase curta + botão, na metade direita (como na
-     referência). No celular fica embaixo do título. */
-  .heroi-aba__rodape {
-    display: grid;
-    justify-items: start;
-    gap: 1.2rem;
-    max-width: 24rem;
-    margin-top: 1.4rem;
-    font-size: 0.98rem;
-    line-height: 1.5;
-  }
-
-  .heroi-aba__rodape:empty {
-    display: none;
-  }
-
-  /* celular: folga à direita para o texto não passar por baixo do
-     botão redondo do WhatsApp (Flutuantes.astro) */
-  @media (max-width: 899px) {
-    .heroi-aba__rodape {
-      padding-right: 60px;
-    }
-  }
-
-  @media (min-width: 900px) {
-    .heroi-aba__conteudo {
-      align-content: center;
-      padding-bottom: 4rem;
-    }
-
-    .heroi-aba__rodape {
-      margin-left: 50%;
-      margin-top: 2.4rem;
-    }
-  }
-
-  /* Enquanto a tela de abertura está na frente, as animações esperam
-     (o html ganha .aberto quando ela sai: src/scripts/entrada.js) */
-  :global(html.js:not(.aberto)) .heroi-aba :is(.heroi-aba__foto, .heroi-aba__rotulo, .heroi-aba__rodape),
-  :global(html.js:not(.aberto)) .heroi-aba :global(.heroi-aba__titulo .linha > span) {
-    animation-play-state: paused;
-  }
-</style>
+<Modelo {...resto}>
+  <slot />
+</Modelo>

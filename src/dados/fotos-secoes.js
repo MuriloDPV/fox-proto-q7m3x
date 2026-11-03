@@ -9,16 +9,21 @@
 // Nenhum componente de aba precisa ser aberto para trocar uma foto.
 //
 // Tipos de lugar (e o formato ideal de foto para cada um):
-//   abertura   -> o topo da aba, com o título gigante. Dois tipos:
-//                 - (sem tipo) TELA CHEIA: a foto ocupa a tela toda.
+//   abertura   -> o topo da aba. Regra da v4.5: NENHUM texto em cima de
+//                 foto (a antiga "tela cheia com título gigante por cima"
+//                 saiu). Dois tipos, alternados entre abas vizinhas:
+//                 - tipo: 'empilhada': título, frase e botão no creme, em
+//                   cima; embaixo a foto larga (cinema) com topo em arco.
 //                   Só aceita fotos com telaCheia: true (1600 px ou mais).
 //                 - tipo: 'dividida' (v4.1): título de um lado, foto do
-//                   outro, em tamanho que não estica a foto. Para as abas
-//                   que ainda não têm foto grande DO ASSUNTO da aba. Aceita
+//                   outro, em tamanho que não estica a foto. Aceita
 //                   qualquer foto do catálogo.
-//                 Quando chegar a foto profissional grande de uma aba
-//                   dividida: cadastre em fotos.js, troque "foto" aqui e
-//                   apague o "tipo: 'dividida'". Mais nada muda.
+//                 Ordem hoje: Início (própria) · Hospedagem empilhada ·
+//                   Jardim dividida · Eventos empilhada · Gastronomia
+//                   dividida · Lazer empilhada · Visite dividida.
+//                 Quando chegar uma foto profissional grande de uma aba
+//                   dividida, ela pode virar empilhada: cadastre em
+//                   fotos.js, troque "foto" aqui e o tipo. Mais nada muda.
 //                 "posicao" escolhe que parte da foto fica visível quando a
 //                 foto é cortada (object-position: horizontal vertical).
 //                 A foto de abertura também aparece no menu em tela cheia
@@ -32,6 +37,7 @@ import { FOTOS } from './fotos.js';
 export const SECOES = {
   inicio: {
     // Foto do Início no menu em tela cheia (e, até a v4.1, a abertura).
+    // Sem "tipo": o Início não usa o HeroAba, e sim AberturaInicio.astro.
     abertura: { foto: FOTOS.heroPatio, posicao: '50% 60%' },
     // Abertura do Início: "três pilares" (proposta C da v4.2, a escolhida).
     // Uma foto para cada coisa que o lugar oferece; fotos ~600 px, por isso
@@ -54,7 +60,7 @@ export const SECOES = {
   },
 
   hospedagem: {
-    abertura: { foto: FOTOS.quartoJanelao, posicao: '50% 35%' },
+    abertura: { tipo: 'empilhada', foto: FOTOS.quartoJanelao, posicao: '50% 45%' },
     par: [FOTOS.chaleCasinhas, FOTOS.casaPorDoSol],
   },
 
@@ -76,7 +82,7 @@ export const SECOES = {
   },
 
   eventos: {
-    abertura: { foto: FOTOS.heroPatio, posicao: '15% 55%' },
+    abertura: { tipo: 'empilhada', foto: FOTOS.heroPatio, posicao: '50% 55%' },
     par: [FOTOS.macarons, FOTOS.patioMesas],
     carrossel: [FOTOS.patioLanterna, FOTOS.jardimCoberto, FOTOS.pergoladoJardim, FOTOS.aerea2, FOTOS.piscinaNoite, FOTOS.patioTarde],
     // "hospede seus convidados": primeira foto desta acomodação
@@ -94,7 +100,7 @@ export const SECOES = {
   },
 
   lazer: {
-    abertura: { foto: FOTOS.piscinaCascata, posicao: '50% 60%' },
+    abertura: { tipo: 'empilhada', foto: FOTOS.piscinaCascata, posicao: '50% 60%' },
     par: [FOTOS.piscina2, FOTOS.piscina4],
     carrossel: [FOTOS.piscina1, FOTOS.piscina3, FOTOS.piscina5, FOTOS.piscinaNoite],
     // colagem solta de fotos pequenas (fim de tarde)

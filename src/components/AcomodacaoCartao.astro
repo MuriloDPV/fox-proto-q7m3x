@@ -69,19 +69,23 @@ const preparadas = await Promise.all(
           ))
         }
       </ul>
+      {/* v4.5: contador e setas numa faixa EMBAIXO da foto, no creme
+           (antes ficavam por cima da foto, nos cantos de baixo) */}
       {
         fotos.length > 1 && (
-          <>
-            <button class="fotos__seta fotos__seta--anterior" type="button" data-anterior aria-label={`Foto anterior: ${a.nome}`}>
-              <Icone nome="seta" />
-            </button>
-            <button class="fotos__seta fotos__seta--proxima" type="button" data-proxima aria-label={`Próxima foto: ${a.nome}`}>
-              <Icone nome="seta" />
-            </button>
+          <div class="fotos__barra">
             <span class="fotos__contador" aria-hidden="true">
               <span data-atual>1</span> / {fotos.length}
             </span>
-          </>
+            <span class="fotos__setas">
+              <button class="fotos__seta fotos__seta--anterior" type="button" data-anterior aria-label={`Foto anterior: ${a.nome}`}>
+                <Icone nome="seta" />
+              </button>
+              <button class="fotos__seta fotos__seta--proxima" type="button" data-proxima aria-label={`Próxima foto: ${a.nome}`}>
+                <Icone nome="seta" />
+              </button>
+            </span>
+          </div>
         )
       }
     </div>
@@ -143,16 +147,12 @@ const preparadas = await Promise.all(
   }
 
   /* ---------- Carrossel de fotos ---------- */
-  .fotos {
-    position: relative;
-    aspect-ratio: 3 / 2;
-    background: var(--fundo-2);
-  }
-
-  /* trilho: as fotos lado a lado; o ímã (scroll-snap) para em cada uma */
+  /* trilho: as fotos lado a lado; o ímã (scroll-snap) para em cada uma.
+     É ele que tem o formato 3:2 (a faixa do contador fica embaixo). */
   .fotos__trilho {
     display: flex;
-    height: 100%;
+    aspect-ratio: 3 / 2;
+    background: var(--fundo-2);
     margin: 0;
     padding: 0;
     overflow-x: auto;
@@ -191,23 +191,41 @@ const preparadas = await Promise.all(
     object-fit: cover;
   }
 
-  /* setas: quadradinhos off-white, discretos, que aparecem no hover */
+  /* Faixa embaixo da foto: "3 / 12" à esquerda, setas à direita */
+  .fotos__barra {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 0.6rem;
+  }
+
+  .fotos__contador {
+    color: var(--texto-suave);
+    font: 500 0.68rem/1 var(--sans);
+    letter-spacing: 0.08em;
+  }
+
+  .fotos__setas {
+    display: flex;
+    gap: 4px;
+  }
+
+  /* setas: quadradinhos com filete fino, discretos */
   .fotos__seta {
-    position: absolute;
-    bottom: 0.7rem;
-    z-index: 4;
     display: grid;
     place-items: center;
     width: 36px;
     height: 36px;
     padding: 0;
-    border: 0;
-    background: rgb(244 238 230 / 0.92);
+    border: 1px solid var(--linha);
+    background: transparent;
     color: var(--texto);
     cursor: pointer;
     transition:
       opacity 0.3s,
-      background-color 0.3s;
+      background-color 0.3s,
+      border-color 0.3s;
   }
 
   .fotos__seta :global(svg) {
@@ -215,16 +233,8 @@ const preparadas = await Promise.all(
     height: 16px;
   }
 
-  .fotos__seta--anterior {
-    right: calc(0.7rem + 40px);
-  }
-
   .fotos__seta--anterior :global(svg) {
     transform: scaleX(-1);
-  }
-
-  .fotos__seta--proxima {
-    right: 0.7rem;
   }
 
   .fotos__seta:disabled {
@@ -235,20 +245,8 @@ const preparadas = await Promise.all(
   @media (hover: hover) {
     .fotos__seta:not(:disabled):hover {
       background: var(--ouro);
+      border-color: var(--ouro);
     }
-  }
-
-  .fotos__contador {
-    position: absolute;
-    left: 0.7rem;
-    bottom: 0.7rem;
-    z-index: 4;
-    padding: 0.35rem 0.55rem;
-    background: rgb(244 238 230 / 0.92);
-    color: var(--texto);
-    font: 500 0.68rem/1 var(--sans);
-    letter-spacing: 0.08em;
-    pointer-events: none;
   }
 
   /* ---------- Informações ---------- */

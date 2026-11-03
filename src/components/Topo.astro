@@ -22,7 +22,9 @@ import { Image } from 'astro:assets';
 import brasao from '../assets/marca/brasao.png';
 ---
 
-<header class="topo" id="topo">
+<!-- topo--solido já no HTML (v4.5): nenhuma aba abre com foto atrás do topo,
+     então o fundo creme e o texto escuro valem desde a primeira pintura -->
+<header class="topo topo--solido" id="topo">
   <a class="topo__logo" data-entrada="topo-logo" href="#inicio" aria-label="Chácara Ludwig — voltar ao início">
     <!-- tamanho do arquivo bem maior que o da tela (até 156 px de altura
          numa tela retina): o navegador só reduz, nunca amplia -->
@@ -32,6 +34,12 @@ import brasao from '../assets/marca/brasao.png';
       <span class="topo__nome-sub">Festas e Eventos</span>
     </span>
   </a>
+
+  <!-- Etiqueta do protótipo (v4.5): no vão do meio do topo, que tem fundo
+       próprio, então nunca fica em cima de texto, botão ou foto. Só em
+       telas de 1100 px ou mais (abaixo disso ela encosta no nome da
+       chácara); nas outras ela fica no fim do rodapé. Antes era uma etiqueta solta, fixa embaixo da tela. -->
+  <span class="topo__prototipo" aria-hidden="true" data-entrada="extra">Protótipo — Athomon</span>
 
   <button class="topo__reservar" type="button" data-abrir-busca data-entrada="topo-botao">Reservar</button>
 
@@ -357,7 +365,8 @@ import brasao from '../assets/marca/brasao.png';
     }
 
     :global(body.menu-aberto) .topo__logo,
-    :global(body.menu-aberto) .topo__reservar {
+    :global(body.menu-aberto) .topo__reservar,
+    :global(body.menu-aberto) .topo__prototipo {
       opacity: 0;
       visibility: hidden;
       transition:
@@ -397,6 +406,34 @@ import brasao from '../assets/marca/brasao.png';
   @media (min-width: 900px) {
     .topo {
       column-gap: 1.6rem;
+    }
+  }
+
+  /* ---- Etiqueta do protótipo (v4.5) ----
+     Fora da grade (absolute), centralizada no topo. Escondida abaixo de
+     1100 px (o vão entre a logo e os botões fica pequeno demais). */
+  .topo__prototipo {
+    display: none;
+  }
+
+  @media (min-width: 1100px) {
+    .topo__prototipo {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      display: block;
+      padding: 0.3rem 0.55rem;
+      border: 1px solid var(--linha);
+      color: var(--texto-suave);
+      font: 500 0.56rem/1 var(--sans);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      translate: -50% -50%;
+      pointer-events: none;
+      transition:
+        opacity 0.3s,
+        visibility 0s;
     }
   }
 </style>

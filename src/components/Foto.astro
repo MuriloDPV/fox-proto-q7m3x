@@ -9,7 +9,9 @@
 //   (FOTOS vem de src/dados/fotos.js e já traz src, alt e real)
 //
 // - formato:  proporção da caixa: paisagem (3:2), largo (16:9), retrato (4:5),
-//             alto (2:3), quadrado, oval (4:5 com cantos ovais)
+//             alto (2:3), quadrado, oval (4:5 com cantos ovais),
+//             cinema (21:9 no computador, 3:2 no celular; v4.5, abertura empilhada)
+// - arco:     topo da caixa em arco (v4.5, abertura empilhada)
 // - posicao:  que parte da foto fica visível no corte (object-position)
 // - galeria:  clicar abre o lightbox; fotos com a mesma galeria viram sequência
 // - href:     a foto vira link (ex.: atalho para outra aba)
@@ -28,13 +30,14 @@ interface Props {
   alt?: string;
   real?: number;
   telaCheia?: boolean; // vem junto do {...FOTOS.x}; aqui não é usado
-  formato?: 'paisagem' | 'largo' | 'retrato' | 'alto' | 'quadrado' | 'oval';
+  formato?: 'paisagem' | 'largo' | 'retrato' | 'alto' | 'quadrado' | 'oval' | 'cinema';
   posicao?: string;
   galeria?: string;
   href?: string;
   legenda?: string;
   detalhe?: string;
   filete?: boolean;
+  arco?: boolean;
   sizes?: string;
   atraso?: number; // ms, para revelar várias fotos em cascata
   carregar?: 'lazy' | 'eager';
@@ -53,6 +56,7 @@ const {
   legenda,
   detalhe,
   filete = false,
+  arco = false,
   sizes = '(min-width: 900px) 40vw, 92vw',
   atraso = 0,
   carregar = 'lazy',
@@ -61,7 +65,8 @@ const {
 } = Astro.props;
 
 // Proporção (largura ÷ altura) de cada formato
-const PROPORCOES = { paisagem: 3 / 2, largo: 16 / 9, retrato: 4 / 5, alto: 2 / 3, quadrado: 1, oval: 4 / 5 };
+// (cinema: a conta usa a do computador, 21:9, a mais larga das duas)
+const PROPORCOES = { paisagem: 3 / 2, largo: 16 / 9, retrato: 4 / 5, alto: 2 / 3, quadrado: 1, oval: 4 / 5, cinema: 21 / 9 };
 const proporcao = PROPORCOES[formato];
 
 let larguras: number[] = [];
@@ -124,7 +129,7 @@ const atributos: Record<string, string | undefined> = href
 ---
 
 <figure
-  class:list={['foto', `foto--${formato}`, { 'foto--filete': filete, 'foto--interativa': href || galeria }, classe]}
+  class:list={['foto', `foto--${formato}`, { 'foto--filete': filete, 'foto--arco': arco, 'foto--interativa': href || galeria }, classe]}
   style={`--atraso: ${atraso}ms; ${estiloMax}`}
 >
   <Tag class="foto__caixa" data-revelar={revelar ? '' : undefined} {...atributos}>
@@ -193,8 +198,25 @@ const atributos: Record<string, string | undefined> = href
     aspect-ratio: 1;
   }
 
+  /* cinema: 3:2 no celular (21:9 numa tela estreita vira uma tirinha) */
+  .foto--cinema .foto__caixa {
+    aspect-ratio: 3 / 2;
+  }
+  @media (min-width: 900px) {
+    .foto--cinema .foto__caixa {
+      aspect-ratio: 21 / 9;
+    }
+  }
+
   .foto--oval .foto__caixa {
     border-radius: 50%;
+  }
+
+  /* Topo em arco: os dois cantos de cima são um quarto de elipse cada
+     (50% da largura × 40% da altura), formando uma abóbada só, como o
+     arco da tela de entrada do site. */
+  .foto--arco .foto__caixa {
+    border-radius: 50% 50% 0 0 / 40% 40% 0 0;
   }
 
   .foto__caixa :global(.foto__img) {

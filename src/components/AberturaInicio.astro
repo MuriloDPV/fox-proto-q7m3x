@@ -38,7 +38,7 @@ const frase =
   <div class="ai-texto">
     <p class="rotulo ai-rotulo" data-entrada="rotulo">Chácara Ludwig</p>
     <div data-entrada="titulo">
-      <Linhas tag="h1" class="ai-titulo" linhas={titulo} rolagem={false} />
+      <Linhas tag="h1" class="titulo-abertura ai-titulo" linhas={titulo} rolagem={false} />
     </div>
     <p class="ai-frase" data-entrada="frase">{frase}</p>
     <div class="ai-busca" data-entrada="busca">
@@ -72,8 +72,8 @@ const frase =
 
 <style>
   .abertura-inicio {
-    /* Título da abertura: no celular ~38px, no computador até ~67px. */
-    --t-abertura: clamp(2.35rem, 1rem + 3.4vw, 4.2rem);
+    /* (o tamanho do título, --t-abertura, mora em global.css desde a v4.5:
+       é o mesmo em todas as abas) */
     /* respiro vertical em volta do texto (acompanha a altura da tela) */
     --respiro: clamp(1.75rem, 5.5vh, 3.75rem);
   }
@@ -92,15 +92,6 @@ const frase =
 
   .ai-rotulo {
     color: var(--ouro-escuro);
-  }
-
-  .abertura-inicio :global(.ai-titulo) {
-    font: 300 var(--t-abertura) / 1.02 var(--serifa);
-    letter-spacing: -0.015em;
-  }
-
-  .abertura-inicio :global(.ai-titulo em) {
-    font-style: italic;
   }
 
   /* a frase que explica o lugar */

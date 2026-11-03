@@ -170,7 +170,8 @@ for (const [largura, altura] of [
     // qual abertura a aba usa (v4.1) e se o topo está certo para ela:
     // na dividida (fundo claro) o topo tem que estar sólido (texto escuro)
     const estadoAbertura = await page.evaluate(() => ({
-      abertura: document.querySelector('.painel:not([hidden]) .heroi-dividido') ? 'dividida' : 'tela-cheia',
+      // (v4.5: a tela cheia saiu; sobraram dividida e empilhada)
+      abertura: document.querySelector('.painel:not([hidden]) .heroi-dividido') ? 'dividida' : document.querySelector('.painel:not([hidden]) .heroi-empilhado') ? 'empilhada' : 'propria',
       topoSolido: document.getElementById('topo').classList.contains('topo--solido'),
     }));
 
@@ -347,7 +348,7 @@ for (const [largura, altura] of [
 
   // ---------- Eventos: formulário de orçamento ----------
   await abrirAba(page, 'eventos');
-  await page.click('.heroi-aba a[href="#orcar"]');
+  await page.click('.heroi-empilhado a[href="#orcar"]');
   await espera(1400);
   r.hashDepoisDeOrcar = await page.evaluate(() => location.hash);
   await page.selectOption('#orc-tipo', 'Casamento');
@@ -440,10 +441,7 @@ for (const [largura, altura] of [
     }),
   );
   await calma.screenshot({ path: p('30-menos-movimento-hospedagem') });
-  r.menosMovimento_parallaxParado = await calma.evaluate(() => {
-    window.scrollTo(0, 400);
-    return new Promise((ok) => requestAnimationFrame(() => requestAnimationFrame(() => ok(getComputedStyle(document.querySelector('#hospedagem .heroi-aba')).getPropertyValue('--desloca') || 'sem parallax'))));
-  });
+  // (o parallax da foto de abertura saiu na v4.5, junto com a tela cheia)
   await ctxCalmo.close();
 }
 

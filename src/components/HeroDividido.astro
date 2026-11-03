@@ -12,9 +12,13 @@
 // foto nunca fica maior que 1,5× o tamanho real dela (ela para de crescer
 // e encosta na direita).
 //
-// Fundo off-white, sem foto atrás do topo: por isso a classe NÃO é
-// .heroi-aba. Sem .heroi-aba na aba, o topo.js deixa o topo sólido (texto
-// escuro) desde o início e o parallax.js não faz nada.
+// Fundo off-white, sem foto atrás do topo: o topo fica sólido (texto
+// escuro) desde o início (src/scripts/topo.js).
+//
+// v4.5: o título passou a ter o tamanho do Início (.titulo-abertura, no
+// máximo 2 linhas) e as animações são as mesmas do Início e da abertura
+// empilhada (global.css, "Abertura das abas"). É o modelo usado em
+// Jardim, Gastronomia e Visite; o outro é o HeroEmpilhado.astro.
 import Foto from './Foto.astro';
 import Linhas from './Linhas.astro';
 import type { ImageMetadata } from 'astro';
@@ -23,28 +27,29 @@ interface Props {
   foto: { src: ImageMetadata; alt: string; real: number; telaCheia?: boolean };
   posicao?: string; // object-position (que parte da foto fica visível)
   rotulo: string; // texto pequeno acima do título
-  linhas: string[]; // o título, uma linha por item
-  recuo?: number[]; // linhas recuadas para a direita
+  linhas: string[]; // o título, uma linha por item (no máximo 2)
   nivel?: 'h1' | 'h2';
   carregar?: 'eager' | 'lazy';
 }
 
-const { foto, posicao, rotulo, linhas, recuo = [1], nivel = 'h2', carregar = 'lazy' } = Astro.props;
+const { foto, posicao, rotulo, linhas, nivel = 'h2', carregar = 'lazy' } = Astro.props;
 ---
 
-<header class="heroi-dividido margem grade">
+<header class="heroi-dividido abertura-aba margem grade">
   <div class="heroi-dividido__texto">
-    <p class="rotulo heroi-dividido__rotulo">{rotulo}</p>
-    <Linhas tag={nivel} class="gigante heroi-dividido__titulo" linhas={linhas} recuo={recuo} rolagem={false} />
-    <div class="heroi-dividido__rodape">
+    <p class="rotulo heroi-dividido__rotulo abertura-aba__depois">{rotulo}</p>
+    <Linhas tag={nivel} class="titulo-abertura" linhas={linhas} rolagem={false} />
+    <div class="heroi-dividido__rodape abertura-aba__depois">
       <slot />
     </div>
   </div>
 
   <!-- paisagem (3:2): é o formato que menos corta as fotos que temos
-       (todas deitadas), então é o que deixa a foto maior sem esticar -->
+       (todas deitadas), então é o que deixa a foto maior sem esticar.
+       revelar={false}: quem faz a foto abrir é a animação da abertura
+       (global.css), que repete sempre que a aba abre -->
   <div class="heroi-dividido__foto">
-    <Foto {...foto} posicao={posicao} formato="paisagem" carregar={carregar} sizes="(min-width: 900px) 46vw, 92vw" />
+    <Foto {...foto} posicao={posicao} formato="paisagem" carregar={carregar} revelar={false} sizes="(min-width: 900px) 46vw, 92vw" class="abertura-aba__foto" />
   </div>
 </header>
 
@@ -89,9 +94,7 @@ const { foto, posicao, rotulo, linhas, recuo = [1], nivel = 'h2', carregar = 'la
     display: none;
   }
 
-  /* Computador: metade texto, metade foto, centralizados na altura da tela.
-     O título gigante normal (9,4vw) não cabe em meia tela: aqui ele vai
-     até 5vw. */
+  /* Computador: metade texto, metade foto, centralizados na altura da tela. */
   @media (min-width: 900px) {
     .heroi-dividido {
       min-height: min(100svh, 60rem);
@@ -109,40 +112,5 @@ const { foto, posicao, rotulo, linhas, recuo = [1], nivel = 'h2', carregar = 'la
       display: grid;
       justify-items: end; /* quando a trava de 1,5× segura a foto, ela fica à direita */
     }
-
-    .heroi-dividido :global(.heroi-dividido__titulo) {
-      font-size: clamp(2.3rem, 5vw, 6rem);
-    }
-  }
-
-  /* ---- Animações (iguais às do HeroAba: repetem sempre que a aba abre) ----
-     A foto já abre sozinha pelo data-revelar do componente Foto. */
-  .heroi-dividido :global(.heroi-dividido__titulo .linha > span) {
-    animation: dividido-linha 1.15s var(--ease) both;
-    animation-delay: calc(0.2s + var(--i, 0) * 0.1s);
-  }
-
-  @keyframes dividido-linha {
-    from {
-      transform: translateY(110%);
-    }
-  }
-
-  .heroi-dividido__rotulo,
-  .heroi-dividido__rodape {
-    animation: dividido-texto 1s 0.55s var(--ease) both;
-  }
-
-  @keyframes dividido-texto {
-    from {
-      opacity: 0;
-      transform: translateY(14px);
-    }
-  }
-
-  /* Enquanto a tela de abertura do site está na frente, as animações esperam */
-  :global(html.js:not(.aberto)) .heroi-dividido :is(.heroi-dividido__rotulo, .heroi-dividido__rodape),
-  :global(html.js:not(.aberto)) .heroi-dividido :global(.heroi-dividido__titulo .linha > span) {
-    animation-play-state: paused;
   }
 </style>

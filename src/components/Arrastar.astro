@@ -2,8 +2,10 @@
 // CARROSSEL HORIZONTAL "ARRASTE"
 // Uma fileira de fotos que passa da largura da tela. No celular o dedo já
 // rola para o lado (é só overflow-x). No computador, o mouse vira um
-// círculo escrito "Arraste" e dá para puxar a fileira segurando o botão
-// (src/scripts/arrastar.js). Uma linha fina embaixo mostra o quanto já
+// círculo dourado com duas setas (← →) e dá para puxar a fileira
+// segurando o botão (src/scripts/arrastar.js). v4.5: o círculo tinha a
+// palavra "Arraste" escrita, que ficava em cima da foto; agora são só as
+// setas, e a palavra fica na dica acima das fotos ("Arraste para o lado"). Uma linha fina embaixo mostra o quanto já
 // foi visto.
 //
 // Uso:
@@ -14,6 +16,7 @@
 //   O <slot /> (opcional) aparece embaixo da linha de progresso (ex.: um botão).
 import Foto from './Foto.astro';
 import Linhas from './Linhas.astro';
+import Icone from './Icone.astro';
 import type { ImageMetadata } from 'astro';
 
 type Item = { src: ImageMetadata; alt: string; real: number; legenda?: string; detalhe?: string; href?: string };
@@ -72,7 +75,7 @@ const { rotulo, titulo, fotos, galeria, formatos = ['retrato', 'paisagem'], cola
   }
 
   <!-- o círculo que segue o mouse (só em computador) -->
-  <span class="arrastar__cursor" aria-hidden="true">Arraste</span>
+  <span class="arrastar__cursor" aria-hidden="true"><Icone nome="seta" /><Icone nome="seta" /></span>
 </section>
 
 <style>
@@ -172,7 +175,7 @@ const { rotulo, titulo, fotos, galeria, formatos = ['retrato', 'paisagem'], cola
     margin-top: 2.2rem;
   }
 
-  /* ---- Cursor "Arraste" (só mouse) ---- */
+  /* ---- Cursor com as setas (só mouse) ---- */
   .arrastar__cursor {
     display: none;
   }
@@ -203,7 +206,7 @@ const { rotulo, titulo, fotos, galeria, formatos = ['retrato', 'paisagem'], cola
     }
   }
 
-  /* Mouse: o círculo "Arraste" no lugar da setinha */
+  /* Mouse: o círculo com as setas no lugar da setinha */
   @media (hover: hover) and (pointer: fine) {
     /* o cursor do sistema some só em cima das fotos (o JS liga .com-cursor) */
     :global(.arrastar.com-cursor) .arrastar__trilho {
@@ -220,16 +223,15 @@ const { rotulo, titulo, fotos, galeria, formatos = ['retrato', 'paisagem'], cola
       left: 0;
       z-index: 5;
       display: grid;
-      place-items: center;
-      width: 92px;
-      height: 92px;
-      margin: -46px 0 0 -46px;
+      place-content: center; /* as duas setas juntas, no meio do círculo */
+      grid-auto-flow: column;
+      gap: 2px;
+      width: 72px;
+      height: 72px;
+      margin: -36px 0 0 -36px;
       border-radius: 50%;
       background: var(--ouro);
       color: var(--noite);
-      font: 500 0.66rem/1 var(--sans);
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
       pointer-events: none;
       opacity: 0;
       /* --x e --y vêm do arrastar.js */
@@ -237,6 +239,16 @@ const { rotulo, titulo, fotos, galeria, formatos = ['retrato', 'paisagem'], cola
       transition:
         opacity 0.3s,
         transform 0.35s var(--ease);
+    }
+
+    .arrastar__cursor :global(svg) {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* a primeira seta aponta para a esquerda */
+    .arrastar__cursor :global(svg:first-child) {
+      transform: scaleX(-1);
     }
 
     :global(.arrastar.com-cursor) .arrastar__cursor {

@@ -1,6 +1,6 @@
 ---
 // Aba 6 — Lazer. Ritmo:
-//   1. abertura em tela cheia (piscina com cascata) + título gigante
+//   1. abertura empilhada (título no creme; embaixo a piscina com cascata, em arco)
 //   2. rótulo + parágrafo grande (piscina)
 //   3. par de fotos assimétrico
 //   4. carrossel da piscina (arraste)
@@ -28,7 +28,7 @@ const piscina = fotos.carrossel.map((f, i) => ({ ...f, legenda: legendasPiscina[
 
 <section class="painel" id="lazer" role="tabpanel" aria-labelledby="aba-lazer" tabindex="0">
   <!-- 1. Abertura -->
-  <HeroAba {...fotos.abertura} rotulo="Lazer" linhas={['Piscina,', 'cavalos e', 'pôr do sol']}>
+  <HeroAba {...fotos.abertura} rotulo="Lazer" linhas={['Piscina, cavalos', '<em>e pôr do sol</em>']}>
     <p>Piscina com cascata, passeios a cavalo, jardins e o fim de tarde sobre os campos.</p>
   </HeroAba>
 

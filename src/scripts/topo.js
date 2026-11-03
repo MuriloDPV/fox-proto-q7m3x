@@ -1,10 +1,11 @@
 // TOPO QUE MUDA COM A ROLAGEM (src/components/Topo.astro)
-// - Começo da página: topo grande. Em cima da foto de abertura fica
-//   transparente, com texto claro.
+// - Começo da página: topo grande.
 // - Rolou um pouco (COMPACTA px): topo compacto (.topo--compacto), com
-//   fundo creme meio transparente e texto escuro (.topo--solido).
-// - Abas sem foto no alto (o Início): já começa com texto escuro.
-// - Rolando para baixo (depois da foto): o topo sobe e some
+//   fundo creme meio transparente.
+// - Texto escuro (.topo--solido) SEMPRE: desde a v4.5 nenhuma aba abre com
+//   foto atrás do topo (antes, nas aberturas em tela cheia, o topo ficava
+//   transparente com texto claro em cima da foto).
+// - Rolando para baixo: o topo sobe e some
 //   (.topo--escondido); qualquer rolagem para cima traz de volta.
 // requestAnimationFrame junta várias rolagens num cálculo só por quadro.
 const topo = document.getElementById('topo');
@@ -13,14 +14,10 @@ const topo = document.getElementById('topo');
 const COMPACTA = 40;
 
 if (topo) {
-  let limite = 0; // onde a foto de abertura da aba atual termina
+  // a partir de quantos px rolados o topo pode se esconder ao descer
+  const ESCONDE = 160;
   let ultimoY = window.scrollY;
   let agendado = false;
-
-  const medir = () => {
-    const heroi = document.querySelector('.painel:not([hidden]) .heroi-aba');
-    limite = heroi ? heroi.offsetHeight - topo.offsetHeight : 0;
-  };
 
   const atualizar = () => {
     agendado = false;
@@ -29,10 +26,8 @@ if (topo) {
     const subindo = y < ultimoY - 2;
     const compacto = y > COMPACTA;
     topo.classList.toggle('topo--compacto', compacto);
-    // fundo creme + texto escuro: no topo compacto ou fora da foto
-    topo.classList.toggle('topo--solido', compacto || y >= limite);
-    if (descendo && y > limite + 160) topo.classList.add('topo--escondido');
-    if (subindo || y <= limite) topo.classList.remove('topo--escondido');
+    if (descendo && y > ESCONDE) topo.classList.add('topo--escondido');
+    if (subindo || y <= 0) topo.classList.remove('topo--escondido');
     ultimoY = y;
   };
 
@@ -43,14 +38,10 @@ if (topo) {
   };
 
   window.addEventListener('scroll', agendar, { passive: true });
-  window.addEventListener('resize', () => {
-    medir();
-    agendar();
-  });
+  window.addEventListener('resize', agendar);
 
-  // Trocou de aba: a página volta ao topo e a foto nova pode ter outra altura
+  // Trocou de aba: a página volta ao topo
   document.addEventListener('aba:trocada', () => {
-    medir();
     ultimoY = window.scrollY;
     topo.classList.remove('topo--escondido');
     atualizar();
@@ -59,6 +50,6 @@ if (topo) {
   // Teclado: se algo dentro do topo recebe foco, ele aparece
   topo.addEventListener('focusin', () => topo.classList.remove('topo--escondido'));
 
-  medir();
+  topo.classList.add('topo--solido');
   atualizar();
 }

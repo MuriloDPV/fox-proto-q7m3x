@@ -2,23 +2,20 @@
 // Movimento leve que dá sensação de profundidade. Com "menos movimento"
 // ligado, nada acontece.
 //
-// Dois casos:
-//   1. .heroi-aba (foto de tela cheia, no topo da aba): enquanto a pessoa
-//      rola, a foto anda 30% da rolagem, mais devagar que a página
-//      (HeroAba.astro). O JS só escreve um número na variável CSS
-//      --desloca; quem move a foto é o transform do CSS.
-//   2. Os três pilares da abertura do Início (v4.3), o "detalhe vivo"
-//      depois da entrada do site:
-//      - com mouse: as fotos flutuam um pouco para o lado oposto ao do
-//        mouse, cada uma numa profundidade (a do fim da escada anda mais);
-//      - sem mouse (celular): na rolagem, cada foto sobe num ritmo
-//        diferente e a escada "se ajeita".
-//      Só começa depois da entrada (entradaTerminada, de entrada.js), para
-//      não mexer nas fotos enquanto elas entram.
+// (Até a v4.4 havia também o parallax da foto de tela cheia no topo das
+// abas; essa abertura saiu na v4.5, junto com o texto por cima da foto.)
+//
+// Os três pilares da abertura do Início (v4.3), o "detalhe vivo"
+//   depois da entrada do site:
+//   - com mouse: as fotos flutuam um pouco para o lado oposto ao do
+//     mouse, cada uma numa profundidade (a do fim da escada anda mais);
+//   - sem mouse (celular): na rolagem, cada foto sobe num ritmo
+//     diferente e a escada "se ajeita".
+//   Só começa depois da entrada (entradaTerminada, de entrada.js), para
+//   não mexer nas fotos enquanto elas entram.
 import { entradaTerminada } from './entrada.js';
 
 const menosMovimento = matchMedia('(prefers-reduced-motion: reduce)');
-const VELOCIDADE = 0.3;
 
 // pilares do Início
 const MOUSE_PX = 11; // quanto as fotos andam com o mouse, no máximo (px)
@@ -27,43 +24,7 @@ const INERCIA = 0.07; // 0 a 1: menor = segue o mouse mais devagar (mais macio)
 const ROLAGEM = [0.02, 0.045, 0.07]; // celular: fração da rolagem que cada foto sobe a mais
 
 if (!menosMovimento.matches) {
-  // ---------- 1. Foto de tela cheia ----------
-  let heroi = null;
-  let altura = 0;
-  let agendado = false;
-
-  const escolher = () => {
-    heroi = document.querySelector('.painel:not([hidden]) .heroi-aba');
-    altura = heroi ? heroi.offsetHeight : 0;
-  };
-
-  const mover = () => {
-    agendado = false;
-    if (!heroi) return;
-    const y = Math.min(window.scrollY, altura); // depois da foto, não precisa mexer
-    heroi.style.setProperty('--desloca', `${(y * VELOCIDADE).toFixed(1)}px`);
-  };
-
-  const agendar = () => {
-    if (agendado) return;
-    agendado = true;
-    requestAnimationFrame(mover);
-  };
-
-  window.addEventListener('scroll', agendar, { passive: true });
-  window.addEventListener('resize', () => {
-    escolher();
-    agendar();
-  });
-  document.addEventListener('aba:trocada', () => {
-    escolher();
-    mover();
-  });
-
-  escolher();
-  mover();
-
-  // ---------- 2. Pilares do Início ----------
+  // ---------- Pilares do Início ----------
   entradaTerminada.then(() => {
     const pilares = [...document.querySelectorAll('[data-entrada="pilar"]')];
     const abertura = document.querySelector('[data-entrada="inicio"]');

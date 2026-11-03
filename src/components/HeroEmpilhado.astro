@@ -1,0 +1,142 @@
+---
+// ABERTURA "EMPILHADA" (v4.5): no fundo creme, em cima, o rótulo, o título
+// (no máximo 2 linhas, mesmo tamanho do Início), a frase e o botão; logo
+// abaixo, a foto larga (proporção de cinema) com o topo em arco, SEM
+// nenhum texto em cima dela.
+// Substitui a antiga abertura em tela cheia, que tinha um título gigante
+// por cima da foto (difícil de ler sobre fotos cheias de detalhe).
+//
+// A foto ocupa a largura toda da página, então aqui só entram as fotos de
+// 1600 px ou mais (telaCheia: true em src/dados/fotos.js). Se alguém
+// trocar por uma pequena em fotos-secoes.js, o build PARA com uma
+// mensagem (melhor do que uma foto borrada no ar).
+//
+// Animações (iguais às do Início, em global.css, "Abertura das abas"):
+// o título sobe linha por linha, a frase e o botão aparecem e a foto abre
+// de baixo para cima. Repetem toda vez que a aba abre.
+//
+// Fundo creme, sem foto atrás do topo: o topo fica sólido (texto escuro)
+// desde o começo (src/scripts/topo.js).
+import Foto from './Foto.astro';
+import Linhas from './Linhas.astro';
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+  foto: { src: ImageMetadata; alt: string; real: number; telaCheia?: boolean };
+  posicao?: string;
+  rotulo: string;
+  linhas: string[];
+  nivel?: 'h1' | 'h2';
+  carregar?: 'eager' | 'lazy';
+}
+
+const { foto, posicao, rotulo, linhas, nivel = 'h2', carregar = 'lazy' } = Astro.props;
+
+if (!foto.telaCheia) {
+  throw new Error(
+    `HeroEmpilhado: a foto "${foto.alt}" tem ${foto.real} px reais. A abertura empilhada ocupa a largura toda e só aceita fotos com 1600 px ou mais. Use tipo: 'dividida' ou outra foto (ver src/dados/fotos-secoes.js).`,
+  );
+}
+---
+
+<header class="heroi-empilhado abertura-aba margem">
+  <div class="heroi-empilhado__texto">
+    <div class="heroi-empilhado__titulo">
+      <p class="rotulo heroi-empilhado__rotulo abertura-aba__depois">{rotulo}</p>
+      <Linhas tag={nivel} class="titulo-abertura" linhas={linhas} rolagem={false} />
+    </div>
+    <div class="heroi-empilhado__rodape abertura-aba__depois">
+      <slot />
+    </div>
+  </div>
+
+  <!-- revelar={false}: quem faz a foto abrir é a animação da abertura
+       (global.css), que repete sempre que a aba abre, e não a rolagem -->
+  <Foto
+    {...foto}
+    posicao={posicao}
+    formato="cinema"
+    arco
+    revelar={false}
+    carregar={carregar}
+    sizes="(min-width: 900px) 95vw, 92vw"
+    class="heroi-empilhado__foto abertura-aba__foto"
+  />
+</header>
+
+<style>
+  /* Celular: tudo um embaixo do outro. Embaixo não tem espaço: quem dá o
+     respiro é o bloco seguinte (.secao). */
+  .heroi-empilhado {
+    display: grid;
+    row-gap: 2rem;
+    padding-top: calc(var(--altura-topo) + clamp(2rem, 6vw, 3.5rem));
+    background: var(--fundo);
+    color: var(--texto);
+  }
+
+  .heroi-empilhado__texto {
+    display: grid;
+    gap: 1.4rem;
+  }
+
+  .heroi-empilhado__titulo {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .heroi-empilhado__rotulo {
+    color: var(--ouro-escuro);
+  }
+
+  /* frase curta + botão */
+  .heroi-empilhado__rodape {
+    display: grid;
+    justify-items: start;
+    gap: 1.2rem;
+    max-width: 25rem;
+    font-size: 1rem;
+    line-height: 1.55;
+    color: var(--texto-suave);
+  }
+
+  .heroi-empilhado__rodape:empty {
+    display: none;
+  }
+
+  /* a foto não tem limite de largura aqui (a trava de 1,5× do Foto nunca
+     chega a agir com fotos de 1600 px ou mais) */
+  .heroi-empilhado :global(.heroi-empilhado__foto) {
+    max-width: none;
+  }
+
+  /* Computador: título à esquerda, frase e botão à direita, alinhados
+     embaixo; a foto vem por baixo, na largura toda.
+     A altura da foto é a de cinema (21:9), mas encolhe se for preciso para
+     a abertura inteira caber na primeira tela, sem cortar o arco. */
+  @media (min-width: 900px) {
+    .heroi-empilhado {
+      row-gap: clamp(1.8rem, 4vh, 3rem);
+      padding-top: calc(var(--altura-topo) + clamp(2rem, 6vh, 4rem));
+    }
+
+    .heroi-empilhado__texto {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: var(--vao);
+      align-items: end;
+    }
+
+    .heroi-empilhado__titulo {
+      grid-column: 1 / 8;
+    }
+
+    .heroi-empilhado__rodape {
+      grid-column: 9 / 13;
+    }
+
+    .heroi-empilhado :global(.heroi-empilhado__foto .foto__caixa) {
+      aspect-ratio: auto;
+      height: clamp(16rem, min(calc((100vw - 2 * var(--margem)) * 9 / 21), 100svh - 22rem), 40rem);
+    }
+  }
+</style>

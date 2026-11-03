@@ -1,6 +1,6 @@
 ---
 // Aba 4 — Eventos. Ritmo:
-//   1. abertura em tela cheia (o pátio iluminado) + título gigante
+//   1. abertura empilhada (título no creme; embaixo o pátio iluminado, em arco)
 //   2. rótulo + parágrafo grande
 //   3. par de fotos assimétrico
 //   4. tipos de evento (lista numerada, sem ícones)
@@ -41,7 +41,7 @@ const fotoCasa = fotosDoQuarto(fotos.hospedar)[0];
 
 <section class="painel" id="eventos" role="tabpanel" aria-labelledby="aba-eventos" tabindex="0">
   <!-- 1. Abertura -->
-  <HeroAba {...fotos.abertura} rotulo="Eventos" linhas={['Foi com festas', 'que tudo', 'começou']}>
+  <HeroAba {...fotos.abertura} rotulo="Eventos" linhas={['Foi com festas', '<em>que tudo começou</em>']}>
     <p>Casamentos, aniversários, 15 anos, formaturas, confraternizações e eventos de empresa.</p>
     <a class="botao" href="#orcar">
       <span class="botao__texto">Orçar meu evento</span>
