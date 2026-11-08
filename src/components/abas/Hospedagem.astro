@@ -179,6 +179,8 @@ const fotos = SECOES.hospedagem;
   .hosp__nota { max-width: 30rem; font-size: 0.8rem; color: var(--texto-suave); }
   .hosp__vazio { padding: 2rem; background: var(--fundo-2); }
   .hosp__vazio[hidden] { display: none; }
+  .hosp__vazio:not([hidden]) { animation: filtros-vazio 0.25s var(--ease) both; }
+  @keyframes filtros-vazio { from { opacity: 0; transform: translateY(6px); } }
   .hosp__vazio h3 { font-size: 2rem; }
   .hosp__vazio p { max-width: 36rem; margin-top: 0.75rem; color: var(--texto-suave); }
 

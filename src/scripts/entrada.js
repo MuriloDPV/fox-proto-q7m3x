@@ -1,47 +1,22 @@
-// ENTRADA DO SITE (v4.3): tela de abertura + chegada do Início
-// ------------------------------------------------------------
-// Qual versão roda é decidido ANTES de pintar a tela, pelo script do
-// <head> (src/layouts/Base.astro), que marca o <html>:
-//   .entrando.entrada-completa  primeira visita da sessão: tela da logo,
-//                               linha que carrega, arco que abre, logo que
-//                               voa até o topo e a cascata do Início;
-//   .entrando.entrada-curta     já viu nesta sessão: só a cascata, mais rápida;
-//   (nada)                      "menos movimento" ligado: tudo já no lugar.
-//
-// COMO NADA PISCA
-// Enquanto o <html> tem .entrando, o CSS (global.css, "ENTRADA DO SITE")
-// deixa escondido quem vai entrar, no mesmo estado do 1º quadro da
-// animação. Aqui, cada peça ganha uma animação da Web Animations API
-// (elemento.animate), do estado escondido até o normal. No fim, no MESMO
-// instante, tiramos .entrando e cancelamos as animações: a peça volta a
-// obedecer só o CSS, que agora diz "visível" — igual ao último quadro.
-//
-// PULAR: clicar, tocar, rolar ou apertar uma tecla durante a entrada
-// acelera tudo o que falta para terminar em PULO ms.
-//
-// TODOS OS TEMPOS: src/dados/entrada.js
-import { ABERTURA, SAIDA, CASCATA, RITMO_CURTO, PULO, CURVAS, ARCO, CHAVE_SESSAO } from '../dados/entrada.js';
-import { BRASAO_NA_LOGO } from '../dados/topo.js';
+// Entrada: a marca central desaparece sobre o fundo opaco; só depois
+// o arco revela o site. A marca do cabeçalho permanece no seu lugar.
+import { ABERTURA, SAIDA, CASCATA, RITMO_CURTO, LIMITE_ENTRADA, CURVAS, ARCO, CHAVE_SESSAO } from '../dados/entrada.js';
 
 const raiz = document.documentElement;
 const abertura = document.getElementById('abertura');
-const menosMovimento = matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-// Promessa que avisa outros scripts (o parallax das fotos) que a entrada
-// terminou: import { entradaTerminada } from './entrada.js'
+const preferenciaMovimento = matchMedia('(prefers-reduced-motion: reduce)');
+const menosMovimento = preferenciaMovimento.matches;
 let avisarFim;
 export const entradaTerminada = new Promise((ok) => (avisarFim = ok));
-
-// O navegador sabe animar um pseudo-elemento (o ::before do topo) pelo JS?
-const animaPseudo = typeof KeyframeEffect !== 'undefined' && 'pseudoElement' in KeyframeEffect.prototype;
+let terminou = false;
+let limite;
 
 // ---------------------------------------------------------------------
 // Ferramentas
 // ---------------------------------------------------------------------
 
-// Uma "lista" guarda as animações de uma sequência, para acelerar todas
-// no pulo e cancelar todas no fim.
-const novaLista = () => ({ animacoes: [], pulando: false });
+// A lista permite cancelar a sequência inteira ao interagir com a página.
+const novaLista = () => ({ animacoes: [] });
 
 // Cria uma animação e guarda na lista.
 // fill: 'both' = durante o atraso ela já segura o 1º quadro (a peça fica
@@ -52,15 +27,6 @@ function animar(lista, el, quadros, { atraso = 0, duracao, curva = CURVAS.suave,
   if (pseudo) opcoes.pseudoElement = pseudo;
   const animacao = el.animate(quadros, opcoes);
   lista.animacoes.push(animacao);
-  if (lista.pulando) acelerar(animacao);
-}
-
-// Faz uma animação terminar em até PULO ms, sem salto: só aumenta a
-// velocidade (playbackRate) a partir de onde ela está.
-function acelerar(animacao) {
-  const { endTime, localTime } = animacao.effect.getComputedTiming();
-  const falta = endTime - (localTime ?? 0);
-  if (falta > PULO) animacao.updatePlaybackRate(falta / PULO);
 }
 
 // Quando TODAS as animações da lista acabarem: cancela todas (a peça volta
@@ -74,9 +40,7 @@ function quandoTerminar(lista, depois) {
 }
 
 // ---------------------------------------------------------------------
-// A cascata do Início (item 3) — usada nas três situações:
-//   primeira visita (depois da tela da logo), versão curta e volta para o
-//   Início vindo de outra aba (essa sem o topo, que já está lá).
+// Chegada do Início, na primeira visita ou na recarga da mesma sessão.
 // ---------------------------------------------------------------------
 function cascata(lista, { inicio = 0, ritmo = 1, comTopo = true, logoDoTopo = false }) {
   const C = CASCATA;
@@ -92,11 +56,6 @@ function cascata(lista, { inicio = 0, ritmo = 1, comTopo = true, logoDoTopo = fa
   ];
 
   if (comTopo) {
-    // o filete embaixo do topo se desenha do centro para as pontas
-    if (animaPseudo) {
-      const linha = [{ transform: 'scaleX(0)' }, { transform: 'none' }];
-      animar(lista, document.getElementById('topo'), linha, { ...tempo(C.topoLinha), curva: CURVAS.mascara, pseudo: '::before' });
-    }
     document.querySelectorAll('[data-entrada="topo-botao"]').forEach((botao) => animar(lista, botao, acender, tempo(C.topoBotoes)));
     if (logoDoTopo) animar(lista, document.querySelector('[data-entrada="topo-logo"]'), acender, tempo(C.topoLogo));
     document.querySelectorAll('[data-entrada="extra"]').forEach((el) => animar(lista, el, acender, tempo(C.extras)));
@@ -117,16 +76,17 @@ function cascata(lista, { inicio = 0, ritmo = 1, comTopo = true, logoDoTopo = fa
     animar(lista, texto, [{ transform: 'translateY(110%)' }, { transform: 'none' }], tempo(C.titulo, extra));
   });
 
-  animar(lista, peca('frase'), subir(18), tempo(C.frase));
-  animar(lista, peca('busca'), subir(18), tempo(C.busca));
+  animar(lista, peca('frase'), subir(10), tempo(C.frase));
+  animar(lista, peca('busca'), subir(10), tempo(C.busca));
+  inicioAba.querySelectorAll('[data-entrada="apoio"]').forEach((el) => animar(lista, el, subir(6), tempo(C.frase)));
 
   // As três fotos, em escada: a caixa abre de baixo para cima (clip-path),
-  // a foto "assenta" de 1,08 para 1 e, depois, a legenda sobe.
+  // a foto "assenta" de 1,04 para 1 e, depois, a legenda sobe.
   inicioAba.querySelectorAll('[data-entrada="pilar"]').forEach((pilar, i) => {
     const extra = i * C.fotos.entreFotos;
     const abrir = [{ clipPath: 'inset(100% 0 0 0)' }, { clipPath: 'inset(0 0 0 0)' }];
     animar(lista, pilar.querySelector('.foto__caixa'), abrir, { ...tempo(C.fotos, extra), curva: CURVAS.mascara });
-    animar(lista, pilar.querySelector('.foto__img'), [{ transform: 'scale(1.08)' }, { transform: 'none' }], {
+    animar(lista, pilar.querySelector('.foto__img'), [{ transform: 'scale(1.04)' }, { transform: 'none' }], {
       atraso: tempo(C.fotos, extra).atraso,
       duracao: C.fotos.escala * ritmo,
     });
@@ -136,7 +96,7 @@ function cascata(lista, { inicio = 0, ritmo = 1, comTopo = true, logoDoTopo = fa
 }
 
 // ---------------------------------------------------------------------
-// Primeira visita: tela da logo + saída em arco + cascata
+// Primeira visita: marca central, saída em arco e conteúdo
 // ---------------------------------------------------------------------
 const entrada = novaLista();
 let saiu = false;
@@ -210,8 +170,7 @@ function sair() {
   // daqui em diante a tela de abertura não segura mais cliques: eles
   // chegam ao site (o papel já está abrindo)
   abertura.style.pointerEvents = 'none';
-  // a logo e o brilho (animações em CSS) entram na lista: assim o pulo
-  // acelera essas também
+  // Aguarda também as animações de apresentação já iniciadas pelo CSS.
   entrada.animacoes.push(...abertura.getAnimations({ subtree: true }));
 
   // 1. O ARCO. clip-path: polygon(evenodd, ...) desenha "a tela inteira
@@ -231,79 +190,15 @@ function sair() {
   ];
   animar(entrada, abertura.querySelector('.abertura__linha'), recolher, { ...SAIDA.linha, curva: CURVAS.mascara });
 
-  // 3. A logo voa até o topo
-  voarLogo();
+  // A marca central não se desloca pela página. Ela sai enquanto o
+  // fundo ainda é opaco, antes do primeiro quadro visível do portal.
+  animar(entrada, abertura.querySelector('.abertura__centro'),
+    [{ opacity: 1 }, { opacity: 0 }], SAIDA.centro);
 
   // 4. A cascata do Início começa com o arco ainda abrindo
-  cascata(entrada, { inicio: CASCATA.inicio });
+  cascata(entrada, { inicio: CASCATA.inicio, logoDoTopo: true });
 
   quandoTerminar(entrada, terminar);
-}
-
-// FLIP (First, Last, Invert, Play): a técnica para mover algo de um lugar
-// para outro animando SÓ transform (liso até no celular).
-// v4.4: o topo tem só o brasão (o nome é texto ao lado). Então a logo
-// inteira da abertura voa até que o BRASÃO dela fique em cima do brasão
-// do topo; no caminho, o nome embaixo do brasão é recortado de baixo para
-// cima, e depois do pouso o nome do topo aparece ao lado.
-function voarLogo() {
-  const marca = abertura.querySelector('.abertura__marca');
-  const imagem = marca?.querySelector('img');
-  const logoTopo = document.querySelector('[data-entrada="topo-logo"]');
-  const brasaoTopo = logoTopo?.querySelector('.topo__brasao');
-  if (!marca || !imagem || !brasaoTopo) return;
-
-  // F (first): onde a logo está agora, no meio da tela, e onde o brasão
-  // fica dentro dela (BRASAO_NA_LOGO = o retângulo do recorte, em frações)
-  const caixa = marca.getBoundingClientRect();
-  const img = imagem.getBoundingClientRect();
-  const B = BRASAO_NA_LOGO;
-  const brasao = {
-    x: img.left + img.width * (B.x + B.largura / 2), // centro do brasão
-    y: img.top + img.height * (B.y + B.altura / 2),
-    largura: img.width * B.largura,
-    base: img.top + img.height * (B.y + B.altura), // onde o brasão termina
-  };
-  // L (last): onde ela tem que chegar = onde está o brasão do topo. O topo
-  // pode estar no meio de uma transição dele; com "transition: none" a
-  // medida já sai no estado final.
-  logoTopo.style.transition = 'none';
-  const ultimo = brasaoTopo.getBoundingClientRect();
-  logoTopo.style.transition = '';
-  // I (invert): a escala (brasão com brasão) e o deslocamento. O transform
-  // gira em volta do centro da caixa (c): um ponto p vai para
-  // c + (p − c) × escala + deslocamento. Queremos o centro do brasão (p)
-  // no centro do brasão do topo, então: deslocamento = alvo − c − (p − c) × escala.
-  const escala = ultimo.width / brasao.largura;
-  const cx = caixa.left + caixa.width / 2;
-  const cy = caixa.top + caixa.height / 2;
-  const dx = ultimo.left + ultimo.width / 2 - cx - (brasao.x - cx) * escala;
-  const dy = ultimo.top + ultimo.height / 2 - cy - (brasao.y - cy) * escala;
-  // P (play): anima só o transform, daqui até lá
-  const voo = [{ transform: 'none' }, { transform: `translate(${dx}px, ${dy}px) scale(${escala})` }];
-  animar(entrada, marca, voo, { ...SAIDA.voo, curva: CURVAS.voo });
-
-  // O nome embaixo do brasão some recortado de baixo para cima (clip-path
-  // conta em px da caixa SEM o transform, então dá para medir daqui)
-  const corte = caixa.bottom - brasao.base;
-  const recorte = [{ clipPath: 'inset(0 0 0 0)' }, { clipPath: `inset(0 0 ${corte}px 0)` }];
-  animar(entrada, marca, recorte, { ...SAIDA.recorte, curva: CURVAS.mascara });
-
-  // A troca: depois do pouso, os dois brasões são a mesma imagem no mesmo
-  // lugar. No MESMO quadro, a logo do topo acende e a que voou some. Nunca
-  // as duas meio transparentes (isso deixaria o brasão mais fraco ou com
-  // os raios mais fortes por um instante).
-  const troca = SAIDA.voo.atraso + SAIDA.voo.duracao + SAIDA.troca;
-  // (duração 0 = muda de uma vez, exatamente no instante do atraso)
-  animar(entrada, logoTopo, [{ opacity: 0 }, { opacity: 1 }], { atraso: troca, duracao: 0 });
-  animar(entrada, marca, [{ opacity: 1 }, { opacity: 0 }], { atraso: troca, duracao: 0 });
-
-  // E o nome do topo entra deslizando um pouco da esquerda (de trás do brasão)
-  const nome = [
-    { opacity: 0, transform: 'translateX(-10px)' },
-    { opacity: 1, transform: 'none' },
-  ];
-  animar(entrada, logoTopo.querySelector('[data-entrada="topo-nome"]'), nome, { atraso: troca, duracao: SAIDA.nome.duracao });
 }
 
 // Os quadros do arco. Para cada quadro: um polígono com o retângulo da
@@ -371,50 +266,51 @@ function quadrosDoArco(largura, altura) {
 // ---------------------------------------------------------------------
 const EVENTOS_DE_PULO = ['pointerdown', 'wheel', 'touchstart', 'keydown'];
 
-function pular() {
-  if (entrada.pulando) return;
-  entrada.pulando = true;
-  // Ainda na tela da logo: sai agora, sem esperar a linha. (As animações
-  // criadas a partir daqui já nascem aceleradas: veja animar().)
-  if (abertura && raiz.classList.contains('entrada-completa')) sair();
-  entrada.animacoes.forEach(acelerar);
-}
+// A primeira interação libera o site imediatamente, sem acelerar fases
+// em ritmos diferentes (o que faria o arco ultrapassar o fade da marca).
+function pular() { terminar(); }
 
 function terminar() {
+  if (terminou) return;
+  terminou = true;
+  saiu = true;
+  clearTimeout(limite);
+  entrada.animacoes.forEach((animacao) => animacao.cancel());
   abertura?.remove();
   raiz.classList.remove('entrando', 'entrada-completa', 'entrada-curta');
   raiz.classList.add('aberto');
   EVENTOS_DE_PULO.forEach((tipo) => window.removeEventListener(tipo, pular));
+  window.removeEventListener('resize', pular);
+  document.removeEventListener('entrada:expirada', terminar);
+  document.removeEventListener('aba:trocada', aoNavegar);
+  preferenciaMovimento.removeEventListener('change', pular);
   avisarFim();
 }
-
-if (menosMovimento || !raiz.classList.contains('entrando')) {
-  // "Menos movimento", ou o JS chegou tão tarde que a rede de segurança
-  // do <head> já mostrou tudo: só arruma a casa
-  terminar();
-} else {
-  window.entradaAssumida = true; // avisa a rede de segurança do <head>
-  EVENTOS_DE_PULO.forEach((tipo) => window.addEventListener(tipo, pular, { passive: true }));
-
-  if (abertura && raiz.classList.contains('entrada-completa')) {
-    abrirCompleta();
-  } else {
-    // Versão curta: só a cascata, mais rápida, com a logo do topo acendendo
-    raiz.classList.add('aberto');
-    cascata(entrada, { ritmo: RITMO_CURTO, logoDoTopo: true });
-    quandoTerminar(entrada, terminar);
-  }
+const abaInicial = raiz.dataset.aba;
+function aoNavegar(evento) {
+  if (evento.detail.id !== abaInicial) terminar();
 }
 
-// Volta para o Início vindo de outra aba: a cascata curta de novo (sem o
-// topo, que nunca saiu). Só depois da entrada, para não pegar o aviso de
-// "aba trocada" que abas.js dá quando a página carrega.
-entradaTerminada.then(() => {
-  if (menosMovimento) return;
-  document.addEventListener('aba:trocada', (evento) => {
-    if (evento.detail.id !== 'inicio') return;
-    const volta = novaLista();
-    cascata(volta, { ritmo: RITMO_CURTO, comTopo: false });
-    quandoTerminar(volta);
-  });
-});
+if (menosMovimento || !raiz.classList.contains('entrando') || !Element.prototype.animate) {
+  terminar();
+} else {
+  limite = setTimeout(terminar, LIMITE_ENTRADA);
+  EVENTOS_DE_PULO.forEach((tipo) => window.addEventListener(tipo, pular, { passive: true }));
+  window.addEventListener('resize', pular, { passive: true });
+  document.addEventListener('entrada:expirada', terminar);
+  document.addEventListener('aba:trocada', aoNavegar);
+  preferenciaMovimento.addEventListener('change', pular);
+  try {
+    if (abertura && raiz.classList.contains('entrada-completa')) {
+      abrirCompleta();
+    } else {
+      raiz.classList.add('aberto');
+      cascata(entrada, { ritmo: RITMO_CURTO, logoDoTopo: true });
+      quandoTerminar(entrada, terminar);
+    }
+  } catch {
+    terminar();
+  }
+}
+// A volta ao Início usa a transição de seção existente. Não repete as
+// máscaras da primeira visita nem esconde os botões novamente.

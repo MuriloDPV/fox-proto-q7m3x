@@ -5,13 +5,13 @@
 //    de máscara). Embaixo, uma linha dourada fina enche como barra de
 //    carregamento, acompanhando as fotos da primeira tela.
 // 2) Saída: o papel creme abre em ARCO, do centro para fora (a forma dos
-//    arcos do pátio), com um fio dourado na borda; ao mesmo tempo a logo
-//    encolhe e voa até o lugar dela no topo.
+//    arcos do pátio), com um fio dourado na borda. A logo central já saiu;
+//    a marca do cabeçalho aparece no próprio lugar, sem atravessar o site.
 //
 // Camadas, de baixo para cima:
 //   .abertura__aro    fio dourado (fica embaixo do papel; só aparece na borda do arco)
 //   .abertura__papel  o creme que abre em arco (clip-path)
-//   .abertura__centro a logo (que voa) e a linha de carregamento
+//   .abertura__centro a logo fixa e a linha de carregamento
 //
 // A logo e o brilho começam por CSS, assim que a página pinta (antes do
 // JS chegar). O resto é src/scripts/entrada.js. Tempos: src/dados/entrada.js.
@@ -40,8 +40,7 @@ const tempos = [
   <div class="abertura__papel"></div>
 
   <div class="abertura__centro">
-    <!-- .abertura__marca é quem voa até o topo (sem nada de transform no
-         repouso: o JS mede a posição dela daqui) -->
+    <!-- A marca permanece centralizada até desaparecer. -->
     <div class="abertura__marca">
       <div class="abertura__logo">
         <img
@@ -71,6 +70,7 @@ const tempos = [
       inset: 0;
       z-index: 100; /* acima do topo (90) e do menu */
       display: block;
+      overflow: hidden;
       cursor: pointer; /* clicar pula */
     }
   }
@@ -180,7 +180,7 @@ const tempos = [
     overflow: hidden;
     background: rgb(176 141 87 / 0.25);
     transform-origin: right; /* na saída, recolhe para a direita */
-    animation: abertura-trilho 600ms var(--linha-atraso) var(--ease) both;
+    animation: abertura-trilho 250ms var(--linha-atraso) var(--ease) both;
   }
 
   @keyframes abertura-trilho {

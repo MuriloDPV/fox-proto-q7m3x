@@ -108,17 +108,21 @@ const cssAbaInicial = `<style>${ids
       // ENTRADA: completa na primeira visita da sessão, curta nas outras,
       // nenhuma com "menos movimento". Decidir aqui (e não no JS do site,
       // que chega depois) evita que algo apareça antes da hora.
-      if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      if (!matchMedia('(prefers-reduced-motion: reduce)').matches && (!pedido || pedido === 'inicio')) {
         var vista = false;
         try {
           vista = sessionStorage.getItem(chaveEntrada) === '1';
         } catch (e) {} // armazenamento bloqueado: trata como primeira visita
         raiz.classList.add('entrando', vista ? 'entrada-curta' : 'entrada-completa');
-        // Rede de segurança: se o JS do site não assumir em 5 s (deu erro
-        // ou a internet está muito lenta), mostra tudo do jeito normal
+        // Se o script não carregar ou falhar, o conteúdo não fica oculto.
         setTimeout(function () {
-          if (!window.entradaAssumida) raiz.classList.remove('entrando', 'entrada-curta', 'entrada-completa');
-        }, 5000);
+          if (!raiz.classList.contains('entrando')) return;
+          raiz.classList.remove('entrando', 'entrada-curta', 'entrada-completa');
+          raiz.classList.add('aberto');
+          var tela = document.getElementById('abertura');
+          if (tela) tela.remove();
+          document.dispatchEvent(new Event('entrada:expirada'));
+        }, 3200);
       }
     </script>
     <Fragment set:html={cssAbaInicial} />

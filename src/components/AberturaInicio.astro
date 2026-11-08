@@ -19,14 +19,14 @@ const pilares = SECOES.inicio.pilares;
       Um lugar para desacelerar, descobrir e celebrar.
       Conheça nossas 22 acomodações temáticas, o jardim de esculturas e os espaços para eventos.
     </p>
-    <a class="ai-explorar" href="#experiencias">Explore a chácara <Icone nome="seta" /></a>
-    <p class="ai-local">{ENDERECO.cidade} <span aria-hidden="true">—</span> {ENDERECO.estado}</p>
+    <a class="ai-explorar" href="#experiencias" data-entrada="apoio">Explore a chácara <Icone nome="seta" /></a>
+    <p class="ai-local" data-entrada="apoio">{ENDERECO.cidade} <span aria-hidden="true">—</span> {ENDERECO.estado}</p>
   </div>
 
   <ul class="ai-pilares" aria-label="Três maneiras de viver a Chácara Ludwig">
     {pilares.map((p, i) => (
       <li data-entrada="pilar">
-        <span class="ai-numero" aria-hidden="true">0{i + 1}</span>
+        <span class="ai-numero" aria-hidden="true" data-entrada="apoio">0{i + 1}</span>
         <Foto {...p.foto} posicao={p.posicao} formato="retrato"
           href={p.href} legenda={p.legenda} detalhe={p.detalhe}
           sizes="(min-width: 900px) 20vw, 30vw" carregar="eager" revelar={false} />

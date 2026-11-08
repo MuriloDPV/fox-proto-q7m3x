@@ -147,6 +147,11 @@ const preparadas = await Promise.all(
   .acomod.acomod--destacada {
     outline: 1px solid var(--ouro);
     outline-offset: 0.65rem;
+    animation: destacar-acomodacao 0.5s var(--ease) both;
+  }
+
+  @keyframes destacar-acomodacao {
+    from { outline-color: transparent; }
   }
 
   .acomod[hidden] {

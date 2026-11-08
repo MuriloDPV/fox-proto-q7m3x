@@ -270,7 +270,7 @@ button {
 .botao__seta svg {
   width: 1.1em;
   height: 1.1em;
-  transition: transform 0.45s var(--ease);
+  transition: transform 0.25s var(--ease);
 }
 
 @media (hover: hover) {
@@ -391,7 +391,7 @@ button {
 
 .js [data-linhas] .linha > span {
   transform: translateY(110%);
-  transition: transform 1.1s var(--ease);
+  transition: transform 0.65s var(--ease);
   transition-delay: calc(var(--i, 0) * 90ms + var(--atraso, 0ms));
 }
 
@@ -401,16 +401,16 @@ button {
 
 /* ---- 2. Fotos que revelam com leve escala ----
    A caixa abre de baixo para cima (clip-path) e a foto dentro dela
-   "assenta" de 112% para 100%. */
+   "assenta" de 104% para 100%. */
 .js [data-revelar] {
   clip-path: inset(100% 0 0 0);
-  transition: clip-path 1.25s var(--ease-mascara);
+  transition: clip-path 0.7s var(--ease-mascara);
   transition-delay: var(--atraso, 0ms);
 }
 
 .js [data-revelar] img {
-  transform: scale(1.12);
-  transition: transform 1.8s var(--ease);
+  transform: scale(1.04);
+  transition: transform 0.9s var(--ease);
   transition-delay: var(--atraso, 0ms);
 }
 
@@ -425,10 +425,10 @@ button {
 /* ---- 3. Blocos que sobem e aparecem ---- */
 .js [data-surgir] {
   opacity: 0;
-  transform: translateY(28px);
+  transform: translateY(14px);
   transition:
-    opacity 1s var(--ease),
-    transform 1.1s var(--ease);
+    opacity 0.5s var(--ease),
+    transform 0.6s var(--ease);
   transition-delay: var(--atraso, 0ms);
 }
 
@@ -439,7 +439,7 @@ button {
 
 /* Troca simples dentro de um bloco (depoimentos, foto do lightbox) */
 .revelar-local {
-  animation: aparecer 0.7s var(--ease) both;
+  animation: aparecer 0.35s var(--ease) both;
 }
 
 @keyframes aparecer {
@@ -453,17 +453,17 @@ button {
    TROCA DE ABA (View Transitions)
    O transicao.js chama document.startViewTransition(). O navegador
    tira uma "foto" da tela antiga e outra da nova, e o CSS abaixo anima
-   as duas: a antiga some (fade) e a nova é revelada de baixo para cima
-   (clip-path). Sem cortina, sem moldura: um corte limpo.
+   as duas: a antiga some e a nova aparece com um deslocamento curto
+   de oito pixels. Sem cortina, sem moldura: um corte limpo.
    O topo tem nome próprio (view-transition-name: topo) para ficar
    parado por cima, sem piscar.
    ========================================================= */
 ::view-transition-old(root) {
-  animation: vt-some 0.45s ease both;
+  animation: vt-some 0.18s ease both;
 }
 
 ::view-transition-new(root) {
-  animation: vt-revela 0.95s var(--ease-mascara) both;
+  animation: vt-revela 0.35s var(--ease) both;
 }
 
 @keyframes vt-some {
@@ -474,16 +474,14 @@ button {
 
 @keyframes vt-revela {
   from {
-    clip-path: inset(100% 0 0 0);
-  }
-  to {
-    clip-path: inset(0 0 0 0);
+    opacity: 0;
+    transform: translateY(8px);
   }
 }
 
 /* Navegador sem View Transitions: o palco só aparece suave */
 .palco.entrando {
-  animation: aparecer-palco 0.7s var(--ease) both;
+  animation: aparecer-palco 0.35s var(--ease) both;
 }
 
 @keyframes aparecer-palco {
@@ -495,24 +493,24 @@ button {
 /* ---------- Abertura das abas: título e foto entram (v4.5) ----------
    As mesmas animações do Início (tempos de src/dados/entrada.js):
    o título sobe linha por linha pela máscara e a foto abre de baixo para
-   cima, "assentando" de 1,08 para 1. São animações CSS, então repetem toda
+   cima, "assentando" de 1,04 para 1. São animações CSS, então repetem toda
    vez que a aba abre (o painel sai de display: none).
    Quem usa: HeroDividido.astro e HeroEmpilhado.astro (classe .abertura-aba). */
 .abertura-aba .titulo-abertura .linha > span {
-  animation: abertura-linha 1.05s var(--ease-mascara) both;
-  animation-delay: calc(0.08s + var(--i, 0) * 0.11s);
+  animation: abertura-linha 0.6s var(--ease) both;
+  animation-delay: calc(0.03s + var(--i, 0) * 0.05s);
 }
 
 .abertura-aba .abertura-aba__depois {
-  animation: abertura-texto 0.9s 0.38s var(--ease) both;
+  animation: abertura-texto 0.45s 0.1s var(--ease) both;
 }
 
 .abertura-aba .abertura-aba__foto .foto__caixa {
-  animation: abertura-foto 1.1s 0.2s var(--ease-mascara) both;
+  animation: abertura-foto 0.65s 0.08s var(--ease-mascara) both;
 }
 
 .abertura-aba .abertura-aba__foto .foto__img {
-  animation: abertura-assenta 1.3s 0.2s var(--ease) both;
+  animation: abertura-assenta 0.8s 0.08s var(--ease) both;
 }
 
 @keyframes abertura-linha {
@@ -539,7 +537,7 @@ button {
 
 @keyframes abertura-assenta {
   from {
-    transform: scale(1.08);
+    transform: scale(1.04);
   }
 }
 
@@ -565,14 +563,10 @@ html.entrando [data-entrada='topo-logo'],
 html.entrando [data-entrada='extra'],
 html.entrando [data-entrada='rotulo'],
 html.entrando [data-entrada='frase'],
+html.entrando [data-entrada='apoio'],
 html.entrando [data-entrada='busca'],
 html.entrando [data-entrada='pilar'] .legenda {
   opacity: 0;
-}
-
-/* o filete embaixo do topo, que se desenha do centro para as pontas */
-html.entrando .topo::before {
-  transform: scaleX(0);
 }
 
 /* o título sobe linha por linha por trás da máscara (.linha) */
@@ -580,13 +574,13 @@ html.entrando [data-entrada='titulo'] .linha > span {
   transform: translateY(110%);
 }
 
-/* as fotos abrem de baixo para cima e "assentam" de 1,08 para 1 */
+/* as fotos abrem de baixo para cima e "assentam" de 1,04 para 1 */
 html.entrando [data-entrada='pilar'] .foto__caixa {
   clip-path: inset(100% 0 0 0);
 }
 
 html.entrando [data-entrada='pilar'] .foto__img {
-  transform: scale(1.08);
+  transform: scale(1.04);
   transition: none;
 }
 
