@@ -8,7 +8,7 @@
 // data-etiquetas guarda em quais filtros o cartão entra (src/scripts/filtros.js).
 import { Image, getImage } from 'astro:assets';
 import Icone from './Icone.astro';
-import { ITENS, etiquetas } from '../dados/acomodacoes.js';
+import { ITENS, etiquetas, destaquesDaAcomodacao } from '../dados/acomodacoes.js';
 import { fotosDoQuarto } from '../dados/fotos-quartos.js';
 
 interface Props {
@@ -26,6 +26,8 @@ interface Props {
 
 const { acomodacao: a, atraso = 0 } = Astro.props;
 const fotos = fotosDoQuarto(a.slug);
+const destaques = destaquesDaAcomodacao(a);
+const outrosItens = a.itens.filter((chave) => !destaques.some((d) => d.chave === chave));
 
 // Para cada foto: a versão grande (lightbox) e as larguras do srcset.
 // As fotos de quarto são HD (o dobro do original): data-real guarda a
@@ -96,6 +98,11 @@ const preparadas = await Promise.all(
       {`${a.tipo === 'suite' ? 'Suíte' : 'Casa'}${a.hospedes ? ` · até ${a.hospedes} hóspedes` : ''}`}
     </p>
     <h3 id={`nome-${a.slug}`}>{a.nome}</h3>
+    {destaques.length > 0 && (
+      <ul class="acomod__destaques" aria-label={`Destaques de ${a.nome}`}>
+        {destaques.map((d) => <li><Icone nome={d.icone} />{d.rotulo}</li>)}
+      </ul>
+    )}
 
     {
       a.camas ? (
@@ -112,7 +119,7 @@ const preparadas = await Promise.all(
 
     <ul class="acomod__itens">
       {
-        a.itens.map((chave) => (
+        outrosItens.map((chave) => (
           <li>
             <Icone nome={ITENS[chave].icone} />
             {ITENS[chave].rotulo}
@@ -285,6 +292,10 @@ const preparadas = await Promise.all(
     gap: 0.5rem;
     color: var(--texto-suave);
   }
+
+  .acomod__destaques { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; list-style: none; margin: 0.45rem 0; padding: 0; font: 500 0.78rem/1.5 var(--sans); color: var(--ouro-escuro); }
+  .acomod__destaques li { display: flex; align-items: center; gap: 0.4rem; }
+  .acomod__destaques :global(svg) { width: 19px; height: 19px; flex: none; }
 
   .acomod__camas :global(svg) {
     flex: none;

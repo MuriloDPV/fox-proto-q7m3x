@@ -36,6 +36,8 @@ import { FOTOS } from './fotos.js';
 
 export const SECOES = {
   inicio: {
+    panorama: FOTOS.heroPatio,
+    convite: FOTOS.porDoSolFlores,
     // Foto do Início no menu em tela cheia (e, até a v4.1, a abertura).
     // Sem "tipo": o Início não usa o HeroAba, e sim AberturaInicio.astro.
     abertura: { foto: FOTOS.heroPatio, posicao: '50% 60%' },

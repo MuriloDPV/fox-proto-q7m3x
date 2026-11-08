@@ -30,6 +30,7 @@ document.querySelectorAll('[data-arrastar]').forEach((bloco) => {
 
   trilho.addEventListener('pointerdown', (evento) => {
     if (evento.pointerType !== 'mouse' || evento.button !== 0) return; // dedo: o navegador já rola
+    if (evento.target.closest('.legenda')) return; // nomes e chamadas continuam sendo links comuns
     segurando = true;
     arrastou = false;
     inicioX = evento.clientX;
@@ -65,6 +66,11 @@ document.querySelectorAll('[data-arrastar]').forEach((bloco) => {
   // ---- 2. Círculo "Arraste" que segue o mouse ----
   if (!mouseFino.matches) return;
   trilho.addEventListener('pointermove', (evento) => {
+    if (evento.target.closest('.legenda')) {
+      bloco.classList.remove('com-cursor');
+      return;
+    }
+    bloco.classList.add('com-cursor');
     const caixa = bloco.getBoundingClientRect();
     bloco.style.setProperty('--x', `${evento.clientX - caixa.left}px`);
     bloco.style.setProperty('--y', `${evento.clientY - caixa.top}px`);

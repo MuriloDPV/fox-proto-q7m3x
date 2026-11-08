@@ -18,12 +18,12 @@ import Foto from '../Foto.astro';
 import Linhas from '../Linhas.astro';
 import Arrastar from '../Arrastar.astro';
 import Depoimentos from '../Depoimentos.astro';
-import Chamada from '../Chamada.astro';
+import PanoramaInicio from '../PanoramaInicio.astro';
+import ConviteInicio from '../ConviteInicio.astro';
 import Icone from '../Icone.astro';
 import { SECOES } from '../../dados/fotos-secoes.js';
-import { ACOMODACOES } from '../../dados/acomodacoes.js';
+import { ACOMODACOES, destaquesDaAcomodacao } from '../../dados/acomodacoes.js';
 import { fotosDoQuarto } from '../../dados/fotos-quartos.js';
-import { linkWhatsApp, MENSAGEM_RESERVA, WHATSAPP_EXIBICAO } from '../../config.js';
 
 const fotos = SECOES.inicio;
 
@@ -46,6 +46,9 @@ const acomodacoes = fotos.acomodacoes.map((slug) => {
     legenda: a.nome,
     detalhe: a.hospedes ? `Até ${a.hospedes} hóspedes` : undefined,
     href: `#acomodacao-${a.slug}`,
+    linkLegenda: true,
+    chamada: 'Conhecer acomodação',
+    destaques: destaquesDaAcomodacao(a),
   };
 });
 ---
@@ -55,6 +58,7 @@ const acomodacoes = fotos.acomodacoes.map((slug) => {
   <!-- v4.2: a abertura em tela cheia (título gigante sobre a foto do pátio)
        saiu; no lugar, os "três pilares" (escolhidos pelo cliente; v4.3). -->
   <AberturaInicio />
+  <PanoramaInicio />
 
   <!-- 2. Nossa história -->
   <Intro rotulo="Nossa história">
@@ -115,17 +119,7 @@ const acomodacoes = fotos.acomodacoes.map((slug) => {
   <Depoimentos />
 
   <!-- 8. Chamada -->
-  <Chamada
-    rotulo="Reserve"
-    titulo={['Escolha as datas', '<em>e venha</em>']}
-    texto="Check-in às 14:00, check-out às 10:30. Café da manhã incluso."
-    busca="busca-inicio"
-  >
-    <a class="botao" href={linkWhatsApp(MENSAGEM_RESERVA)} target="_blank" rel="noopener">
-      <span class="botao__texto"><Icone nome="whatsapp" /> Reservar pelo WhatsApp</span>
-    </a>
-    <p class="acoes__nota">{WHATSAPP_EXIBICAO}</p>
-  </Chamada>
+  <ConviteInicio />
 </section>
 
 <style>

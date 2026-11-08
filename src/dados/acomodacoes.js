@@ -81,3 +81,10 @@ export function comportaGrupo(capacidade, hospedes) {
   if (grupo === 0) return true;
   return Number.isInteger(grupo) && grupo > 0 && Number.isInteger(capacidade) && capacidade >= grupo;
 }
+
+// Destaques reais do catálogo, em ordem de relevância para a apresentação.
+export function destaquesDaAcomodacao(a) {
+  const prioridade = ['hidro', 'lareira', 'banheira', 'churrasqueira', 'fogao-inducao', 'fogao', 'cafeteira', 'frigobar'];
+  const chaves = prioridade.filter((chave) => a.itens.includes(chave)).slice(0, 2);
+  return chaves.map((chave) => ({ chave, ...ITENS[chave] }));
+}

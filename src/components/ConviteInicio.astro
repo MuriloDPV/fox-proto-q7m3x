@@ -1,0 +1,69 @@
+---
+import Foto from './Foto.astro';
+import Busca from './Busca.astro';
+import Icone from './Icone.astro';
+import { SECOES } from '../dados/fotos-secoes.js';
+import { linkWhatsApp, MENSAGEM_RESERVA, WHATSAPP_EXIBICAO } from '../config.js';
+---
+<section class="convite margem" aria-labelledby="convite-titulo">
+  <div class="convite__abertura">
+    <div class="convite__foto">
+      <Foto {...SECOES.inicio.convite} formato="retrato" posicao="40% 50%" sizes="(min-width: 900px) 48vw, 92vw" />
+    </div>
+    <div class="convite__conteudo">
+      <p class="rotulo" data-surgir>Seu próximo momento</p>
+      <h2 id="convite-titulo" data-surgir>Viva a chácara<br /><em>no seu tempo.</em></h2>
+      <p class="convite__texto" data-surgir>Para ficar alguns dias, passear entre esculturas ou celebrar uma data especial. Escolha como viver a Chácara Ludwig.</p>
+      <div class="convite__acoes" data-surgir>
+        <button class="botao botao--ouro" type="button" data-abrir-busca>
+          <span class="botao__texto">Planejar minha estadia</span><span class="botao__seta"><Icone nome="seta" /></span>
+        </button>
+        <a class="convite__visite" href="#visite">Conhecer a chácara <Icone nome="seta" /></a>
+      </div>
+      <p class="convite__local" data-surgir>Campina das Missões <span aria-hidden="true">·</span> Rio Grande do Sul</p>
+    </div>
+  </div>
+  <div class="convite__reserva" id="planejar-estadia">
+    <div class="convite__reserva-intro">
+      <p class="rotulo">Reserve seu descanso</p>
+      <h3>Escolha <em>as datas</em></h3>
+      <p>Café da manhã incluso.<br />Check-in 14h <span aria-hidden="true">·</span> Check-out 10h30.</p>
+    </div>
+    <div class="convite__busca">
+      <Busca id="busca-inicio" />
+      <a class="convite__whatsapp link" href={linkWhatsApp(MENSAGEM_RESERVA)} target="_blank" rel="noopener"><Icone nome="whatsapp" />Prefere conversar? {WHATSAPP_EXIBICAO}</a>
+    </div>
+  </div>
+</section>
+<style>
+  .convite { padding-bottom: clamp(3rem, 6vw, 6rem); }
+  .convite__abertura { display: grid; background: var(--noite); }
+  .convite__foto { min-width: 0; overflow: hidden; }
+  .convite__foto :global(.foto) { max-width: none; height: 100%; }
+  .convite__foto :global(.foto.foto--retrato .foto__caixa) { height: 100%; aspect-ratio: 4 / 3; }
+  .convite__conteudo { display: grid; align-content: center; justify-items: start; gap: 1.5rem; padding: clamp(2rem, 5vw, 5rem); color: var(--sobre-foto); }
+  .convite__conteudo > .rotulo { color: var(--ouro-claro); }
+  .convite h2 { font-size: clamp(2.7rem, 4.7vw, 4.8rem); line-height: 1.03; }
+  .convite__texto { max-width: 30rem; color: #ddd0c1; font-size: 0.92rem; line-height: 1.75; }
+  .convite__acoes { display: grid; justify-items: start; gap: 1rem; margin-top: 0.4rem; }
+  .convite__visite { display: inline-flex; align-items: center; gap: 1rem; min-height: 44px; padding-block: 0.6rem; border-bottom: 1px solid var(--ouro); font-size: 0.85rem; text-decoration: none; }
+  .convite__visite :global(svg) { width: 18px; height: 18px; }
+  .convite__local { margin-top: 0.8rem; font-size: 0.7rem; color: var(--ouro-claro); letter-spacing: 0.04em; }
+  .convite__reserva { display: grid; gap: 2rem; padding: clamp(1.5rem, 3vw, 3rem); background: var(--fundo-2); }
+  .convite__reserva-intro .rotulo { color: var(--ouro-escuro); }
+  .convite h3 { font-size: 2.2rem; margin-block: 0.55rem 0.8rem; }
+  .convite__reserva-intro > p:last-child { color: var(--texto-suave); font-size: 0.8rem; }
+  .convite__busca { min-width: 0; align-self: center; }
+  .convite__whatsapp { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.2rem; padding-bottom: 0.3rem; font-size: 0.76rem; }
+  .convite__whatsapp :global(svg) { width: 17px; height: 17px; }
+  @media (min-width: 900px) {
+    .convite__abertura { grid-template-columns: 1fr 1fr; }
+    .convite__foto :global(.foto.foto--retrato .foto__caixa) { aspect-ratio: 1; }
+    .convite__reserva { grid-template-columns: minmax(12rem, 1fr) minmax(0, 2.5fr); align-items: center; }
+  }
+  @media (max-width: 379px) {
+    .convite__conteudo { padding: 1.6rem; }
+    .convite__reserva { padding: 1.2rem; }
+    .convite__acoes :global(.botao) { font-size: 0.6rem; letter-spacing: 0.07em; }
+  }
+</style>

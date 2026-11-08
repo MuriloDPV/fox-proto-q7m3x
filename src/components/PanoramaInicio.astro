@@ -1,0 +1,21 @@
+---
+import Foto from './Foto.astro';
+import { SECOES } from '../dados/fotos-secoes.js';
+---
+<section class="panorama margem" aria-labelledby="panorama-titulo">
+  <Foto {...SECOES.inicio.panorama} formato="cinema" posicao="50% 54%" sizes="96vw" galeria="patio-inicio" />
+  <div class="panorama__legenda" data-surgir>
+    <div>
+      <p class="rotulo">Entre luzes e jardins</p>
+      <h2 id="panorama-titulo">O pátio, <em>ao anoitecer</em></h2>
+    </div>
+    <p class="panorama__nota">Um convite para ficar mais um pouco.</p>
+  </div>
+</section>
+<style>
+  .panorama { padding-top: clamp(3rem, 6vw, 6rem); }
+  .panorama__legenda { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 1rem 2rem; padding-top: 1.3rem; }
+  .panorama__legenda .rotulo { color: var(--ouro-escuro); margin-bottom: 0.55rem; }
+  .panorama h2 { font-size: clamp(1.9rem, 3vw, 2.7rem); }
+  .panorama__nota { color: var(--texto-suave); font-size: 0.8rem; }
+</style>

@@ -10,11 +10,19 @@
 const alvos = document.querySelectorAll('[data-linhas], [data-revelar], [data-surgir]');
 
 if ('IntersectionObserver' in window) {
+  // A caixa da foto começa totalmente recortada por clip-path. Observar
+  // o contêiner sem recorte evita que ela continue oculta ao pular a rolagem.
+  const grupos = new Map();
+  alvos.forEach((el) => {
+    const observado = el.hasAttribute('data-revelar') ? el.parentElement : el;
+    if (!grupos.has(observado)) grupos.set(observado, []);
+    grupos.get(observado).push(el);
+  });
   const observador = new IntersectionObserver(
     (entradas) => {
       entradas.forEach((entrada) => {
         if (!entrada.isIntersecting) return;
-        entrada.target.classList.add('visivel');
+        grupos.get(entrada.target)?.forEach((el) => el.classList.add('visivel'));
         observador.unobserve(entrada.target); // anima uma vez só
       });
     },
@@ -22,7 +30,7 @@ if ('IntersectionObserver' in window) {
     // tela, para a animação começar quando o elemento já está à vista
     { rootMargin: '0px 0px -8% 0px', threshold: 0 },
   );
-  alvos.forEach((el) => observador.observe(el));
+  grupos.forEach((_, el) => observador.observe(el));
 } else {
   alvos.forEach((el) => el.classList.add('visivel'));
 }

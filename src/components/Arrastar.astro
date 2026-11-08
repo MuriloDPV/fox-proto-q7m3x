@@ -19,7 +19,7 @@ import Linhas from './Linhas.astro';
 import Icone from './Icone.astro';
 import type { ImageMetadata } from 'astro';
 
-type Item = { src: ImageMetadata; alt: string; real: number; legenda?: string; detalhe?: string; href?: string };
+type Item = { src: ImageMetadata; alt: string; real: number; legenda?: string; detalhe?: string; href?: string; linkLegenda?: boolean; chamada?: string; destaques?: Array<{ icone: string; rotulo: string }> };
 
 interface Props {
   rotulo: string;
