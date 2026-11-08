@@ -1,27 +1,27 @@
 // Tempos da entrada. A marca central termina de desaparecer ANTES do arco.
 export const ABERTURA = {
-  logo: { atraso: 0, duracao: 300 },
-  brilho: { atraso: 80, duracao: 450 },
-  linha: { atraso: 40, minimo: 260, maximo: 900 },
+  logo: { atraso: 0, duracao: 400 },
+  brilho: { atraso: 80, duracao: 600 },
+  linha: { atraso: 40, minimo: 420, maximo: 900 },
   pausa: 0,
 };
 export const SAIDA = {
-  centro: { atraso: 0, duracao: 140 },
-  arco: { atraso: 160, duracao: 620 },
-  linha: { atraso: 0, duracao: 120 },
+  centro: { atraso: 0, duracao: 220 },
+  arco: { atraso: 240, duracao: 850 },
+  linha: { atraso: 0, duracao: 180 },
 };
 export const CASCATA = {
-  inicio: 180,
+  inicio: 260,
   topoLinha: { atraso: 0, duracao: 420 },
-  rotulo: { atraso: 0, duracao: 400 },
-  topoLogo: { atraso: 0, duracao: 360 },
-  titulo: { atraso: 30, duracao: 520, entreLinhas: 45, italico: 30 },
-  fotos: { atraso: 90, duracao: 560, escala: 640, entreFotos: 65 },
-  topoBotoes: { atraso: 40, duracao: 360 },
-  frase: { atraso: 80, duracao: 420 },
-  busca: { atraso: 110, duracao: 420 },
-  legenda: { depoisDaFoto: 200, duracao: 320 },
-  extras: { atraso: 80, duracao: 360 },
+  rotulo: { atraso: 0, duracao: 480 },
+  topoLogo: { atraso: 0, duracao: 480 },
+  titulo: { atraso: 40, duracao: 620, entreLinhas: 60, italico: 40 },
+  fotos: { atraso: 110, duracao: 680, escala: 800, entreFotos: 80 },
+  topoBotoes: { atraso: 60, duracao: 440 },
+  frase: { atraso: 100, duracao: 520 },
+  busca: { atraso: 140, duracao: 520 },
+  legenda: { depoisDaFoto: 240, duracao: 380 },
+  extras: { atraso: 100, duracao: 440 },
 };
 export const RITMO_CURTO = 0.65;
 export const LIMITE_ENTRADA = 2500;
