@@ -45,7 +45,7 @@ const acomodacoes = fotos.acomodacoes.map((slug) => {
     real: src.width / 2,
     legenda: a.nome,
     detalhe: a.hospedes ? `Até ${a.hospedes} hóspedes` : undefined,
-    href: '#hospedagem',
+    href: `#acomodacao-${a.slug}`,
   };
 });
 ---

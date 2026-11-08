@@ -60,12 +60,30 @@ const fotos = SECOES.hospedagem;
         ))
       }
     </div>
+    <div class="hosp__capacidade">
+      <div class="hosp__campo">
+        <label class="rotulo" for="filtro-hospedes">Hóspedes por acomodação</label>
+        <select id="filtro-hospedes" data-capacidade-filtro="grade-acomodacoes" aria-controls="grade-acomodacoes" aria-describedby="filtro-capacidade-nota">
+          <option value="0">Todas as capacidades</option>
+          {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => <option value={n}>{n} {n === 1 ? 'hóspede' : 'hóspedes'}</option>)}
+        </select>
+      </div>
+      <p class="hosp__nota" id="filtro-capacidade-nota">Escolha o tamanho do grupo. Valores e disponibilidade são confirmados na consulta de datas.</p>
+    </div>
     <p class="filtros__contador" data-contador="grade-acomodacoes" aria-live="polite">
       Mostrando as {ACOMODACOES.length} acomodações
     </p>
 
     <div class="grade-acomodacoes" id="grade-acomodacoes">
       {ACOMODACOES.map((a, i) => <AcomodacaoCartao acomodacao={a} atraso={(i % 3) * 120} />)}
+    </div>
+    <div class="hosp__vazio" data-filtros-vazio="grade-acomodacoes" hidden>
+      <h3>Nenhuma acomodação para estes filtros</h3>
+      <p>Experimente outra categoria ou fale com a equipe para distribuir o grupo entre acomodações.</p>
+      <div class="acoes">
+        <button class="botao" type="button" data-limpar-filtros="grade-acomodacoes"><span class="botao__texto">Limpar filtros</span></button>
+        <a class="link" href={linkWhatsApp('Olá! Gostaria de ajuda para acomodar meu grupo na Chácara Ludwig.')} data-filtros-whatsapp target="_blank" rel="noopener">Falar com a equipe</a>
+      </div>
     </div>
   </div>
 
@@ -154,6 +172,15 @@ const fotos = SECOES.hospedagem;
     font-size: 0.85rem;
     color: var(--texto-suave);
   }
+
+  .hosp__capacidade { display: flex; flex-wrap: wrap; align-items: end; gap: 1rem 2rem; margin-top: 1.5rem; }
+  .hosp__campo { display: grid; gap: 0.5rem; width: min(100%, 20rem); }
+  .hosp__campo select { width: 100%; min-height: 48px; padding: 0.65rem 0.4rem; border: 0; border-bottom: 1px solid var(--texto); border-radius: 0; background: transparent; color: var(--texto); font: inherit; }
+  .hosp__nota { max-width: 30rem; font-size: 0.8rem; color: var(--texto-suave); }
+  .hosp__vazio { padding: 2rem; background: var(--fundo-2); }
+  .hosp__vazio[hidden] { display: none; }
+  .hosp__vazio h3 { font-size: 2rem; }
+  .hosp__vazio p { max-width: 36rem; margin-top: 0.75rem; color: var(--texto-suave); }
 
   .grade-acomodacoes {
     display: grid;

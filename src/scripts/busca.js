@@ -27,6 +27,14 @@ const atualizar = () => buscas.forEach(({ checkin, checkout, hospedes }) => {
 });
 atualizar();
 
+export function definirHospedes(valor) {
+  const numero = Number(valor);
+  if (!Number.isInteger(numero) || numero < 1 || numero > 8) return;
+  estado.hospedes = String(numero);
+  atualizar();
+  document.dispatchEvent(new CustomEvent('busca:hospedes', { detail: { hospedes: numero } }));
+}
+
 buscas.forEach(({ form, checkin, checkout, hospedes }) => {
   checkin.addEventListener('change', () => {
     if (!checkin.value || !checkin.validity.valid) return;
@@ -41,8 +49,7 @@ buscas.forEach(({ form, checkin, checkout, hospedes }) => {
     atualizar();
   });
   hospedes.addEventListener('change', () => {
-    estado.hospedes = hospedes.value;
-    atualizar();
+    definirHospedes(hospedes.value);
   });
   form.addEventListener('submit', (evento) => {
     evento.preventDefault();

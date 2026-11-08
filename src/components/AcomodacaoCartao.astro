@@ -40,7 +40,7 @@ const preparadas = await Promise.all(
 );
 ---
 
-<article class="acomod" id={`acomodacao-${a.slug}`} data-etiquetas={etiquetas(a).join(' ')} aria-labelledby={`nome-${a.slug}`}>
+<article class="acomod" id={`acomodacao-${a.slug}`} data-etiquetas={etiquetas(a).join(' ')} data-capacidade={a.hospedes ?? undefined} aria-labelledby={`nome-${a.slug}`} tabindex="-1">
   <div class="acomod__fotos" data-revelar style={`--atraso: ${atraso}ms`}>
     <div class="fotos" data-carrossel>
       <ul class="fotos__trilho" data-trilho>
@@ -140,6 +140,13 @@ const preparadas = await Promise.all(
     display: grid;
     align-content: start;
     gap: 1.3rem;
+    scroll-margin-top: 1.5rem;
+  }
+
+  .acomod:target,
+  .acomod.acomod--destacada {
+    outline: 1px solid var(--ouro);
+    outline-offset: 0.65rem;
   }
 
   .acomod[hidden] {

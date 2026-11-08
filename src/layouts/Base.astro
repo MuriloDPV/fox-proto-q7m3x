@@ -4,6 +4,7 @@
 import '../styles/global.css';
 import { ENDERECO, INSTAGRAM_URL, FACEBOOK_URL } from '../config.js';
 import { CHAVE_SESSAO } from '../dados/entrada.js';
+import { ACOMODACOES } from '../dados/acomodacoes.js';
 
 interface Props {
   titulo: string;
@@ -12,6 +13,7 @@ interface Props {
 }
 
 const { titulo, descricao, ids } = Astro.props;
+const idsAcomodacoes = ACOMODACOES.map((a) => `acomodacao-${a.slug}`);
 
 // O WhatsApp exige endereço completo (https://...) na imagem de prévia.
 // Astro.site vem do astro.config.mjs; enquanto não houver, fica relativo.
@@ -96,11 +98,12 @@ const cssAbaInicial = `<style>${ids
     <!-- Roda antes de pintar a tela: marca que existe JS, descobre, pelo
          #endereço, qual aba abrir (link direto para #eventos etc.) e qual
          entrada do site vai rodar (v4.3, src/scripts/entrada.js) -->
-    <script is:inline define:vars={{ ids, chaveEntrada: CHAVE_SESSAO }}>
+    <script is:inline define:vars={{ ids, idsAcomodacoes, chaveEntrada: CHAVE_SESSAO }}>
       var raiz = document.documentElement;
       raiz.classList.add('js');
-      var pedido = decodeURIComponent(location.hash.slice(1));
-      raiz.dataset.aba = ids.indexOf(pedido) > -1 ? pedido : ids[0];
+      var pedido = '';
+      try { pedido = decodeURIComponent(location.hash.slice(1)); } catch (e) {}
+      raiz.dataset.aba = ids.indexOf(pedido) > -1 ? pedido : idsAcomodacoes.indexOf(pedido) > -1 ? 'hospedagem' : ids[0];
 
       // ENTRADA: completa na primeira visita da sessão, curta nas outras,
       // nenhuma com "menos movimento". Decidir aqui (e não no JS do site,

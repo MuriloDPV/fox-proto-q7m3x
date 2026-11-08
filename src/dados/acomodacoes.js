@@ -73,3 +73,11 @@ export function etiquetas(a) {
   if (a.hospedes >= 4) lista.push('familia');
   return lista;
 }
+
+// Capacidade desconhecida nunca é apresentada como adequada para um grupo.
+// Zero significa que o visitante escolheu ver todas as capacidades.
+export function comportaGrupo(capacidade, hospedes) {
+  const grupo = Number(hospedes);
+  if (grupo === 0) return true;
+  return Number.isInteger(grupo) && grupo > 0 && Number.isInteger(capacidade) && capacidade >= grupo;
+}
