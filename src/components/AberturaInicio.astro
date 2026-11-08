@@ -1,190 +1,103 @@
 ---
-// ABERTURA DO INÍCIO — "três pilares" (proposta C da v4.2, fixada na v4.3)
-// Título, frase e busca à esquerda; à direita, três fotos altas (2:3, como
-// pilares) em escada, uma para cada coisa que o lugar oferece (estadia,
-// esculturas, eventos), com legenda curta. Cada foto leva para a aba do
-// assunto. No celular as três ficam lado a lado, pequenas, embaixo da
-// busca: ainda aparecem na primeira tela.
-//
-// O texto fica no fundo off-white, SEPARADO das fotos (na v4.1 o título
-// gigante ficava em cima da foto do pátio e confundia), e a busca de datas
-// aparece na primeira tela, sem rolar.
-//
-// As fotos são as de ~600 px (não temos foto grande de quarto, escultura ou
-// evento), então entram pelo componente Foto, que aplica a trava de 1,5×.
-// Quais fotos e legendas: src/dados/fotos-secoes.js (inicio.pilares).
-//
-// ENTRADA (v4.3): cada data-entrada="..." marca uma peça que entra em
-// cascata quando o site abre e sempre que se volta para o Início.
-//   quem anima ............. src/scripts/entrada.js
-//   tempos ................. src/dados/entrada.js
-//   estado inicial (oculto)  global.css, "ENTRADA DO SITE"
-//   parallax das fotos ..... src/scripts/parallax.js
+// Revisão pontual: três pilares com fotos reais e busca numa faixa própria.
 import Linhas from './Linhas.astro';
 import Busca from './Busca.astro';
 import Foto from './Foto.astro';
+import Icone from './Icone.astro';
 import { SECOES } from '../dados/fotos-secoes.js';
-
+import { ENDERECO } from '../config.js';
 const pilares = SECOES.inicio.pilares;
-
-// O título é o aprovado na v4.1, em caixa normal; a frase explica o lugar
-// em 5 segundos.
-const titulo = ['Esculturas, estadias', '<em>e celebrações</em>'];
-const frase =
-  'Pousada com 22 suítes e casas temáticas, jardim com mais de 100 esculturas e réplicas e espaço para eventos.';
 ---
 
 <header class="abertura-inicio margem" data-entrada="inicio">
   <div class="ai-texto">
-    <p class="rotulo ai-rotulo" data-entrada="rotulo">Chácara Ludwig</p>
+    <p class="rotulo ai-rotulo" data-entrada="rotulo">Pousada · arte · natureza</p>
     <div data-entrada="titulo">
-      <Linhas tag="h1" class="titulo-abertura ai-titulo" linhas={titulo} rolagem={false} />
+      <Linhas tag="h1" class="titulo-abertura ai-titulo" linhas={['Esculturas, estadias', '<em>e celebrações</em>']} rolagem={false} />
     </div>
-    <p class="ai-frase" data-entrada="frase">{frase}</p>
-    <div class="ai-busca" data-entrada="busca">
-      <Busca id="busca-abertura" />
-    </div>
+    <p class="ai-frase" data-entrada="frase">
+      Um lugar para desacelerar, descobrir e celebrar.
+      Conheça nossas 22 acomodações temáticas, o jardim de esculturas e os espaços para eventos.
+    </p>
+    <a class="ai-explorar" href="#experiencias">Explore a chácara <Icone nome="seta" /></a>
+    <p class="ai-local">{ENDERECO.cidade} <span aria-hidden="true">—</span> {ENDERECO.estado}</p>
   </div>
 
-  <!-- As três fotos. "eager": baixam logo (estão na primeira tela e a
-       linha da tela de abertura espera por elas). revelar={false}: quem
-       as faz entrar é a sequência de entrada, não a rolagem. -->
-  <ul class="ai-pilares">
-    {
-      pilares.map((p) => (
-        <li data-entrada="pilar">
-          <Foto
-            {...p.foto}
-            posicao={p.posicao}
-            formato="alto"
-            href={p.href}
-            legenda={p.legenda}
-            detalhe={p.detalhe}
-            sizes="(min-width: 900px) 18vw, 30vw"
-            carregar="eager"
-            revelar={false}
-          />
-        </li>
-      ))
-    }
+  <ul class="ai-pilares" aria-label="Três maneiras de viver a Chácara Ludwig">
+    {pilares.map((p, i) => (
+      <li data-entrada="pilar">
+        <span class="ai-numero" aria-hidden="true">0{i + 1}</span>
+        <Foto {...p.foto} posicao={p.posicao} formato="retrato"
+          href={p.href} legenda={p.legenda} detalhe={p.detalhe}
+          sizes="(min-width: 900px) 20vw, 30vw" carregar="eager" revelar={false} />
+      </li>
+    ))}
   </ul>
+
+  <div class="ai-reserva" data-entrada="busca">
+    <div class="ai-reserva__intro">
+      <p class="rotulo">Seu próximo descanso</p>
+      <h2>Planeje <em>sua estadia</em></h2>
+    </div>
+    <Busca id="busca-abertura" rotulo="Consultar datas" />
+    <p class="ai-reserva__nota">Café da manhã incluso <span aria-hidden="true">·</span> Check-in 14h <span aria-hidden="true">·</span> Check-out 10h30</p>
+  </div>
 </header>
 
 <style>
   .abertura-inicio {
-    /* (o tamanho do título, --t-abertura, mora em global.css desde a v4.5:
-       é o mesmo em todas as abas) */
-    /* respiro vertical em volta do texto (acompanha a altura da tela) */
-    --respiro: clamp(1.75rem, 5.5vh, 3.75rem);
+    display: grid; gap: 2rem;
+    padding-top: calc(var(--altura-topo) + 2.5rem); padding-bottom: 0.5rem;
   }
-
-  /* ---- Celular: texto, busca e as três fotos lado a lado ---- */
-  .abertura-inicio {
-    display: grid;
-    gap: calc(var(--respiro) * 0.8);
-    padding-top: calc(var(--altura-topo) + var(--respiro));
+  .ai-texto { display: grid; gap: 1.2rem; align-content: center; }
+  .ai-rotulo { color: var(--ouro-escuro); }
+  .ai-titulo { font-size: clamp(2.55rem, 5vw, 4.8rem); }
+  .ai-frase { max-width: 30rem; color: var(--texto-suave); font-size: 0.95rem; line-height: 1.7; }
+  .ai-explorar {
+    display: inline-flex; align-items: center; justify-self: start; gap: 1.3rem;
+    padding-block: 0.4rem; border-bottom: 1px solid var(--ouro);
+    text-decoration: none; font-size: 0.85rem;
   }
-
-  .ai-texto {
-    display: grid;
-    gap: 1rem;
-  }
-
-  .ai-rotulo {
-    color: var(--ouro-escuro);
-  }
-
-  /* a frase que explica o lugar */
-  .ai-frase {
-    max-width: 25rem;
-    font-size: 1rem;
-    line-height: 1.55;
-    color: var(--texto-suave);
-  }
-
-  .ai-busca {
-    margin-top: 0.8rem;
-  }
-
+  .ai-explorar :global(svg) { width: 1.1rem; height: 1.1rem; transform: rotate(90deg); }
+  .ai-local { color: var(--texto-suave); font-size: 0.75rem; letter-spacing: 0.03em; }
   .ai-pilares {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0.7rem;
-    align-items: start;
-    margin: 0;
-    padding: 0;
-    list-style: none;
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.65rem;
+    margin: 0; padding: 0; list-style: none; align-items: start;
   }
-
-  /* a escada: cada foto um degrau abaixo da anterior */
-  .ai-pilares li:nth-child(2) {
-    margin-top: 1rem;
+  .ai-pilares li:nth-child(2) { padding-top: 1.2rem; }
+  .ai-pilares li:nth-child(3) { padding-top: 2.4rem; }
+  .ai-numero { display: block; margin-bottom: 0.55rem; font: 500 0.65rem var(--sans); letter-spacing: 0.14em; color: var(--ouro-escuro); }
+  .ai-pilares :global(.legenda) { margin-top: 0.65rem; font-size: 1.2rem; }
+  .ai-pilares :global(.legenda small) { display: none; }
+  .ai-pilares :global(.foto__img) { transition: transform 1.2s var(--ease); }
+  .ai-reserva {
+    display: grid; gap: 1.3rem; padding-block: 1.5rem;
+    border-top: 1px solid var(--ouro); border-bottom: 1px solid var(--linha);
   }
-
-  .ai-pilares li:nth-child(3) {
-    margin-top: 2rem;
-  }
-
-  /* (a foto mantém uma transição curta: é ela que faz a volta suave do
-     zoom do hover) */
-  .ai-pilares :global(.foto__img) {
-    transition: transform 1.2s var(--ease);
-  }
-
-  /* legenda pequena no celular, sem a linha de detalhe (não cabe) */
-  .ai-pilares :global(.legenda) {
-    margin-top: 0.5rem;
-    font-size: 1.05rem;
-  }
-
-  .ai-pilares :global(.legenda small) {
-    display: none;
-  }
-
-  /* ---- Computador: texto à esquerda (5 colunas), escada à direita ---- */
+  .ai-reserva__intro { display: grid; gap: 0.45rem; }
+  .ai-reserva__intro .rotulo { color: var(--ouro-escuro); }
+  .ai-reserva__intro h2 { font-size: 1.9rem; font-weight: 400; }
+  .ai-reserva__nota { color: var(--texto-suave); font-size: 0.72rem; }
+  .ai-reserva__nota span { padding-inline: 0.25rem; }
   @media (min-width: 900px) {
     .abertura-inicio {
-      grid-template-columns: repeat(12, minmax(0, 1fr));
-      column-gap: var(--vao);
-      align-items: center;
-      min-height: min(100svh, 60rem);
-      padding-top: calc(var(--altura-topo) + var(--respiro) * 0.6);
-      padding-bottom: var(--respiro);
+      grid-template-columns: 0.95fr 1.25fr; align-items: center;
+      column-gap: clamp(2rem, 4vw, 5rem); row-gap: 2rem;
+      padding-top: calc(var(--altura-topo) + clamp(2.5rem, 5vh, 4.5rem));
     }
-
-    .ai-texto {
-      grid-column: 1 / 6;
-      padding-right: var(--vao);
-    }
-
-    .ai-busca :global(.busca) {
-      grid-template-columns: 1fr 1fr;
-    }
-
-    .ai-busca :global(.busca__botao) {
-      justify-self: stretch;
-    }
-
-    .ai-pilares {
-      grid-column: 7 / -1;
-      gap: var(--vao);
-    }
-
-    .ai-pilares li:nth-child(2) {
-      margin-top: clamp(2rem, 7vh, 4.5rem);
-    }
-
-    .ai-pilares li:nth-child(3) {
-      margin-top: clamp(4rem, 14vh, 9rem);
-    }
-
-    .ai-pilares :global(.legenda) {
-      margin-top: 0.8rem;
-      font-size: var(--t-medio);
-    }
-
-    .ai-pilares :global(.legenda small) {
-      display: block;
-    }
+    .ai-texto { gap: 1.45rem; }
+    .ai-titulo { font-size: clamp(2.75rem, 4.6vw, 4.8rem); }
+    .ai-pilares { gap: clamp(0.75rem, 1.5vw, 1.5rem); }
+    .ai-pilares li:nth-child(2) { padding-top: 2rem; }
+    .ai-pilares li:nth-child(3) { padding-top: 4rem; }
+    .ai-pilares :global(.legenda) { font-size: clamp(1.25rem, 1.9vw, 1.8rem); }
+    .ai-pilares :global(.legenda small) { display: block; font-size: 0.75rem; line-height: 1.5; }
+    .ai-local { margin-top: 0.25rem; }
+    .ai-reserva { grid-column: 1 / -1; grid-template-columns: 1fr 2.8fr; gap: 0.7rem 2.5rem; align-items: center; padding-block: 1.3rem 1.1rem; padding-right: 4rem; }
+    .ai-reserva__nota { grid-column: 2; }
+  }
+  @media (max-width: 379px) {
+    .ai-titulo { font-size: 2.35rem; }
+    .ai-pilares :global(.legenda) { font-size: 1.05rem; }
   }
 </style>

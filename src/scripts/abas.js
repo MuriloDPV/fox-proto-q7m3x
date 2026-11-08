@@ -40,6 +40,10 @@ if (lista && palco) {
       painel.hidden = painel.id !== id;
     });
     raiz.dataset.aba = id; // o CSS gerado em Base.astro mostra o painel
+    document.querySelectorAll('.topo__atalhos a').forEach((link) => {
+      if (link.getAttribute('href') === `#${id}`) link.setAttribute('aria-current', 'page');
+      else link.removeAttribute('aria-current');
+    });
     const nome = abas[ids.indexOf(id)].textContent.replace(/^\s*\d+\s*/, '').trim();
     document.title = id === ids[0] ? tituloBase : `${nome} · Chácara Ludwig`;
     // avisa os outros scripts (topo, parallax) que a aba mudou

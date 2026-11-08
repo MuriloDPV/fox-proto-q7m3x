@@ -11,7 +11,7 @@ interface Props {
   rotulo?: string; // texto do botão
 }
 
-const { id, rotulo = 'Reservar' } = Astro.props;
+const { id, rotulo = 'Consultar datas' } = Astro.props;
 ---
 
 <form class="busca" data-busca aria-label="Buscar disponibilidade">
@@ -57,13 +57,14 @@ const { id, rotulo = 'Reservar' } = Astro.props;
   select {
     width: 100%;
     min-width: 0;
-    padding: 0.4rem 0 0.55rem;
+    min-height: 48px;
+    padding: 0.6rem 0 0.65rem;
     border: 0;
     border-bottom: 1px solid var(--texto);
     border-radius: 0;
     background: transparent;
     color: var(--texto);
-    font: 400 1.3rem/1.2 var(--serifa);
+    font: 400 1.18rem/1.2 var(--serifa);
     color-scheme: light;
   }
 
@@ -76,6 +77,7 @@ const { id, rotulo = 'Reservar' } = Astro.props;
 
   .busca__botao {
     justify-self: stretch;
+    min-height: 48px;
   }
 
   .busca__botao :global(.botao__texto) {
@@ -91,5 +93,10 @@ const { id, rotulo = 'Reservar' } = Astro.props;
     .busca__botao {
       justify-self: start;
     }
+  }
+
+  @media (min-width: 900px) and (max-width: 1099px) {
+    .busca { grid-template-columns: 1fr 1fr; }
+    .busca__botao { justify-self: stretch; }
   }
 </style>

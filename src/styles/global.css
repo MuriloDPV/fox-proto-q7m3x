@@ -44,7 +44,7 @@
   --margem: clamp(1rem, 2.6vw, 2.5rem); /* margem lateral da página */
   --vao: clamp(1rem, 2vw, 2rem); /* espaço entre colunas */
   --espaco: clamp(5.5rem, 12vw, 11rem); /* espaço vertical entre blocos */
-  --altura-topo: 64px;
+  --altura-topo: 76px;
 
   /* ---- Movimento ---- */
   --ease: cubic-bezier(0.22, 1, 0.36, 1); /* sai rápido, pousa devagar */
@@ -53,7 +53,7 @@
 
 @media (min-width: 900px) {
   :root {
-    --altura-topo: 84px;
+    --altura-topo: 96px;
   }
 }
 

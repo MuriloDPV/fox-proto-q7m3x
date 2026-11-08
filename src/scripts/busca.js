@@ -1,55 +1,52 @@
-// BUSCA DE DATAS → motor de reservas
-// Vale para todo <form data-busca> (aparece na aba A Chácara e em Contato).
-// Lê as datas (o input type="date" já entrega AAAA-MM-DD, o formato do
-// motor), monta a URL com urlBusca() do config.js e abre em nova aba.
+// Todas as buscas compartilham as datas e o número de hóspedes nesta página.
+// Nenhuma reserva é enviada: o formulário só abre a consulta no motor existente.
 import { urlBusca } from '../config.js';
 
-// Montamos a data na mão porque toISOString() usa o fuso UTC e pode
-// devolver o dia errado à noite no Brasil.
-const formatar = (data) => {
-  const ano = data.getFullYear();
-  const mes = String(data.getMonth() + 1).padStart(2, '0');
-  const dia = String(data.getDate()).padStart(2, '0');
-  return `${ano}-${mes}-${dia}`;
-};
-
-const lerData = (texto) => {
+const formatar = (data) => `${data.getFullYear()}-${String(data.getMonth() + 1).padStart(2, '0')}-${String(data.getDate()).padStart(2, '0')}`;
+const seguinte = (texto) => {
   const [ano, mes, dia] = texto.split('-').map(Number);
-  return new Date(ano, mes - 1, dia);
+  const data = new Date(ano, mes - 1, dia);
+  data.setDate(data.getDate() + 1);
+  return formatar(data);
 };
+const hoje = formatar(new Date());
+const estado = { checkin: hoje, checkout: seguinte(hoje), hospedes: '2' };
+const buscas = [...document.querySelectorAll('form[data-busca]')].map((form) => ({
+  form,
+  checkin: form.querySelector('[name="checkin"]'),
+  checkout: form.querySelector('[name="checkout"]'),
+  hospedes: form.querySelector('[name="hospedes"]'),
+}));
 
-const diaSeguinte = (data) => {
-  const d = new Date(data);
-  d.setDate(d.getDate() + 1);
-  return d;
-};
+const atualizar = () => buscas.forEach(({ checkin, checkout, hospedes }) => {
+  checkin.min = hoje;
+  checkin.value = estado.checkin;
+  checkout.min = seguinte(estado.checkin);
+  checkout.value = estado.checkout;
+  hospedes.value = estado.hospedes;
+});
+atualizar();
 
-document.querySelectorAll('form[data-busca]').forEach((form) => {
-  const checkin = form.querySelector('[name="checkin"]');
-  const checkout = form.querySelector('[name="checkout"]');
-  const hospedes = form.querySelector('[name="hospedes"]');
-
-  // Começa preenchido (hoje → amanhã) e não deixa escolher datas passadas
-  const hoje = new Date();
-  checkin.min = formatar(hoje);
-  checkin.value = formatar(hoje);
-  checkout.min = formatar(diaSeguinte(hoje));
-  checkout.value = formatar(diaSeguinte(hoje));
-
-  // Check-out sempre pelo menos 1 dia depois do check-in
+buscas.forEach(({ form, checkin, checkout, hospedes }) => {
   checkin.addEventListener('change', () => {
-    if (!checkin.value) return;
-    const minimo = diaSeguinte(lerData(checkin.value));
-    checkout.min = formatar(minimo);
-    if (!checkout.value || lerData(checkout.value) < minimo) {
-      checkout.value = formatar(minimo);
-    }
+    if (!checkin.value || !checkin.validity.valid) return;
+    estado.checkin = checkin.value;
+    const minimo = seguinte(estado.checkin);
+    if (estado.checkout < minimo) estado.checkout = minimo;
+    atualizar();
   });
-
-  // O navegador já valida "required" e "min" antes de chegar aqui
+  checkout.addEventListener('change', () => {
+    if (!checkout.value || !checkout.validity.valid) return;
+    estado.checkout = checkout.value;
+    atualizar();
+  });
+  hospedes.addEventListener('change', () => {
+    estado.hospedes = hospedes.value;
+    atualizar();
+  });
   form.addEventListener('submit', (evento) => {
-    evento.preventDefault(); // não recarrega a página
-    const url = urlBusca(checkin.value, checkout.value, hospedes.value);
-    window.open(url, '_blank', 'noopener');
+    evento.preventDefault();
+    if (!form.reportValidity()) return;
+    window.open(urlBusca(checkin.value, checkout.value, hospedes.value), '_blank', 'noopener');
   });
 });

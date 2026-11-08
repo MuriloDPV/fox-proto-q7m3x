@@ -19,7 +19,10 @@ if (dialogo) {
       ? `${acomodacao}${capacidade ? ` · até ${capacidade} hóspedes` : ''}`
       : '';
     // o seletor vai de 1 a 8; a capacidade da acomodação vira o padrão
-    hospedes.value = String(Math.min(Number(capacidade) || 2, 8));
+    if (capacidade) {
+      hospedes.value = String(Math.min(Number(capacidade) || 2, 8));
+      hospedes.dispatchEvent(new Event('change', { bubbles: true }));
+    }
 
     dialogo.showModal();
   });

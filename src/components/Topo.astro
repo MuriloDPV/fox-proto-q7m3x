@@ -39,7 +39,12 @@ import brasao from '../assets/marca/brasao.png';
        próprio, então nunca fica em cima de texto, botão ou foto. Só em
        telas de 1100 px ou mais (abaixo disso ela encosta no nome da
        chácara); nas outras ela fica no fim do rodapé. Antes era uma etiqueta solta, fixa embaixo da tela. -->
-  <span class="topo__prototipo" aria-hidden="true" data-entrada="extra">Protótipo — Athomon</span>
+  <nav class="topo__atalhos" aria-label="Navegação principal" data-entrada="extra">
+    <a href="#hospedagem">Hospedagem</a>
+    <a href="#jardim-de-esculturas">Esculturas</a>
+    <a href="#eventos">Eventos</a>
+    <a href="#visite">Visite</a>
+  </nav>
 
   <button class="topo__reservar" type="button" data-abrir-busca data-entrada="topo-botao">Reservar</button>
 
@@ -73,11 +78,11 @@ import brasao from '../assets/marca/brasao.png';
 
   @media (min-width: 900px) {
     .topo {
-      --alto: 120px;
+      --alto: 96px;
       --baixo: 80px;
-      --brasao: 78px;
-      --nome: 2.1rem;
-      --encolhe: 0.66;
+      --brasao: 58px;
+      --nome: 1.7rem;
+      --encolhe: 0.83;
       --botao: 48px;
     }
   }
@@ -369,7 +374,7 @@ import brasao from '../assets/marca/brasao.png';
 
     :global(body.menu-aberto) .topo__logo,
     :global(body.menu-aberto) .topo__reservar,
-    :global(body.menu-aberto) .topo__prototipo {
+    :global(body.menu-aberto) .topo__atalhos {
       opacity: 0;
       visibility: hidden;
       transition:
@@ -424,6 +429,18 @@ import brasao from '../assets/marca/brasao.png';
     .topo {
       column-gap: 1.6rem;
     }
+  }
+
+  .topo__atalhos { display: none; }
+  @media (min-width: 1180px) {
+    .topo { grid-template-columns: auto 1fr auto auto; grid-template-areas: 'logo atalhos reservar menu'; }
+    .topo__atalhos { grid-area: atalhos; display: flex; justify-self: end; align-items: center; gap: clamp(1rem, 1.8vw, 2rem); }
+    .topo__atalhos a {
+      padding-block: 0.7rem; border-bottom: 1px solid transparent;
+      font-size: 0.8rem; text-decoration: none;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .topo__atalhos a:hover, .topo__atalhos a[aria-current='page'] { border-color: var(--ouro); color: var(--ouro-escuro); }
   }
 
   /* ---- Etiqueta do protótipo (v4.5) ----
