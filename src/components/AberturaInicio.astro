@@ -15,11 +15,17 @@ import Icone from './Icone.astro';
 import { SECOES } from '../dados/fotos-secoes.js';
 const pilares = SECOES.inicio.pilares;
 const heroi = SECOES.inicio.abertura; // { foto: FOTOS.heroPatio, posicao }
+// Recorte da foto na abertura: 30% de cima = mostra o céu do entardecer e a
+// profundidade do pátio (com 60%, o corte do computador comia quase todo o
+// céu). No celular a caixa é em pé e a foto aparece na altura inteira, então
+// só o computador sente a diferença. (O menu em tela cheia continua usando
+// heroi.posicao, de fotos-secoes.js.)
+const POSICAO_FOTO = '50% 30%';
 ---
 
 <header class="abertura-inicio margem" data-entrada="inicio">
   <div class="ai-foto">
-    <Foto {...heroi.foto} posicao={heroi.posicao} formato="cinema"
+    <Foto {...heroi.foto} posicao={POSICAO_FOTO} formato="cinema"
       galeria="patio-inicio" sizes="(min-width: 900px) 96vw, 230vw"
       carregar="eager" revelar={false} />
   </div>
