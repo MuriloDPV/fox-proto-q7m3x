@@ -1,11 +1,19 @@
 // Entrada: a marca central desaparece sobre o fundo opaco; só depois
 // o arco revela o site. A marca do cabeçalho permanece no seu lugar.
-import { ABERTURA, SAIDA, CASCATA, RITMO_CURTO, LIMITE_ENTRADA, CURVAS, ARCO, CHAVE_SESSAO } from '../dados/entrada.js';
+import { ABERTURA, SAIDA, CASCATA, RITMO_CURTO, LIMITE_ENTRADA, CURVAS, ARCO, CHAVE_SESSAO, CELULAR } from '../dados/entrada.js';
 
 const raiz = document.documentElement;
 const abertura = document.getElementById('abertura');
 const preferenciaMovimento = matchMedia('(prefers-reduced-motion: reduce)');
 const menosMovimento = preferenciaMovimento.matches;
+// Celular: a entrada completa ganha ~meio segundo (ver CELULAR em dados/entrada.js).
+// Fora do celular, todos os acréscimos são zero e nada muda.
+const noCelular = matchMedia(CELULAR.midia).matches;
+const mais = (parte) => (noCelular ? CELULAR[parte] : 0);
+const linhaMinimo = ABERTURA.linha.minimo + mais('linha');
+const linhaMaximo = ABERTURA.linha.maximo + mais('linha');
+const pausaAntesDoArco = ABERTURA.pausa + mais('pausa');
+const tempoDoArco = { ...SAIDA.arco, duracao: SAIDA.arco.duracao + mais('arco') };
 let avisarFim;
 export const entradaTerminada = new Promise((ok) => (avisarFim = ok));
 let terminou = false;
@@ -136,15 +144,15 @@ function abrirCompleta() {
     // navegador ainda espera o CSS das fontes, a tela nem pintou)
     if (comeco === null) comeco = anterior = agora;
     const tempo = agora - comeco - ABERTURA.linha.atraso;
-    const x = Math.min(1, Math.max(0, tempo / ABERTURA.linha.minimo));
+    const x = Math.min(1, Math.max(0, tempo / linhaMinimo));
     const relogio = 1 - (1 - x) ** 2;
-    const alvo = tempo >= ABERTURA.linha.maximo ? 1 : Math.min(prontos / total, relogio);
+    const alvo = tempo >= linhaMaximo ? 1 : Math.min(prontos / total, relogio);
     // no máximo a barra inteira em 450 ms: quando uma foto chega, a linha
     // corre até lá, mas sem saltar
     mostrado = Math.min(alvo, mostrado + (agora - anterior) / 450);
     anterior = agora;
     progresso.style.transform = `scaleX(${mostrado})`;
-    if (mostrado >= 1) setTimeout(sair, ABERTURA.pausa);
+    if (mostrado >= 1) setTimeout(sair, pausaAntesDoArco);
     else requestAnimationFrame(passo);
   };
   requestAnimationFrame(passo);
@@ -179,7 +187,7 @@ function sair() {
   //    camada embaixo do papel: só aparece na borda.
   const tela = abertura.getBoundingClientRect();
   const arco = quadrosDoArco(tela.width, tela.height);
-  const tempoArco = { ...SAIDA.arco, curva: CURVAS.arco };
+  const tempoArco = { ...tempoDoArco, curva: CURVAS.arco };
   animar(entrada, abertura.querySelector('.abertura__papel'), arco.papel, tempoArco);
   animar(entrada, abertura.querySelector('.abertura__aro'), arco.fio, tempoArco);
 
@@ -294,7 +302,7 @@ function aoNavegar(evento) {
 if (menosMovimento || !raiz.classList.contains('entrando') || !Element.prototype.animate) {
   terminar();
 } else {
-  limite = setTimeout(terminar, LIMITE_ENTRADA);
+  limite = setTimeout(terminar, LIMITE_ENTRADA + mais('limite'));
   EVENTOS_DE_PULO.forEach((tipo) => window.addEventListener(tipo, pular, { passive: true }));
   window.addEventListener('resize', pular, { passive: true });
   document.addEventListener('entrada:expirada', terminar);

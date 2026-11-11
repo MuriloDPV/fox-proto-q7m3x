@@ -3,7 +3,7 @@
 // Google (JSON-LD) e o script que escolhe a aba antes de desenhar a tela.
 import '../styles/global.css';
 import { ENDERECO, INSTAGRAM_URL, FACEBOOK_URL } from '../config.js';
-import { CHAVE_SESSAO } from '../dados/entrada.js';
+import { CHAVE_SESSAO, CELULAR } from '../dados/entrada.js';
 import { ACOMODACOES } from '../dados/acomodacoes.js';
 
 interface Props {
@@ -98,7 +98,7 @@ const cssAbaInicial = `<style>${ids
     <!-- Roda antes de pintar a tela: marca que existe JS, descobre, pelo
          #endereço, qual aba abrir (link direto para #eventos etc.) e qual
          entrada do site vai rodar (v4.3, src/scripts/entrada.js) -->
-    <script is:inline define:vars={{ ids, idsAcomodacoes, chaveEntrada: CHAVE_SESSAO }}>
+    <script is:inline define:vars={{ ids, idsAcomodacoes, chaveEntrada: CHAVE_SESSAO, celularMidia: CELULAR.midia, celularExtra: CELULAR.limite }}>
       var raiz = document.documentElement;
       raiz.classList.add('js');
       var pedido = '';
@@ -115,6 +115,8 @@ const cssAbaInicial = `<style>${ids
         } catch (e) {} // armazenamento bloqueado: trata como primeira visita
         raiz.classList.add('entrando', vista ? 'entrada-curta' : 'entrada-completa');
         // Se o script não carregar ou falhar, o conteúdo não fica oculto.
+        // (no celular a entrada é ~meio segundo mais longa: o limite acompanha)
+        var limiteCabeca = 3200 + (matchMedia(celularMidia).matches ? celularExtra : 0);
         setTimeout(function () {
           if (!raiz.classList.contains('entrando')) return;
           raiz.classList.remove('entrando', 'entrada-curta', 'entrada-completa');
@@ -122,7 +124,7 @@ const cssAbaInicial = `<style>${ids
           var tela = document.getElementById('abertura');
           if (tela) tela.remove();
           document.dispatchEvent(new Event('entrada:expirada'));
-        }, 3200);
+        }, limiteCabeca);
       }
     </script>
     <Fragment set:html={cssAbaInicial} />

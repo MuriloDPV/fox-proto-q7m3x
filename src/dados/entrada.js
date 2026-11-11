@@ -25,6 +25,19 @@ export const CASCATA = {
 };
 export const RITMO_CURTO = 0.65;
 export const LIMITE_ENTRADA = 2500;
+// CELULAR (até 899 px): a entrada completa dura ~meio segundo a mais.
+// No celular a tela é menor e tudo parecia corrido. O tempo extra é
+// dividido em três partes: a linha enche mais devagar, a marca fica um
+// instante parada com a linha cheia e o arco abre mais devagar.
+// Os limites de segurança (LIMITE_ENTRADA aqui e o do <head> em
+// Base.astro) crescem o mesmo tanto, senão cortariam a entrada no meio.
+export const CELULAR = {
+  midia: '(max-width: 899px)',
+  linha: 250, // + ms no tempo mínimo da linha de carregamento
+  pausa: 250, // + ms com a marca parada antes do arco
+  arco: 150, // + ms na abertura do arco
+  limite: 650, // + ms nos limites de segurança (soma dos três acima)
+};
 export const CURVAS = {
   suave: 'cubic-bezier(0.22, 1, 0.36, 1)',
   mascara: 'cubic-bezier(0.7, 0, 0.2, 1)',
