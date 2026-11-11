@@ -38,6 +38,15 @@ const [pequena, grande] = fotos;
   </div>
   <div class="par__grande">
     <Foto {...grande} formato="paisagem" galeria={galeria} legenda={legendas[1]} sizes="(min-width: 900px) 56vw, 92vw" atraso={150} />
+    {
+      /* slot "grande": conteúdo embaixo da foto grande. No computador ocupa
+         o vão que sobra na coluna da direita (a foto pequena desce mais). */
+      Astro.slots.has('grande') && (
+        <div class="par__abaixo">
+          <slot name="grande" />
+        </div>
+      )
+    }
   </div>
 </div>
 
@@ -61,6 +70,10 @@ const [pequena, grande] = fotos;
 
   .par__texto {
     margin-top: 1.4rem;
+  }
+
+  .par__abaixo {
+    margin-top: clamp(2.2rem, 4vw, 3.6rem);
   }
 
   /* ---- Computador: lado a lado, a pequena mais baixa ---- */

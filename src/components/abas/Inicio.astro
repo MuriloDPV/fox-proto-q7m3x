@@ -72,15 +72,14 @@ const acomodacoes = fotos.acomodacoes.map((slug) => {
   </Intro>
 
   <!-- 3. Par de fotos -->
+  <!-- v4.8: nota do Google embaixo da foto grande (preenche o vão da direita) -->
   <ParFotos
     fotos={fotos.par}
     galeria="inicio"
     colada
-  />
-
-  <!-- 3b. Nota no Google (v4.8: ocupa o espaço que sobrou quando as
-       legendas decorativas do par de fotos saíram) -->
-  <NotaGoogle />
+  >
+    <NotaGoogle slot="grande" />
+  </ParFotos>
 
   <!-- 4. Números (colado na nota, para não abrir outro vão) -->
   <Destaques
