@@ -1,26 +1,35 @@
 ---
-// Revisão pontual: três pilares com fotos reais e busca numa faixa própria.
+// Abertura do Início.
+// v4.8: abre com UMA foto grande (o pátio iluminado ao anoitecer) e pouco
+// texto. A foto vem primeiro, sem nada escrito em cima (regra da v4.5); o
+// título curto fica logo abaixo dela, no creme. A frase longa e a cidade
+// saíram da abertura. Os três pilares e a busca de datas continuam, mais
+// abaixo. Com a foto do pátio aqui em cima, o bloco PanoramaInicio (que
+// repetia a mesma foto) saiu da aba Início.
+// A foto NÃO entra na cascata de src/scripts/entrada.js: ela já está no
+// lugar quando o arco da entrada abre, então o arco revela o pátio.
 import Linhas from './Linhas.astro';
 import Busca from './Busca.astro';
 import Foto from './Foto.astro';
 import Icone from './Icone.astro';
 import { SECOES } from '../dados/fotos-secoes.js';
-import { ENDERECO } from '../config.js';
 const pilares = SECOES.inicio.pilares;
+const heroi = SECOES.inicio.abertura; // { foto: FOTOS.heroPatio, posicao }
 ---
 
 <header class="abertura-inicio margem" data-entrada="inicio">
+  <div class="ai-foto">
+    <Foto {...heroi.foto} posicao={heroi.posicao} formato="cinema"
+      galeria="patio-inicio" sizes="(min-width: 900px) 96vw, 230vw"
+      carregar="eager" revelar={false} />
+  </div>
+
   <div class="ai-texto">
     <p class="rotulo ai-rotulo" data-entrada="rotulo">Pousada · arte · natureza</p>
     <div data-entrada="titulo">
       <Linhas tag="h1" class="titulo-abertura ai-titulo" linhas={['Esculturas, estadias', '<em>e celebrações</em>']} rolagem={false} />
     </div>
-    <p class="ai-frase" data-entrada="frase">
-      Um lugar para desacelerar, descobrir e celebrar.
-      Conheça nossas 22 acomodações temáticas, o jardim de esculturas e os espaços para eventos.
-    </p>
     <a class="ai-explorar" href="#experiencias" data-entrada="apoio">Explore a chácara <Icone nome="seta" /></a>
-    <p class="ai-local" data-entrada="apoio">{ENDERECO.cidade} <span aria-hidden="true">—</span> {ENDERECO.estado}</p>
   </div>
 
   <ul class="ai-pilares" aria-label="Três maneiras de viver a Chácara Ludwig">
@@ -47,19 +56,23 @@ const pilares = SECOES.inicio.pilares;
 <style>
   .abertura-inicio {
     display: grid; gap: 2rem;
-    padding-top: calc(var(--altura-topo) + 2.5rem); padding-bottom: 0.5rem;
+    padding-top: calc(var(--altura-topo) + 1rem); padding-bottom: 0.5rem;
   }
-  .ai-texto { display: grid; gap: 1.2rem; align-content: center; }
+  /* A foto grande. Celular: caixa em pé (4:5), no máximo ~60% da altura
+     da tela, para o título aparecer logo abaixo sem rolar.
+     Computador: faixa larga, no máximo ~58% da altura da tela (o título
+     aparece embaixo sem rolar). */
+  .ai-foto :global(.foto.foto--cinema .foto__caixa) { aspect-ratio: 4 / 5; max-height: 60svh; }
+  .ai-foto :global(.foto__img) { width: 100%; height: 100%; object-fit: cover; }
+  .ai-texto { display: grid; gap: 1rem; align-content: center; }
   .ai-rotulo { color: var(--ouro-escuro); }
   .ai-titulo { font-size: clamp(2.55rem, 5vw, 4.8rem); }
-  .ai-frase { max-width: 30rem; color: var(--texto-suave); font-size: 0.95rem; line-height: 1.7; }
   .ai-explorar {
     display: inline-flex; align-items: center; justify-self: start; gap: 1.3rem;
     padding-block: 0.4rem; border-bottom: 1px solid var(--ouro);
     text-decoration: none; font-size: 0.85rem;
   }
   .ai-explorar :global(svg) { width: 1.1rem; height: 1.1rem; transform: rotate(90deg); }
-  .ai-local { color: var(--texto-suave); font-size: 0.75rem; letter-spacing: 0.03em; }
   .ai-pilares {
     display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.65rem;
     margin: 0; padding: 0; list-style: none; align-items: start;
@@ -82,9 +95,13 @@ const pilares = SECOES.inicio.pilares;
   @media (min-width: 900px) {
     .abertura-inicio {
       grid-template-columns: 0.95fr 1.25fr; align-items: center;
-      column-gap: clamp(2rem, 4vw, 5rem); row-gap: 2rem;
-      padding-top: calc(var(--altura-topo) + clamp(2.5rem, 5vh, 4.5rem));
+      column-gap: clamp(2rem, 4vw, 5rem); row-gap: clamp(2.2rem, 4vw, 3.5rem);
+      padding-top: calc(var(--altura-topo) + clamp(1rem, 2.5vh, 2rem));
     }
+    .ai-foto { grid-column: 1 / -1; }
+    /* o título fica logo abaixo da foto (não centralizado na altura dos pilares) */
+    .ai-texto { align-self: start; }
+    .ai-foto :global(.foto.foto--cinema .foto__caixa) { aspect-ratio: 21 / 9; max-height: 58vh; }
     .ai-texto { gap: 1.45rem; }
     .ai-titulo { font-size: clamp(2.75rem, 4.6vw, 4.8rem); }
     .ai-pilares { gap: clamp(0.75rem, 1.5vw, 1.5rem); }
@@ -92,7 +109,6 @@ const pilares = SECOES.inicio.pilares;
     .ai-pilares li:nth-child(3) { padding-top: 4rem; }
     .ai-pilares :global(.legenda) { font-size: clamp(1.25rem, 1.9vw, 1.8rem); }
     .ai-pilares :global(.legenda small) { display: block; font-size: 0.75rem; line-height: 1.5; }
-    .ai-local { margin-top: 0.25rem; }
     .ai-reserva { grid-column: 1 / -1; grid-template-columns: 1fr 2.8fr; gap: 0.7rem 2.5rem; align-items: center; padding-block: 1.3rem 1.1rem; padding-right: 4rem; }
     .ai-reserva__nota { grid-column: 2; }
   }

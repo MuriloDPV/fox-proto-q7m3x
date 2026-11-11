@@ -18,7 +18,6 @@ import Foto from '../Foto.astro';
 import Linhas from '../Linhas.astro';
 import Arrastar from '../Arrastar.astro';
 import Depoimentos from '../Depoimentos.astro';
-import PanoramaInicio from '../PanoramaInicio.astro';
 import ConviteInicio from '../ConviteInicio.astro';
 import Icone from '../Icone.astro';
 import { SECOES } from '../../dados/fotos-secoes.js';
@@ -55,10 +54,10 @@ const acomodacoes = fotos.acomodacoes.map((slug) => {
 
 <section class="painel" id="inicio" role="tabpanel" aria-labelledby="aba-inicio" tabindex="0">
   <!-- 1. Abertura -->
-  <!-- v4.2: a abertura em tela cheia (título gigante sobre a foto do pátio)
-       saiu; no lugar, os "três pilares" (escolhidos pelo cliente; v4.3). -->
+  <!-- v4.8: abre com a foto grande do pátio (sem texto em cima) e o título
+       curto embaixo; depois os três pilares e a busca. O PanoramaInicio
+       (mesma foto do pátio) saiu daqui para não repetir. -->
   <AberturaInicio />
-  <PanoramaInicio />
 
   <!-- 2. Nossa história -->
   <Intro rotulo="Nossa história">
