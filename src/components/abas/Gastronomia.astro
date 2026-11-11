@@ -29,8 +29,7 @@ const frentes = [
   { nome: 'Café da manhã', texto: 'Incluso na diária de quem se hospeda.' },
 ];
 
-const legendasCafe = ['A mesa do café', 'Bolos caseiros', 'Frutas, bolos e pães', 'Mesa com espelho dourado'];
-const cafe = fotos.carrossel.map((f, i) => ({ ...f, legenda: legendasCafe[i] }));
+const cafe = fotos.carrossel; // sem legendas (v4.8)
 ---
 
 <section class="painel" id="gastronomia" role="tabpanel" aria-labelledby="aba-gastronomia" tabindex="0">
@@ -60,7 +59,7 @@ const cafe = fotos.carrossel.map((f, i) => ({ ...f, legenda: legendasCafe[i] }))
   </div>
 
   <!-- 4. Café da manhã: par de fotos + depoimento real -->
-  <ParFotos fotos={fotos.par} legendas={['Pães e doces', 'Frutas, frios, queijos e pães']} galeria="cafe" colada>
+  <ParFotos fotos={fotos.par} galeria="cafe" colada>
     <blockquote class="cafe__citacao">
       <p>“Café da manhã com omelete feito na hora.”</p>
       <footer class="rotulo">Joane, hóspede</footer>
@@ -102,7 +101,7 @@ const cafe = fotos.carrossel.map((f, i) => ({ ...f, legenda: legendasCafe[i] }))
       </div>
     </div>
     <div class="almoco__foto">
-      <Foto {...fotos.almoco} formato="retrato" galeria="gastronomia" legenda="Mesas no pátio coberto" sizes="(min-width: 900px) 30vw, 70vw" />
+      <Foto {...fotos.almoco} formato="retrato" galeria="gastronomia" sizes="(min-width: 900px) 30vw, 70vw" />
     </div>
   </div>
 </section>

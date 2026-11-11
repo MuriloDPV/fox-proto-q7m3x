@@ -51,7 +51,7 @@ const POSICAO_FOTO = '50% 30%';
 
   <div class="ai-reserva" data-entrada="busca">
     <div class="ai-reserva__intro">
-      <p class="rotulo">Seu próximo descanso</p>
+      <p class="rotulo">Reservas</p>
       <h2>Planeje <em>sua estadia</em></h2>
     </div>
     <Busca id="busca-abertura" rotulo="Consultar datas" />
@@ -65,10 +65,12 @@ const POSICAO_FOTO = '50% 30%';
     padding-top: calc(var(--altura-topo) + 1rem); padding-bottom: 0.5rem;
   }
   /* A foto grande. Celular: caixa em pé (4:5), no máximo ~60% da altura
-     da tela, para o título aparecer logo abaixo sem rolar.
+     da tela, para o título aparecer logo abaixo sem rolar. O calc() garante
+     espaço para o título INTEIRO (rótulo + 2 linhas) mais a barra de
+     Reservar em telas baixas; no computador, 23,5rem fazem o mesmo papel.
      Computador: faixa larga, no máximo ~58% da altura da tela (o título
      aparece embaixo sem rolar). */
-  .ai-foto :global(.foto.foto--cinema .foto__caixa) { aspect-ratio: 4 / 5; max-height: 60svh; }
+  .ai-foto :global(.foto.foto--cinema .foto__caixa) { aspect-ratio: 4 / 5; max-height: min(60svh, calc(100svh - 20rem)); }
   .ai-foto :global(.foto__img) { width: 100%; height: 100%; object-fit: cover; }
   .ai-texto { display: grid; gap: 1rem; align-content: center; }
   .ai-rotulo { color: var(--ouro-escuro); }
@@ -107,7 +109,7 @@ const POSICAO_FOTO = '50% 30%';
     .ai-foto { grid-column: 1 / -1; }
     /* o título fica logo abaixo da foto (não centralizado na altura dos pilares) */
     .ai-texto { align-self: start; }
-    .ai-foto :global(.foto.foto--cinema .foto__caixa) { aspect-ratio: 21 / 9; max-height: 58vh; }
+    .ai-foto :global(.foto.foto--cinema .foto__caixa) { aspect-ratio: 21 / 9; max-height: min(58vh, calc(100vh - 23.5rem)); }
     .ai-texto { gap: 1.45rem; }
     .ai-titulo { font-size: clamp(2.75rem, 4.6vw, 4.8rem); }
     .ai-pilares { gap: clamp(0.75rem, 1.5vw, 1.5rem); }

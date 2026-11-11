@@ -22,8 +22,7 @@ import { linkWhatsApp, MENSAGEM_CAVALO } from '../../config.js';
 
 const fotos = SECOES.lazer;
 
-const legendasPiscina = ['Jatos de água', 'A parte rasa', 'Cascata entre flores', 'A piscina à noite'];
-const piscina = fotos.carrossel.map((f, i) => ({ ...f, legenda: legendasPiscina[i] }));
+const piscina = fotos.carrossel; // sem legendas (v4.8)
 ---
 
 <section class="painel" id="lazer" role="tabpanel" aria-labelledby="aba-lazer" tabindex="0">
@@ -34,14 +33,14 @@ const piscina = fotos.carrossel.map((f, i) => ({ ...f, legenda: legendasPiscina[
 
   <!-- 2. Piscina -->
   <Intro rotulo="Piscina">
-    Água, pedra e cascata. A piscina tem jatos de água e fica cercada de capim e flores.
+    A piscina tem cascata entre as pedras, jatos de água e uma parte rasa.
     <Fragment slot="extra">
       <p><span class="a-confirmar">[A CONFIRMAR: horário de uso da piscina]</span></p>
     </Fragment>
   </Intro>
 
   <!-- 3. Par de fotos -->
-  <ParFotos fotos={fotos.par} legendas={['Água caindo das pedras', 'A cascata e o capim florido']} galeria="piscina" colada />
+  <ParFotos fotos={fotos.par} galeria="piscina" colada />
 
   <!-- 4. Piscina (arraste) -->
   <Arrastar rotulo="A piscina" fotos={piscina} galeria="piscina" formatos={['paisagem', 'retrato']} colada />
@@ -78,8 +77,8 @@ const piscina = fotos.carrossel.map((f, i) => ({ ...f, legenda: legendasPiscina[
   <!-- 6. Fim de tarde: colagem solta -->
   <div class="tarde secao margem">
     <div class="tarde__topo">
-      <p class="rotulo" data-surgir>Fim de tarde</p>
-      <Linhas tag="h2" class="titulo" linhas={['Quando o céu', '<em>muda de cor</em>']} />
+      <p class="rotulo" data-surgir>Paisagem</p>
+      <Linhas tag="h2" class="titulo" linhas={['Pôr do sol', '<em>nos campos</em>']} />
     </div>
     <div class="tarde__colagem">
       <Foto {...fotos.fimDeTarde[0]} class="solta solta--1" formato="paisagem" galeria="por-do-sol" sizes="(min-width: 900px) 30vw, 70vw" />
@@ -108,7 +107,7 @@ const piscina = fotos.carrossel.map((f, i) => ({ ...f, legenda: legendasPiscina[
   </div>
 
   <!-- 8. Chamada -->
-  <Chamada rotulo="Reserve" titulo={['Fique alguns dias', '<em>e aproveite</em>']} busca="busca-lazer" />
+  <Chamada rotulo="Reserve" titulo={['Reserve', '<em>sua estadia</em>']} busca="busca-lazer" />
 </section>
 
 <style>

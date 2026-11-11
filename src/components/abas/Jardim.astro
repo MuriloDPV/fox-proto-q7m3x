@@ -26,10 +26,10 @@ const fotos = SECOES.jardim;
 const parede = fotos.parede;
 
 const jardins = [
-  { ...fotos.carrossel[0], legenda: 'Jardim coberto' },
-  { ...fotos.carrossel[1], legenda: 'Vista aérea' },
-  { ...fotos.carrossel[2], legenda: 'A água e os campos' },
-  { ...fotos.carrossel[3], legenda: 'As construções vistas de cima' },
+  { ...fotos.carrossel[0] },
+  { ...fotos.carrossel[1] },
+  { ...fotos.carrossel[2] },
+  { ...fotos.carrossel[3] },
 ];
 ---
 
@@ -51,11 +51,11 @@ const jardins = [
   <div class="parede secao secao--colada margem">
     <p class="rotulo parede__dica" data-surgir>Toque numa foto para ver de perto</p>
     <div class="parede__obras">
-      <Foto {...parede.principal} class="obra obra--1" formato="paisagem" filete galeria="jardim" legenda="Três figuras entre os canteiros" sizes="(min-width: 900px) 46vw, 92vw" />
-      <Foto {...parede.oval} class="obra obra--2" formato="oval" filete galeria="jardim" legenda="Três figuras com livros" sizes="(min-width: 900px) 22vw, 56vw" atraso={150} />
-      <Foto {...parede.alta} class="obra obra--3" formato="retrato" filete galeria="jardim" legenda="O pergolado" sizes="(min-width: 900px) 24vw, 60vw" atraso={300} />
-      <Foto {...parede.aerea} class="obra obra--4" formato="paisagem" filete galeria="jardim" legenda="Os jardins vistos de cima" sizes="(min-width: 900px) 34vw, 80vw" atraso={150} />
-      <Foto {...parede.detalhe} class="obra obra--5" formato="quadrado" filete galeria="jardim" legenda="Flor de cacto" sizes="(min-width: 900px) 18vw, 50vw" atraso={300} />
+      <Foto {...parede.principal} class="obra obra--1" formato="paisagem" filete galeria="jardim" sizes="(min-width: 900px) 46vw, 92vw" />
+      <Foto {...parede.oval} class="obra obra--2" formato="oval" filete galeria="jardim" sizes="(min-width: 900px) 22vw, 56vw" atraso={150} />
+      <Foto {...parede.alta} class="obra obra--3" formato="retrato" filete galeria="jardim" sizes="(min-width: 900px) 24vw, 60vw" atraso={300} />
+      <Foto {...parede.aerea} class="obra obra--4" formato="paisagem" filete galeria="jardim" sizes="(min-width: 900px) 34vw, 80vw" atraso={150} />
+      <Foto {...parede.detalhe} class="obra obra--5" formato="quadrado" filete galeria="jardim" sizes="(min-width: 900px) 18vw, 50vw" atraso={300} />
     </div>
   </div>
 
@@ -82,14 +82,14 @@ const jardins = [
       <p class="texto" data-surgir>Agende pelo WhatsApp: diga quantas pessoas vêm e a data pretendida. Valores sob consulta.</p>
     </div>
     <div class="visita__foto">
-      <Foto {...fotos.visita} formato="alto" galeria="jardim-visita" legenda="Plantas pendentes no jardim coberto" sizes="(min-width: 900px) 30vw, 70vw" />
+      <Foto {...fotos.visita} formato="alto" galeria="jardim-visita" sizes="(min-width: 900px) 30vw, 70vw" />
     </div>
   </div>
 
   <!-- 7. Visitante de dia -->
   <div class="dia secao secao--colada margem">
     <p class="rotulo" data-surgir>Visitante de dia</p>
-    <Linhas tag="h2" class="titulo dia__titulo" linhas={['Dá para vir', '<em>sem se hospedar</em>']} />
+    <Linhas tag="h2" class="titulo dia__titulo" linhas={['Visita', '<em>sem hospedagem</em>']} />
     <dl class="dia__lista">
       <div data-surgir>
         <dt class="rotulo">Entrada</dt>
@@ -112,7 +112,7 @@ const jardins = [
   </div>
 
   <!-- 8. Chamada -->
-  <Chamada rotulo="Agende" titulo={['Uma visita', '<em>guiada</em>']} texto="Para grupos e excursões. Valores sob consulta.">
+  <Chamada rotulo="Agende" titulo={['Agende', '<em>uma visita guiada</em>']} texto="Para grupos e excursões. Valores sob consulta.">
     <a class="botao botao--ouro" href={linkWhatsApp(MENSAGEM_VISITA_GUIADA)} target="_blank" rel="noopener">
       <span class="botao__texto"><Icone nome="whatsapp" /> Agendar visita guiada</span>
       <span class="botao__seta"><Icone nome="seta" /></span>

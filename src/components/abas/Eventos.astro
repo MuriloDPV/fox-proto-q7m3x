@@ -33,15 +33,14 @@ const tipos = [
   { nome: 'Confraternização', texto: 'Fim de ano, reencontros e datas especiais.' },
 ];
 
-const legendasCenario = ['Pátio coberto', 'Jardim coberto', 'O pergolado', 'Vista aérea', 'A piscina à noite', 'O pátio no fim da tarde'];
-const cenario = fotos.carrossel.map((f, i) => ({ ...f, legenda: legendasCenario[i] }));
+const cenario = fotos.carrossel; // sem legendas: as fotos falam por si (v4.8)
 
 const fotoCasa = fotosDoQuarto(fotos.hospedar)[0];
 ---
 
 <section class="painel" id="eventos" role="tabpanel" aria-labelledby="aba-eventos" tabindex="0">
   <!-- 1. Abertura -->
-  <HeroAba {...fotos.abertura} rotulo="Eventos" linhas={['Foi com festas', '<em>que tudo começou</em>']}>
+  <HeroAba {...fotos.abertura} rotulo="Eventos" linhas={['Festas', '<em>e eventos</em>']}>
     <p>Casamentos, aniversários, 15 anos, formaturas, confraternizações e eventos de empresa.</p>
     <a class="botao" href="#orcar">
       <span class="botao__texto">Orçar meu evento</span>
@@ -56,13 +55,13 @@ const fotoCasa = fotosDoQuarto(fotos.hospedar)[0];
   </Intro>
 
   <!-- 3. Par de fotos -->
-  <ParFotos fotos={fotos.par} legendas={['Mesa de doces', 'Mesas entre os tijolos']} galeria="eventos" colada />
+  <ParFotos fotos={fotos.par} galeria="eventos" colada />
 
   <!-- 4. Tipos de evento -->
   <div class="tipos secao secao--colada margem">
     <div class="tipos__topo">
       <p class="rotulo" data-surgir>Para cada ocasião</p>
-      <Linhas tag="h2" class="titulo" linhas={['O que dá para', '<em>celebrar aqui</em>']} />
+      <Linhas tag="h2" class="titulo" linhas={['Tipos', '<em>de evento</em>']} />
     </div>
     <ol class="tipos__lista">
       {
