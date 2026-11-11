@@ -19,6 +19,7 @@ import Linhas from '../Linhas.astro';
 import Arrastar from '../Arrastar.astro';
 import Depoimentos from '../Depoimentos.astro';
 import ConviteInicio from '../ConviteInicio.astro';
+import NotaGoogle from '../NotaGoogle.astro';
 import Icone from '../Icone.astro';
 import { SECOES } from '../../dados/fotos-secoes.js';
 import { ACOMODACOES, destaquesDaAcomodacao } from '../../dados/acomodacoes.js';
@@ -77,8 +78,13 @@ const acomodacoes = fotos.acomodacoes.map((slug) => {
     colada
   />
 
-  <!-- 4. Números -->
+  <!-- 3b. Nota no Google (v4.8: ocupa o espaço que sobrou quando as
+       legendas decorativas do par de fotos saíram) -->
+  <NotaGoogle />
+
+  <!-- 4. Números (colado na nota, para não abrir outro vão) -->
   <Destaques
+    colada
     rotulo="Em números"
     itens={[
       { rotulo: 'Hectares de natureza', valor: 13, prefixo: '+', contar: true },
